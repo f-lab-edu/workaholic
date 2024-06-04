@@ -1,5 +1,6 @@
 package com.project.workaholic.response.model;
 
+import com.project.workaholic.response.model.enumeration.StatusCode;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
@@ -8,40 +9,59 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ApiResponse<T> {
-    private final LocalDateTime time;
+    private final LocalDateTime localDateTime = LocalDateTime.now();
+    private final String reasonPhrase;
     private final String message;
     private final T data;
 
     @Builder
-    public ApiResponse(String message, T data) {
-        this.time = LocalDateTime.now();
+    public ApiResponse(String reasonPhrase, String message, T data) {
+        this.reasonPhrase = reasonPhrase;
         this.message = message;
         this.data = data;
     }
 
-    public static <T> ResponseEntity<ApiResponse<String>> success(String message) {
-        return ResponseEntity.ok()
+    public static ResponseEntity<ApiResponse<StatusCode>> success(StatusCode statusCode) {
+        return ResponseEntity
+                .status(statusCode.getHttpStatus())
                 .body(
-                        ApiResponse.<String>builder()
-                                .message(message)
+                        ApiResponse.<StatusCode>builder()
+                                .reasonPhrase(statusCode.getHttpStatus().getReasonPhrase())
+                                .message(statusCode.getMessage())
                                 .build()
                 );
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
-        return ResponseEntity.ok()
-                .body(
-                    ApiResponse.<T>builder()
-                            .data(data)
-                            .build()
-        );
-    }
-
-    public static <T> ResponseEntity<ApiResponse<T>> success(String message, T data) {
-        return ResponseEntity.ok()
+    public static <T> ResponseEntity<ApiResponse<T>> success(StatusCode statusCode, T data) {
+        return ResponseEntity
+                .status(statusCode.getHttpStatus())
                 .body(
                         ApiResponse.<T>builder()
-                                .message(message)
+                                .reasonPhrase(statusCode.getHttpStatus().getReasonPhrase())
+                                .message(statusCode.getMessage())
+                                .data(data)
+                                .build()
+                );
+    }
+
+    public static ResponseEntity<ApiResponse<StatusCode>> error(StatusCode statusCode) {
+        return ResponseEntity
+                .status(statusCode.getHttpStatus())
+                .body(
+                        ApiResponse.<StatusCode>builder()
+                                .reasonPhrase(statusCode.getHttpStatus().getReasonPhrase())
+                                .message(statusCode.getMessage())
+                                .build()
+                );
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> error(StatusCode statusCode, T data) {
+        return ResponseEntity
+                .status(statusCode.getHttpStatus())
+                .body(
+                        ApiResponse.<T>builder()
+                                .reasonPhrase(statusCode.getHttpStatus().getReasonPhrase())
+                                .message(statusCode.getMessage())
                                 .data(data)
                                 .build()
                 );

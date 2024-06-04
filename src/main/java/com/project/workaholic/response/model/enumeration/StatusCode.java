@@ -14,6 +14,11 @@ public enum StatusCode {
     SUCCESS_SIGNUP(OK,"정상적으로 회원가입 되었습니다."),
     SUCCESS_DELETE_ACCOUNT(OK,"정상적으로 회원탈퇴 되었습니다."),
     SUCCESS_UPDATE_ACCOUNT(OK,"정상적으로 회원 정보가 수정되었습니다."),
+    SUCCESS_READ_PODS(OK,"정상적으로 Pod 목록이 조회하였습니다."),
+    SUCCESS_READ_POD(OK,"정상적으로 Pod 조회하였습니다."),
+    SUCCESS_DELETE_POD(OK,"정상적으로 Pod 삭제되었습니다."),
+    SUCCESS_UPDATE_POD(OK,"정상적으로 Pod 설정이 수정되었습니다."),
+    SUCCESS_DEPLOY_POD(OK,"정상적으로 Pod 로 배포되었습니다."),
     SUCCESS_TRACKER(OK, "정상적으로 이슈가 연결 되었습니다."),
 
     /* 400 Bad Request*/

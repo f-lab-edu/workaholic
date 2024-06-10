@@ -2,11 +2,16 @@ package com.project.workaholic.vcs.api;
 
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.vcs.model.OAuthGithubAccessTokenRequestDto;
+import com.project.workaholic.vcs.model.OAuthGithubAccessTokenResponseDto;
+import com.project.workaholic.vcs.service.OAuthGithubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -15,11 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/vcs")
 public class VersionControlSystemApi  {
+    private final OAuthGithubService githubService;
 
-    @Operation(summary = "Version Control System Auth", description = "vcs Auth 로그인")
-    @PostMapping("/auth")
-    public ResponseEntity<ApiResponse<StatusCode>> authVersionControlSystem(String repoName, String url) {
-        return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
+    @Operation(summary = "Version Control System Auth", description = "VCS Github Auth 로그인 시도")
+    @GetMapping("/oauth2/github")
+    public ResponseEntity<ApiResponse<String>> getOAuth2AtGithub(@RequestParam("code") final String code) {
+        final String response = githubService.getAccessToken(code);
+        return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS, response);
     }
 
     @Operation(summary = "", description = "")

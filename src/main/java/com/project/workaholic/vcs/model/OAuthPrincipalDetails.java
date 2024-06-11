@@ -1,5 +1,6 @@
 package com.project.workaholic.vcs.model;
 
+import com.project.workaholic.vcs.model.entity.OAuthAccount;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -9,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public class OAuthPrincipalDetails implements OAuth2User {
+    private OAuthAccount account;
     private Map<String, Object> attributes = new HashMap<>();
 
-    public OAuthPrincipalDetails(Map<String, Object> attributes) {
+    public OAuthPrincipalDetails(OAuthAccount account, Map<String, Object> attributes) {
+        this.account = account;
         this.attributes = attributes;
     }
 

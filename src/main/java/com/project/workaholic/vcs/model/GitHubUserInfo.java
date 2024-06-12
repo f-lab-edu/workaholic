@@ -6,15 +6,20 @@ import lombok.Getter;
 
 @Getter
 public class GitHubUserInfo {
-    private final String id;
-    private final String userName;
-    private final String nickName;
+    private final String loginId;
+    private final String name;
+    private final String mail;
+    private final String repoUrl;
 
     @JsonCreator
     public GitHubUserInfo(
-            @JsonProperty("id") String id, @JsonProperty("id") String userName, @JsonProperty("name") String nickName) {
-        this.id = id;
-        this.userName = userName;
-        this.nickName = nickName;
+            @JsonProperty("login")String loginId,
+            @JsonProperty("name")String name,
+            @JsonProperty("email")String mail,
+            @JsonProperty("repos_url")String repoUrl) {
+        this.loginId = loginId;
+        this.name = name;
+        this.mail = mail;
+        this.repoUrl = repoUrl;
     }
 }

@@ -2,6 +2,7 @@ package com.project.workaholic.vcs.service;
 
 import com.project.workaholic.vcs.model.GitHubUserInfo;
 import com.project.workaholic.vcs.model.OAuthGithubAccessTokenRequestDto;
+import com.project.workaholic.vcs.model.OAuthGithubAccessTokenResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuthGithubService {
     private final WebClient webClient;
+    private final String GITHUB_BASE_URL = "https://api.github.com";
     @Value("${oauth2.user.github.login-url}")
     private String GITHUB_LOGIN_URL;
     @Value("${oauth2.user.github.token-uri}")
@@ -29,7 +31,6 @@ public class OAuthGithubService {
     @Value("${oauth2.user.github.redirect-uri}")
     private String GITHUB_REDIRECT_URI;
 
-
     public RedirectView requestCode(RedirectAttributes redirectAttributes) {
         redirectAttributes.addAttribute("client_id", clientId)
                 .addAttribute("redirect_url", GITHUB_REDIRECT_URI)
@@ -38,31 +39,40 @@ public class OAuthGithubService {
         return new RedirectView(GITHUB_LOGIN_URL);
     }
 
-    public String getAccessToken(String code) {
+    public OAuthGithubAccessTokenResponseDto getAccessToken(String code) {
         OAuthGithubAccessTokenRequestDto requestBody = OAuthGithubAccessTokenRequestDto.builder()
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .code(code)
                 .build();
 
-        return webClient.post()
-                        .uri(GITHUB_ACCESS_TOKEN_URL)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .bodyValue(
-                                requestBody
-                        )
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
+        return webClient
+                .post()
+                .uri(GITHUB_ACCESS_TOKEN_URL)
+                .headers(headers  -> {
+                    headers.set("Accept", "application/vnd.github+json");
+                    headers.set("X-GitHub-Api-Version", "2022-11-28");
+                })
+                .bodyValue(
+                        requestBody
+                )
+                .retrieve()
+                .bodyToMono(OAuthGithubAccessTokenResponseDto.class)
+                .block();
     }
 
+    //https://docs.github.com/ko/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user--fine-grained-access-tokens
     public GitHubUserInfo getUserInfo(String accessToken) {
-        return webClient.get()
-                        .uri("https://api.github.com/user")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                        .retrieve()
-                        .bodyToMono(GitHubUserInfo.class)
-                        .block();
+        return webClient
+                .get()
+                .uri(GITHUB_BASE_URL + "/user")
+                .headers(headers  -> {
+                    headers.set("Accept", "application/vnd.github+json");
+                    headers.setBearerAuth(accessToken);
+                    headers.set("X-GitHub-Api-Version", "2022-11-28");
+                })
+                .retrieve()
+                .bodyToMono(GitHubUserInfo.class)
+                .block();
     }
 }

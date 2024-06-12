@@ -3,6 +3,7 @@ package com.project.workaholic.vcs.api;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.GitHubUserInfo;
+import com.project.workaholic.vcs.model.OAuthGithubAccessTokenResponseDto;
 import com.project.workaholic.vcs.service.OAuthGithubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,12 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class OAuthCallbackApi {
     private final OAuthGithubService githubService;
 
-    @Operation(summary = "", description = "")
+    @Operation(
+            summary = "Github OAuth CallBack API",
+            description = "Github 에 설정한 CallBack URL로 명명해 인증 서버를 통해서 받아온 code를 사용해 AccessToken 반환")
     @GetMapping("/github")
-    private ResponseEntity<ApiResponse<String>> githubOAuthCallback(
-            @RequestParam String code, HttpServletRequest request) {
-        String oAuthAccessToken = githubService.getAccessToken(code);
-        GitHubUserInfo info = githubService.getUserInfo(oAuthAccessToken);
-        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO, oAuthAccessToken);
+    private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
+            final @RequestParam String code) {
+        OAuthGithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
+        //TODO oAuthAccessToken 저장해놓기
+        GitHubUserInfo githubUserInfo = githubService.getUserInfo(oAuthAccessToken.getAccessToken());
+        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO);
     }
 }

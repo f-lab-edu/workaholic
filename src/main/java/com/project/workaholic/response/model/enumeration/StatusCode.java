@@ -1,0 +1,40 @@
+package com.project.workaholic.response.model.enumeration;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.*;
+
+@Getter
+public enum StatusCode {
+    /* 200 Success */
+    SUCCESS(OK, ""),
+    SUCCESS_LOGIN(OK, "정상적으로 로그인 되었습니다."),
+    SUCCESS_LOGOUT(OK,"정상적으로 로그아웃 되었습니다."),
+    SUCCESS_SIGNUP(OK,"정상적으로 회원가입 되었습니다."),
+    SUCCESS_DELETE_ACCOUNT(OK,"정상적으로 회원탈퇴 되었습니다."),
+    SUCCESS_UPDATE_ACCOUNT(OK,"정상적으로 회원 정보가 수정되었습니다."),
+    SUCCESS_READ_PODS(OK,"정상적으로 Pod 목록이 조회하였습니다."),
+    SUCCESS_READ_POD(OK,"정상적으로 Pod 조회하였습니다."),
+    SUCCESS_DELETE_POD(OK,"정상적으로 Pod 삭제되었습니다."),
+    SUCCESS_UPDATE_POD(OK,"정상적으로 Pod 설정이 수정되었습니다."),
+    SUCCESS_DEPLOY_POD(OK,"정상적으로 Pod 로 배포되었습니다."),
+    SUCCESS_READ_ALL_ISSUE_LIST(OK,"정상적으로 이슈 전체 목록을 조회하였습니다."),
+    SUCCESS_READ_ISSUE_LIST_BY_PROJECT(OK,"정상적으로 해당 프로젝트의 이슈 목록을 조회하였습니다."),
+    SUCCESS_READ_ISSUE(OK,"정상적으로 이슈를 조회하였습니다."),
+    SUCCESS_CREATE_ISSUE(OK,"정상적으로 이슈를 생성하였습니다."),
+    SUCCESS_DELETE_ISSUE(OK,"정상적으로 이슈를 삭제하였습니다."),
+    SUCCESS_UPDATE_ISSUE(OK,"정상적으로 이슈를 수정하였습니다."),
+
+    /* 400 Bad Request*/
+    INVALID_DATA_OBJECT(BAD_REQUEST, "요청 값이 유효하지 않습니다"),
+    ;
+
+    private final HttpStatus httpStatus;
+    private final String message;
+
+    StatusCode(final HttpStatus httpStatus, final String message) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+    }
+}

@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class OAuthGithubAccessTokenRequestDto {
+public class GithubAccessTokenRequestDto {
     @Schema(description = "Github Access Token 요청을 위한 client_id")
     private String clientId;
 
@@ -20,7 +20,7 @@ public class OAuthGithubAccessTokenRequestDto {
     private String code;
 
     @Builder
-    public OAuthGithubAccessTokenRequestDto(String clientId, String clientSecret, String code) {
+    public GithubAccessTokenRequestDto(String clientId, String clientSecret, String code) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.code = code;

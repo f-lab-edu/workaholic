@@ -1,18 +1,15 @@
 package com.project.workaholic.vcs.service;
 
 import com.project.workaholic.vcs.model.GitHubUserInfo;
-import com.project.workaholic.vcs.model.OAuthGithubAccessTokenRequestDto;
-import com.project.workaholic.vcs.model.OAuthGithubAccessTokenResponseDto;
+import com.project.workaholic.vcs.model.GithubAccessTokenRequestDto;
+import com.project.workaholic.vcs.model.GithubAccessTokenResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -39,8 +36,8 @@ public class OAuthGithubService {
         return new RedirectView(GITHUB_LOGIN_URL);
     }
 
-    public OAuthGithubAccessTokenResponseDto getAccessToken(String code) {
-        OAuthGithubAccessTokenRequestDto requestBody = OAuthGithubAccessTokenRequestDto.builder()
+    public GithubAccessTokenResponseDto getAccessToken(String code) {
+        GithubAccessTokenRequestDto requestBody = GithubAccessTokenRequestDto.builder()
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .code(code)
@@ -57,7 +54,7 @@ public class OAuthGithubService {
                         requestBody
                 )
                 .retrieve()
-                .bodyToMono(OAuthGithubAccessTokenResponseDto.class)
+                .bodyToMono(GithubAccessTokenResponseDto.class)
                 .block();
     }
 
@@ -75,4 +72,6 @@ public class OAuthGithubService {
                 .bodyToMono(GitHubUserInfo.class)
                 .block();
     }
+
+
 }

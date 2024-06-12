@@ -3,11 +3,10 @@ package com.project.workaholic.vcs.api;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.GitHubUserInfo;
-import com.project.workaholic.vcs.model.OAuthGithubAccessTokenResponseDto;
+import com.project.workaholic.vcs.model.GithubAccessTokenResponseDto;
 import com.project.workaholic.vcs.service.OAuthGithubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,7 @@ public class OAuthCallbackApi {
     @GetMapping("/github")
     private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
             final @RequestParam String code) {
-        OAuthGithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
+        GithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
         //TODO oAuthAccessToken 저장해놓기
         GitHubUserInfo githubUserInfo = githubService.getUserInfo(oAuthAccessToken.getAccessToken());
         return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO);

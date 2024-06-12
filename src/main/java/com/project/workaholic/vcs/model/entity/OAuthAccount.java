@@ -11,29 +11,31 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table( name = "account")
+@Table( name = "ACCOUNT")
 public class OAuthAccount {
     @Id
-    @Column(name="account_id")
+    @Column(name="ACCOUNT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "PASSWORD")
+    private String password;
+
+    @Column(name = "MAIL")
     private String email;
-    private String profileImg;
-    private String username;
-    private String nickname;
-    private String role;
+
+    @Column(name = "NAME")
+    private String name;
 
     @CreatedDate
     private LocalDateTime createAt;
 
     @Builder
-    public OAuthAccount(Long id, String email, String profileImg, String username, String nickname, String role, LocalDateTime createAt) {
+    public OAuthAccount(Long id, String password, String email, String name, LocalDateTime createAt) {
         this.id = id;
+        this.password = password;
         this.email = email;
-        this.profileImg = profileImg;
-        this.username = username;
-        this.nickname = nickname;
-        this.role = role;
+        this.name = name;
         this.createAt = createAt;
     }
 }

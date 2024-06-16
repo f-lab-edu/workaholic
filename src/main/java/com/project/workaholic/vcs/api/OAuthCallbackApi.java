@@ -15,21 +15,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Call Back API", description = "OAuth CallBack API")
-@RestController
 @RequiredArgsConstructor
 @RequestMapping("/callback")
 public class OAuthCallbackApi {
-    private final OAuthGithubService githubService;
-
-    @Operation(
-            summary = "Github OAuth CallBack API",
-            description = "Github 에 설정한 CallBack URL로 명명해 인증 서버를 통해서 받아온 code를 사용해 AccessToken 반환")
-    @GetMapping("/github")
-    private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
-            final @RequestParam String code) {
-        GithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
-        //TODO oAuthAccessToken 저장해놓기
-        GitHubUserInfo githubUserInfo = githubService.getUserInfo(oAuthAccessToken.getAccessToken());
-        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO);
-    }
+//    private final OAuthGithubService githubService;
+//
+//    @Operation(
+//            summary = "Github OAuth CallBack API",
+//            description = "Github 에 설정한 CallBack URL로 명명해 인증 서버를 통해서 받아온 code를 사용해 AccessToken 반환")
+//    @GetMapping("/github")
+//    private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
+//            final @RequestParam String code) {
+//        GithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
+//        //TODO oAuthAccessToken 저장해놓기
+//        GitHubUserInfo githubUserInfo = githubService.getUserInfo(oAuthAccessToken.getAccessToken());
+//        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO);
+//    }
 }

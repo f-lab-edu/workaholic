@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.UUID;
 
-@ConfigurationProperties(prefix = "oauth2.github")
+//@ConfigurationProperties(prefix = "oauth2.github")
 @RequiredArgsConstructor
 public class OAuthGithubService {
     private final WebClient webClient;

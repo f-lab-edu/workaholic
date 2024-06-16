@@ -18,14 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/vsc")
 public class VersionControlSystemApi  {
-    private final OAuthGithubService githubService;
-
-    @Operation(summary = "", description = "")
-    @GetMapping("/import")
-    public RedirectView importVSCByOAuth(
-            RedirectAttributes redirectAttributes) {
-        return githubService.requestCode(redirectAttributes);
-    }
 
     @Operation(summary = "", description = "")
     @GetMapping("/repo")

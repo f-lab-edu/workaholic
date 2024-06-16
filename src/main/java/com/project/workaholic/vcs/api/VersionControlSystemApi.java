@@ -2,7 +2,8 @@ package com.project.workaholic.vcs.api;
 
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
-import com.project.workaholic.vcs.service.OAuthGithubService;
+import com.project.workaholic.vcs.model.enumeration.VCSVendor;
+import com.project.workaholic.vcs.service.OAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/vsc")
 public class VersionControlSystemApi  {
+    private final OAuthService oAuthService;
+
+    @Operation(summary = "", description = "")
+    @GetMapping("/import")
+    public RedirectView importVSCByOAuth(
+            RedirectAttributes redirectAttributes,
+            final @RequestParam("vendor")VCSVendor vendor) {
+        return oAuthService.importVCS(redirectAttributes, vendor);
+    }
 
     @Operation(summary = "", description = "")
     @GetMapping("/repo")

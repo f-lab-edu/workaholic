@@ -33,6 +33,7 @@ public enum StatusCode {
     /* 400 Bad Request */
     INVALID_DATA_OBJECT(BAD_REQUEST, "요청 값이 유효하지 않습니다"),
     INVALID_ACCOUNT(BAD_REQUEST, "계정 정보가 유효하지 않습니다."),
+    INVALID_VCS_VENDOR(BAD_REQUEST, "지원하지 않는 VCS Vendor 입니다."),
 
     /* 404 Not Found */
 

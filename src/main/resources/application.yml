@@ -4,8 +4,8 @@ oauth2:
     client-secret: ${GITHUB_CLIENT_SECRET}
     base-url: https://api.github.com
     login-url: https://github.com/login/oauth/authorize
-    token-uri: https://github.com/login/oauth/access_token
-    redirect-uri: http://localhost:8080/callback/github
+    redirect-url: http://localhost:8080/callback/github
+    access-token-url: https://github.com/login/oauth/access_token
 
 spring:
   application:
@@ -14,8 +14,8 @@ spring:
     hikari:
       jdbc-url: jdbc:h2:mem://localhost/~/testdb;
     driver-class-name: org.h2.Driver
-    username: ${USER_NAME}
-    password: ${PASSWORD}
+    username: ${H2_USER}
+    password: ${H2_PASSWORD}
   h2:
     console:
       enabled: true

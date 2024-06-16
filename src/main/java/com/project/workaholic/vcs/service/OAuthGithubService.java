@@ -11,23 +11,22 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.UUID;
 
-//@ConfigurationProperties(prefix = "oauth2.github")
+@ConfigurationProperties(prefix = "oauth2.github")
 @RequiredArgsConstructor
 public class OAuthGithubService {
-    private final WebClient webClient;
-    private final String GITHUB_BASE_URL;
-    private final String GITHUB_LOGIN_URL;
-    private final String GITHUB_ACCESS_TOKEN_URL;
+    private final String BASE_URL;
+    private final String LOGIN_URL;
+    private final String ACCESS_TOKEN_URL;
     private final String CLIENT_ID;
     private final String CLIENT_SECRET;
-    private final String GITHUB_REDIRECT_URI;
+    private final String REDIRECT_URL;
 
     public RedirectView requestCode(RedirectAttributes redirectAttributes) {
         redirectAttributes.addAttribute("client_id", CLIENT_ID)
-                .addAttribute("redirect_url", GITHUB_REDIRECT_URI)
+                .addAttribute("redirect_url", REDIRECT_URL)
                 .addAttribute("state", UUID.randomUUID().toString());
 
-        return new RedirectView(GITHUB_LOGIN_URL);
+        return new RedirectView(LOGIN_URL);
     }
 
     public GithubAccessTokenResponseDto getAccessToken(String code) {
@@ -36,10 +35,10 @@ public class OAuthGithubService {
                 .clientSecret(CLIENT_SECRET)
                 .code(code)
                 .build();
-
+        WebClient webClient = WebClient.builder().build();
         return webClient
                 .post()
-                .uri(GITHUB_ACCESS_TOKEN_URL)
+                .uri(ACCESS_TOKEN_URL)
                 .headers(headers  -> {
                     headers.set("Accept", "application/vnd.github+json");
                     headers.set("X-GitHub-Api-Version", "2022-11-28");
@@ -54,9 +53,10 @@ public class OAuthGithubService {
 
     //https://docs.github.com/ko/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user--fine-grained-access-tokens
     public GitHubUserInfo getUserInfo(String accessToken) {
+        WebClient webClient = WebClient.builder().build();
         return webClient
                 .get()
-                .uri(GITHUB_BASE_URL + "/user")
+                .uri(BASE_URL + "/user")
                 .headers(headers  -> {
                     headers.set("Accept", "application/vnd.github+json");
                     headers.setBearerAuth(accessToken);

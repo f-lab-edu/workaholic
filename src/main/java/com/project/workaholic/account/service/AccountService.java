@@ -26,4 +26,9 @@ public class AccountService {
                 .filter( target -> target.getPassword().equals(passwordEncoder.encrypt(account.getId(), account.getPassword())))
                 .orElseThrow(() -> new CustomException(StatusCode.INVALID_ACCOUNT));
     }
+
+    public Account getAccountById(String id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new CustomException(StatusCode.INVALID_ACCOUNT));
+    }
 }

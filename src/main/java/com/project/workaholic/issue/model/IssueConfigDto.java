@@ -1,9 +1,7 @@
 package com.project.workaholic.issue.model;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.project.workaholic.config.JsonViewsConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -15,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class IssueConfigDto {
-    @JsonView(JsonViewsConfig.GET.class)
     @Schema(description = "이슈 아이디")
     private Long id;
 
@@ -41,7 +38,6 @@ public class IssueConfigDto {
     @Schema(description = "이슈 환경 구축을 위한 이미지(=브랜치)")
     private String development;
 
-    @JsonView(JsonViewsConfig.POST.class)
     @Schema(description = "프로젝트 아이디(=스프린트)")
     private String projectId;
 

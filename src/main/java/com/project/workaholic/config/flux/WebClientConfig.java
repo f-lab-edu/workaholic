@@ -1,4 +1,4 @@
-package com.project.workaholic.config.security;
+package com.project.workaholic.config.flux;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

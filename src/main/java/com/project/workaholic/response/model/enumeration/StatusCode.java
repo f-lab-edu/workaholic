@@ -30,8 +30,14 @@ public enum StatusCode {
     SUCCESS_READ_COMMIT_LIST(OK, "정상적으로 Commit 기록을 가져왔습니다."),
     SUCCESS_READ_BRANCHES(OK, "정상적으로 Repository Branch 목록을 가져왔습니다."),
 
-    /* 400 Bad Request*/
+    /* 400 Bad Request */
     INVALID_DATA_OBJECT(BAD_REQUEST, "요청 값이 유효하지 않습니다"),
+    INVALID_ACCOUNT(BAD_REQUEST, "계정 정보가 유효하지 않습니다."),
+
+    /* 404 Not Found */
+
+    /* 409 Conflict */
+    EXISTS_ACCOUNT_ID(CONFLICT, "이미 존재하는 아이디 입니다."),
     ;
 
     private final HttpStatus httpStatus;

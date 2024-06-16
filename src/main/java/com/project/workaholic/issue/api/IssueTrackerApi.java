@@ -1,7 +1,5 @@
 package com.project.workaholic.issue.api;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.project.workaholic.config.JsonViewsConfig;
 import com.project.workaholic.issue.model.IssueInfoDto;
 import com.project.workaholic.issue.model.IssueConfigDto;
 import com.project.workaholic.response.model.ApiResponse;
@@ -56,7 +54,7 @@ public class IssueTrackerApi {
     @PostMapping("")
     public ResponseEntity<ApiResponse<Long>> createIssueByProjectId(
             final @Parameter(name = "생섬 폼", description = "이슈 생성을 위한 폼")
-            @Valid @RequestBody @JsonView(JsonViewsConfig.POST.class) IssueConfigDto dto) {
+            @Valid @RequestBody IssueConfigDto dto) {
         Random random = new Random();
         long randomId = random.nextLong();
         return ApiResponse.success(StatusCode.SUCCESS_CREATE_ISSUE,
@@ -78,7 +76,7 @@ public class IssueTrackerApi {
             final @Parameter(name = "아이디", description = "이슈 아이디")
             @PathVariable long id,
             final @Parameter(name = "수정 폼", description = "이슈 수정을 위한 폼")
-            @Valid @RequestBody @JsonView(JsonViewsConfig.PUT.class) IssueConfigDto dto) {
+            @Valid @RequestBody IssueConfigDto dto) {
         Random random = new Random();
         long randomId = random.nextLong();
         return ApiResponse.success(StatusCode.SUCCESS_UPDATE_ISSUE,

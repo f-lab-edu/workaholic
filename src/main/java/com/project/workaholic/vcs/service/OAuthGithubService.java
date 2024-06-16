@@ -4,32 +4,26 @@ import com.project.workaholic.vcs.model.GitHubUserInfo;
 import com.project.workaholic.vcs.model.GithubAccessTokenRequestDto;
 import com.project.workaholic.vcs.model.GithubAccessTokenResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.UUID;
 
-@Service
+@ConfigurationProperties(prefix = "oauth2.github")
 @RequiredArgsConstructor
 public class OAuthGithubService {
     private final WebClient webClient;
-    private final String GITHUB_BASE_URL = "https://api.github.com";
-    @Value("${oauth2.user.github.login-url}")
-    private String GITHUB_LOGIN_URL;
-    @Value("${oauth2.user.github.token-uri}")
-    private String GITHUB_ACCESS_TOKEN_URL;
-    @Value("${oauth2.user.github.client-id}")
-    private String clientId;
-    @Value("${oauth2.user.github.client-secret}")
-    private String clientSecret;
-    @Value("${oauth2.user.github.redirect-uri}")
-    private String GITHUB_REDIRECT_URI;
+    private final String GITHUB_BASE_URL;
+    private final String GITHUB_LOGIN_URL;
+    private final String GITHUB_ACCESS_TOKEN_URL;
+    private final String CLIENT_ID;
+    private final String CLIENT_SECRET;
+    private final String GITHUB_REDIRECT_URI;
 
     public RedirectView requestCode(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addAttribute("client_id", clientId)
+        redirectAttributes.addAttribute("client_id", CLIENT_ID)
                 .addAttribute("redirect_url", GITHUB_REDIRECT_URI)
                 .addAttribute("state", UUID.randomUUID().toString());
 
@@ -38,8 +32,8 @@ public class OAuthGithubService {
 
     public GithubAccessTokenResponseDto getAccessToken(String code) {
         GithubAccessTokenRequestDto requestBody = GithubAccessTokenRequestDto.builder()
-                .clientId(clientId)
-                .clientSecret(clientSecret)
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
                 .code(code)
                 .build();
 

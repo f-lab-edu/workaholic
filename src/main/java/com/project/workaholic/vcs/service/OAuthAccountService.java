@@ -1,6 +1,5 @@
 package com.project.workaholic.vcs.service;
 
-import com.project.workaholic.vcs.model.entity.OAuthAccount;
 import com.project.workaholic.vcs.model.repository.OAuthAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

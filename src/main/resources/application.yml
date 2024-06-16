@@ -1,11 +1,11 @@
 oauth2:
-  user:
-    github:
-      client-id: ${GITHUB_CLIENT_ID}
-      client-secret: ${GITHUB_CLIENT_SECRET}
-      login-url: https://github.com/login/oauth/authorize
-      token-uri: https://github.com/login/oauth/access_token
-      redirect-uri: http://localhost:8080/callback/github
+  github:
+    client-id: ${GITHUB_CLIENT_ID}
+    client-secret: ${GITHUB_CLIENT_SECRET}
+    base-url: https://api.github.com
+    login-url: https://github.com/login/oauth/authorize
+    token-uri: https://github.com/login/oauth/access_token
+    redirect-uri: http://localhost:8080/callback/github
 
 spring:
   application:

@@ -31,6 +31,8 @@ dependencies {
     implementation("io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

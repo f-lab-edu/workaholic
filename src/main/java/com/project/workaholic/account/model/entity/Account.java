@@ -4,6 +4,7 @@ import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ACCOUNT")
+@EntityListeners(AuditingEntityListener.class)
 public class Account {
     @Id
     @Column(name="ACCOUNT_ID")
@@ -24,18 +26,14 @@ public class Account {
     @Column(name = "NAME")
     private String name;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-    private List<OAuthAccessToken> accessTokens;
-
     @CreatedDate
     private LocalDateTime createAt;
 
     @Builder
-    public Account(String id, String password, String name, List<OAuthAccessToken> accessTokens, LocalDateTime createAt) {
+    public Account(String id, String password, String name, LocalDateTime createAt) {
         this.id = id;
         this.password = password;
         this.name = name;
-        this.accessTokens = accessTokens;
         this.createAt = createAt;
     }
 }

@@ -67,5 +67,19 @@ public class OAuthGithubService {
                 .block();
     }
 
-
+    //https://docs.github.com/ko/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user
+    public String getRepositories(String accessToken) {
+        WebClient webClient = WebClient.builder().build();
+        return webClient
+                .get()
+                .uri(BASE_URL + "/user/repos")
+                .headers(headers  -> {
+                    headers.set("Accept", "application/vnd.github+json");
+                    headers.setBearerAuth(accessToken);
+                    headers.set("X-GitHub-Api-Version", "2022-11-28");
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
 }

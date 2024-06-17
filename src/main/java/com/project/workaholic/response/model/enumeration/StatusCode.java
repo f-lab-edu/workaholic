@@ -36,6 +36,7 @@ public enum StatusCode {
     INVALID_VCS_VENDOR(BAD_REQUEST, "지원하지 않는 VCS Vendor 입니다."),
 
     /* 404 Not Found */
+    NOT_FOUND_OAUTH_ACCESS_TOKEN(NOT_FOUND, "요청한 계정에 대한 액세스 토큰을 찾을 수 없습니다."),
 
     /* 409 Conflict */
     EXISTS_ACCOUNT_ID(CONFLICT, "이미 존재하는 아이디 입니다."),

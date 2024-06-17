@@ -3,6 +3,7 @@ package com.project.workaholic.vcs.api;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
+import com.project.workaholic.vcs.service.OAuthGithubService;
 import com.project.workaholic.vcs.service.OAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "VSC API", description = "Workaholic VSC= API")
@@ -20,6 +22,7 @@ import java.util.List;
 @RequestMapping("/vsc")
 public class VersionControlSystemApi  {
     private final OAuthService oAuthService;
+    private final OAuthGithubService githubService;
 
     @Operation(summary = "", description = "")
     @GetMapping("/import")
@@ -32,6 +35,8 @@ public class VersionControlSystemApi  {
     @Operation(summary = "", description = "")
     @GetMapping("/repo")
     public ResponseEntity<ApiResponse<List<String>>> getRepositoriesFromVersionControlSystem() {
+        String accessToken = oAuthService.getAccessToken("test");
+        String repositories = githubService.getRepositories(accessToken);
         return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO, List.of("feature"));
     }
 

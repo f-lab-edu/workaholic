@@ -2,7 +2,6 @@ package com.project.workaholic.vcs.api;
 
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
-import com.project.workaholic.vcs.model.GitHubUserInfo;
 import com.project.workaholic.vcs.model.GithubAccessTokenResponseDto;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.service.OAuthGithubService;
@@ -32,7 +31,6 @@ public class OAuthCallbackApi {
             final @RequestParam String code) {
         GithubAccessTokenResponseDto oAuthAccessToken = githubService.getAccessToken(code);
         oAuthService.registerToken("test", oAuthAccessToken.getAccessToken(), VCSVendor.GITHUB);
-        GitHubUserInfo githubUserInfo = githubService.getUserInfo(oAuthAccessToken.getAccessToken());
-        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO);
+        return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
     }
 }

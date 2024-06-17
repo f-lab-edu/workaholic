@@ -34,4 +34,11 @@ public class OAuthService {
         oAuthAccessToken = tokenRepository.save(oAuthAccessToken);
         return oAuthAccessToken.getToken();
     }
+
+    public String getAccessToken(String accountId) {
+        OAuthAccessToken token = tokenRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new CustomException(StatusCode.NOT_FOUND_OAUTH_ACCESS_TOKEN));
+
+        return token.getToken();
+    }
 }

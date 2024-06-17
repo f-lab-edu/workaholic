@@ -1,4 +1,4 @@
-package com.project.workaholic.vcs.model;
+package com.project.workaholic.vcs.vendor.github.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

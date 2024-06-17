@@ -5,6 +5,7 @@ import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
+import com.project.workaholic.vcs.vendor.github.service.GithubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
-    private final OAuthGithubService githubService;
+    private final GithubService githubService;
     private final OAuthAccessTokenRepository tokenRepository;
 
     public RedirectView importVCS(RedirectAttributes redirectAttributes, VCSVendor vendor) {
@@ -25,14 +26,13 @@ public class OAuthService {
         }
     }
 
-    public String registerToken(String accountId, String token, VCSVendor vendor) {
+    public void registerToken(String accountId, String token, VCSVendor vendor) {
         OAuthAccessToken oAuthAccessToken = OAuthAccessToken.builder()
                 .accountId(accountId)
                 .type(vendor)
                 .token(token)
                 .build();
-        oAuthAccessToken = tokenRepository.save(oAuthAccessToken);
-        return oAuthAccessToken.getToken();
+        tokenRepository.save(oAuthAccessToken);
     }
 
     public String getAccessToken(String accountId) {

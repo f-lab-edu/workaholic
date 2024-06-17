@@ -31,6 +31,9 @@ dependencies {
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
+    //JWT
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

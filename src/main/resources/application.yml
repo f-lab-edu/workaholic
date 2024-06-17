@@ -7,6 +7,11 @@ oauth2:
     redirect-url: http://localhost:8080/callback/github
     access-token-url: https://github.com/login/oauth/access_token
 
+token:
+  secret: ${SECRET_KEY}
+  access-exp: ${ACCESS_EXP}
+  refresh-exp: ${REFRESH_EXP}
+
 spring:
   application:
     name: workaholic

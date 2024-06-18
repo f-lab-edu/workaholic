@@ -36,7 +36,7 @@ public class OAuthService {
     }
 
     public String getAccessToken(String accountId) {
-        OAuthAccessToken token = tokenRepository.findByAccountId(accountId)
+        OAuthAccessToken token = tokenRepository.findGithubByAccountId(accountId)
                 .orElseThrow(() -> new CustomException(StatusCode.NOT_FOUND_OAUTH_ACCESS_TOKEN));
 
         return token.getToken();

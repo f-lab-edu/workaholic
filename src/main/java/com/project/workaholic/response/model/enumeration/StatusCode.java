@@ -43,10 +43,13 @@ public enum StatusCode {
     /* 404 Not Found */
     NOT_FOUND_OAUTH_ACCESS_TOKEN(NOT_FOUND, "요청한 계정에 대한 액세스 토큰을 찾을 수 없습니다."),
 
+
     /* 409 Conflict */
     EXISTS_ACCOUNT_ID(CONFLICT, "이미 존재하는 아이디 입니다."),
-    ;
 
+    /* 500 Internal Error */
+    ERROR(INTERNAL_SERVER_ERROR, "에러")
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 

@@ -9,6 +9,8 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
@@ -20,6 +22,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
+@Setter
 @ConfigurationProperties(prefix = "token")
 public class JsonWebTokenProvider {
     public static final String REFRESH_HEADER = "Refresh";
@@ -29,16 +33,14 @@ public class JsonWebTokenProvider {
     private final String SECRET;
     private final long ACCESS_EXP;
     private final long REFRESH_EXP;
-    private final RefreshTokenRepository tokenRepository;
 
-    public JsonWebTokenProvider(Key key, String SECRET, long ACCESS_EXP, long REFRESH_EXP, RefreshTokenRepository tokenRepository) {
+    public JsonWebTokenProvider(Key key, String SECRET, long ACCESS_EXP, long REFRESH_EXP) {
         this.SECRET = SECRET;
         this.ACCESS_EXP = ACCESS_EXP * 60 * 1000;
         this.REFRESH_EXP = REFRESH_EXP * 24 * 60 * 60 * 1000;
         // 24 Hour * 60 Min * 60 Sec * 1000 Mils
         this.key = Keys.hmacShaKeyFor(
                 SECRET.getBytes(StandardCharsets.UTF_8));
-        this.tokenRepository = tokenRepository;
     }
 
     private Date getTokenExpiration(long expirationMillisecond) {
@@ -85,24 +87,6 @@ public class JsonWebTokenProvider {
     public JsonWebToken generateBasicToken(Account account) {
         String accessToken = generateAccessToken(account.getId(), null);
         String refreshToken = generateRefreshToken(account.getId());
-
-        RefreshToken existRefreshToken = tokenRepository.findById(account.getId())
-                .orElse(null);
-
-        if( existRefreshToken == null ) {
-            RefreshToken newToken = RefreshToken.builder()
-                    .id(account.getId())
-                    .logout(false)
-                    .token(refreshToken)
-                    .build();
-            tokenRepository.save(newToken);
-        } else {
-            if(existRefreshToken.isLogout())
-                throw new RuntimeException();
-            existRefreshToken = existRefreshToken.updateToken(refreshToken);
-            existRefreshToken.setLogout(false);
-            tokenRepository.save(existRefreshToken);
-        }
 
         return JsonWebToken.builder()
                 .accessToken(accessToken)

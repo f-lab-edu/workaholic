@@ -1,15 +1,12 @@
 package com.project.workaholic.vcs.api;
 
-import com.project.workaholic.config.interceptor.JsonWebToken;
+import com.project.workaholic.account.api.AccountApi;
 import com.project.workaholic.config.interceptor.JsonWebTokenProvider;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
-import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
-import com.project.workaholic.vcs.vendor.github.model.GithubAccessTokenResponseDto;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.vendor.github.service.GithubService;
 import com.project.workaholic.vcs.service.OAuthService;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +26,7 @@ public class OAuthCallbackApi {
     private final OAuthService oAuthService;
     private final GithubService githubService;
     private final JsonWebTokenProvider jsonWebTokenProvider;
+    private final AccountApi accountApi;
 
     @Operation(
             summary = "Github OAuth CallBack API",
@@ -38,13 +36,20 @@ public class OAuthCallbackApi {
             final HttpServletRequest request,
             final @RequestParam String code) {
         return githubService.getAccessToken(code)
-                .doOnNext(githubAccessTokenResponseDto -> {
-                    String accessToken = jsonWebTokenProvider.extractAccessToken(request);
-                    String accountId = jsonWebTokenProvider.parseClaims(accessToken).getSubject();
-                    oAuthService.registerToken(accountId, githubAccessTokenResponseDto.getAccessToken(), VCSVendor.GITHUB);
+                .flatMap(githubAccessTokenResponseDto -> {
+                    try {
+//                        String accessToken = jsonWebTokenProvider.extractAccessToken(request);
+//                        String accountId = jsonWebTokenProvider.parseClaims(accessToken).getSubject();
+                        String accountId = "test@example.com";
+                        oAuthService.registerToken(accountId, githubAccessTokenResponseDto.getAccessToken(), VCSVendor.GITHUB);
+                        return Mono.just(ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS));
+                    } catch (Exception e) {
+                        return Mono.error(new RuntimeException(e));
+                    }
                 })
-                .map(
-                        mono -> ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS)
-                );
+                .onErrorResume(error -> {
+                    // Handle exceptions and return appropriate response
+                    return Mono.just(ApiResponse.error(StatusCode.ERROR));
+                });
     }
 }

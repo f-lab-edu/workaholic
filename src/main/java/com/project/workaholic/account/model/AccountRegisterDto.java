@@ -22,15 +22,15 @@ public class AccountRegisterDto {
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$", message = "비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.")
-    @Schema(description = "비밀번호", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "비밀번호", requiredMode = Schema.RequiredMode.REQUIRED, example = "password12!")
     private String password;
 
     @NotBlank(message = "이름은 필수 입력 값입니다.")
-    @Schema(description = "이름")
+    @Schema(description = "이름", example = "김유저")
     private String name;
 
     @Builder
-    public AccountRegisterDto(String id, String password, String name, String mail) {
+    public AccountRegisterDto(String id, String password, String name) {
         this.id = id;
         this.password = password;
         this.name = name;

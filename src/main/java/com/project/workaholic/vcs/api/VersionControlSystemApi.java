@@ -1,19 +1,14 @@
 package com.project.workaholic.vcs.api;
 
-import com.project.workaholic.response.model.ApiResponse;
-import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
-import com.project.workaholic.vcs.vendor.github.service.GithubService;
 import com.project.workaholic.vcs.service.OAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import java.util.List;
 
 @Tag(name = "VSC API", description = "Workaholic VSC= API")
 @RestController
@@ -21,32 +16,14 @@ import java.util.List;
 @RequestMapping("/vsc")
 public class VersionControlSystemApi  {
     private final OAuthService oAuthService;
-    private final GithubService githubService;
 
     @Operation(summary = "", description = "")
     @GetMapping("/import")
     public RedirectView importVSCByOAuth(
             RedirectAttributes redirectAttributes,
+            HttpServletRequest request,
             final @RequestParam("vendor")VCSVendor vendor) {
+
         return oAuthService.importVCS(redirectAttributes, vendor);
     }
-
-    @Operation(summary = "", description = "")
-    @GetMapping("/repo")
-    public ResponseEntity<ApiResponse<List<String>>> getRepositoriesFromVersionControlSystem() {
-        return ApiResponse.success(StatusCode.SUCCESS_IMPORT_REPO, List.of("feature"));
-    }
-
-    @Operation(summary = "", description = "")
-    @GetMapping("/commit")
-    public ResponseEntity<ApiResponse<StatusCode>> getCommitsFromRepository() {
-        return ApiResponse.success(StatusCode.SUCCESS_READ_COMMIT_LIST);
-    }
-
-    @Operation(summary = "", description = "")
-    @GetMapping("/branch")
-    public ResponseEntity<ApiResponse<StatusCode>> getBranchesFromRepository() {
-        return ApiResponse.success(StatusCode.SUCCESS_READ_BRANCHES);
-    }
-
 }

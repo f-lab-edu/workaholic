@@ -11,8 +11,11 @@ import com.project.workaholic.response.model.enumeration.StatusCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,10 +53,22 @@ public class AccountApi {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AccountSignIdDto>> login(
             final @Parameter(name = "로그인 폼", description = "로그인을 위한 계정 정보")
-            @Valid @RequestBody AccountSignIdDto accountLoginDto) {
+            @Valid @RequestBody AccountSignIdDto accountLoginDto,
+            HttpServletResponse response) {
         Account accountToVerify = toEntity(accountLoginDto);
         accountToVerify = accountService.verifyAccount(accountToVerify);
         JsonWebToken jsonWebToken = jsonWebTokenProvider.generateBasicToken(accountToVerify);
+
+        response.setHeader(HttpHeaders.AUTHORIZATION, jsonWebToken.getAccessToken());
+        response.setHeader("Refresh-Token", jsonWebToken.getRefreshToken());
+
+        Cookie refreshTokenCookie = new Cookie("Refresh-Token", jsonWebToken.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(60 * 60 * 24); // 1 day
+        refreshTokenCookie.setDomain("example.com"); // Set the domain if needed
+        response.addCookie(refreshTokenCookie);
 
         return ApiResponse.success(StatusCode.SUCCESS_LOGIN, toSignIdDto(accountToVerify));
     }

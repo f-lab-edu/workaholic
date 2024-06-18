@@ -1,7 +1,6 @@
 package com.project.workaholic.vcs.vendor.github.service;
 
 import com.project.workaholic.vcs.vendor.github.model.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,23 +12,21 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @ConfigurationProperties(prefix = "oauth2.github")
-@RequiredArgsConstructor
 public class GithubService {
     private final String LOGIN_URL;
     private final String ACCESS_TOKEN_URL;
     private final String CLIENT_ID;
     private final String CLIENT_SECRET;
     private final String REDIRECT_URL;
-
     private final WebClient webClient;
 
-    public GithubService(String BASE_URL, String ACCEPT, String LOGIN_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String CLIENT_SECRET, String REDIRECT_URL, WebClient.Builder webClient) {
+    public GithubService(String BASE_URL, String ACCEPT, String LOGIN_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String CLIENT_SECRET, String REDIRECT_URL, WebClient webClient) {
         this.LOGIN_URL = LOGIN_URL;
         this.ACCESS_TOKEN_URL = ACCESS_TOKEN_URL;
         this.CLIENT_ID = CLIENT_ID;
         this.CLIENT_SECRET = CLIENT_SECRET;
         this.REDIRECT_URL = REDIRECT_URL;
-        this.webClient = webClient.clone()
+        this.webClient = WebClient.builder()
                 .baseUrl(BASE_URL)
                 .defaultHeader(HttpHeaders.ACCEPT, ACCEPT)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -51,7 +48,7 @@ public class GithubService {
                 .clientSecret(CLIENT_SECRET)
                 .code(code)
                 .build();
-        WebClient webClient = WebClient.builder().build();
+
         return webClient
                 .post()
                 .uri(ACCESS_TOKEN_URL)

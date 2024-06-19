@@ -1,11 +1,10 @@
 package com.project.workaholic.vcs.service;
 
-import com.project.workaholic.config.exception.CustomException;
-import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
 import com.project.workaholic.vcs.vendor.github.service.GithubService;
+import com.project.workaholic.vcs.vendor.gitlab.service.GitlabService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -15,15 +14,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequiredArgsConstructor
 public class OAuthService {
     private final GithubService githubService;
+    private final GitlabService gitlabService;
     private final OAuthAccessTokenRepository tokenRepository;
 
     public RedirectView importVCS(RedirectAttributes redirectAttributes, VCSVendor vendor) {
-        switch (vendor) {
-            case GITHUB :
-                    return githubService.requestCode(redirectAttributes);
-            default:
-                throw new CustomException(StatusCode.INVALID_VCS_VENDOR);
-        }
+        return switch (vendor) {
+            case GITHUB -> githubService.requestCode(redirectAttributes);
+            case GITLAB -> gitlabService.requestCode(redirectAttributes);
+        };
     }
 
     public void registerToken(String accountId, String token, VCSVendor vendor) {
@@ -35,10 +33,12 @@ public class OAuthService {
         tokenRepository.save(oAuthAccessToken);
     }
 
-    public String getAccessToken(String accountId) {
-        OAuthAccessToken token = tokenRepository.findGithubByAccountId(accountId)
-                .orElseThrow(() -> new CustomException(StatusCode.NOT_FOUND_OAUTH_ACCESS_TOKEN));
+    public OAuthAccessToken findAccessTokenByAccountId(String accountId) {
+        return tokenRepository.findGithubByAccountId(accountId).orElse(null);
+    }
 
-        return token.getToken();
+    public void updateAccessToken(OAuthAccessToken updatedToken, String accessToken) {
+        updatedToken.setToken(accessToken);
+        tokenRepository.save(updatedToken);
     }
 }

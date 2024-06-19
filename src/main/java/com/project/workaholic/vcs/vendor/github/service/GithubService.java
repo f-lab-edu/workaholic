@@ -21,7 +21,7 @@ public class GithubService {
     private final String REDIRECT_URL;
     private final RestTemplate restTemplate;
 
-    public GithubService(String BASE_URL, String ACCEPT, String LOGIN_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String CLIENT_SECRET, String REDIRECT_URL, RestTemplate restTemplate) {
+    public GithubService(String BASE_URL, String ACCEPT, String LOGIN_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String CLIENT_SECRET, String REDIRECT_URL) {
         this.BASE_URL = BASE_URL;
         this.ACCEPT = ACCEPT;
         this.LOGIN_URL = LOGIN_URL;
@@ -45,7 +45,6 @@ public class GithubService {
         redirectAttributes.addAttribute("client_id", CLIENT_ID)
                 .addAttribute("redirect_uri", REDIRECT_URL)
                 .addAttribute("state", UUID.randomUUID().toString());
-//                .addAttribute("state",jwt);
 
         return new RedirectView(LOGIN_URL);
     }
@@ -60,16 +59,6 @@ public class GithubService {
 
         HttpEntity<GithubTokenRequest> entity = new HttpEntity<>(body, headers);
         return restTemplate.postForObject(ACCESS_TOKEN_URL, entity, GithuTokenResponse.class);
-    }
-
-    //https://docs.github.com/ko/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user--fine-grained-access-tokens
-    public GitHubUser getUserInfo(String accessToken) {
-        HttpHeaders headers = getHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        return restTemplate.getForObject(BASE_URL+"/user", GitHubUser.class, entity);
-
     }
 
     //https://docs.github.com/ko/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user

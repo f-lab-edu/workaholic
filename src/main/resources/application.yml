@@ -7,6 +7,16 @@ oauth2:
     login-url: https://github.com/login/oauth/authorize
     redirect-url: http://localhost:8080/github/callback
     access-token-url: https://github.com/login/oauth/access_token
+  gitlab:
+    client-id: ${GITLAB_CLIENT_ID}
+    client-secret: ${GITLAB_CLIENT_SECRET}
+    base-url: https://gitlab.com/api/v4/
+    login-url: https://gitlab.com/oauth/authorize
+    redirect-url: http://localhost:8080/gitlab/callback
+    access-token-url: https://gitlab.com/oauth/token
+
+
+
 
 token:
   secret: ${SECRET_KEY}

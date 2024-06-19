@@ -2,10 +2,7 @@ package com.project.workaholic.vcs.model.entity;
 
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -27,6 +24,7 @@ public class OAuthAccessToken {
     @Enumerated(EnumType.STRING)
     private VCSVendor type;
 
+    @Setter
     @Column(name = "TOKEN")
     private String token;
 

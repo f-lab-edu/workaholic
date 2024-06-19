@@ -3,6 +3,7 @@ package com.project.workaholic.vcs.vendor.github.api;
 import com.project.workaholic.config.interceptor.JsonWebTokenProvider;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.service.OAuthService;
 import com.project.workaholic.vcs.vendor.github.model.GithuTokenResponse;
@@ -46,8 +47,8 @@ public class GithubApi {
             final HttpServletRequest request) {
         String accessToken = jsonWebTokenProvider.extractAccessToken(request);
         String accountId = jsonWebTokenProvider.parseClaims(accessToken).getSubject();
-        String oAuthAccessToken = oAuthService.getAccessToken(accountId);
-        GithubRepository repositories = githubService.getRepositories(oAuthAccessToken);
+        OAuthAccessToken oAuthAccessToken = oAuthService.findAccessTokenByAccountId(accountId);
+        GithubRepository repositories = githubService.getRepositories(oAuthAccessToken.getToken());
         return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
     }
 

@@ -44,7 +44,7 @@ public class SwaggerConfig {
     public GroupedOpenApi getVSCApi() {
         String[] paths = {
                 "/account/**",
-                "/vsc/**",
+                "/vcs/**",
                 "/github/**"
         };
 

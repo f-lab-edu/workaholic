@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class GithubAccessTokenResponseDto {
+public class GithuTokenResponse {
     @Schema(description = "Access Token")
     private final String accessToken;
 
@@ -17,7 +17,7 @@ public class GithubAccessTokenResponseDto {
     private final String tokenType;
 
     @JsonCreator
-    public GithubAccessTokenResponseDto(
+    public GithuTokenResponse(
             @JsonProperty("access_token") String accessToken,
             @JsonProperty("scope") String scope,
             @JsonProperty("token_type") String tokenType) {

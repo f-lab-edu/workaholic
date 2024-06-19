@@ -3,20 +3,19 @@ package com.project.workaholic.vcs.vendor.github.api;
 import com.project.workaholic.config.interceptor.JsonWebTokenProvider;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.service.OAuthService;
+import com.project.workaholic.vcs.vendor.github.model.GithuTokenResponse;
 import com.project.workaholic.vcs.vendor.github.model.GithubRepository;
 import com.project.workaholic.vcs.vendor.github.service.GithubService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,23 +25,30 @@ public class GithubApi {
     private final JsonWebTokenProvider jsonWebTokenProvider;
     private final OAuthService oAuthService;
 
+    @Operation(
+            summary = "Github OAuth CallBack API",
+            description = "Github 에 설정한 CallBack URL로 명명해 인증 서버를 통해서 받아온 code를 사용해 AccessToken 반환")
+    @GetMapping("/callback")
+    private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
+            final @RequestParam String code) {
+//        String accountId = jsonWebTokenProvider.parseClaims(jwt).getSubject();
+        GithuTokenResponse githubToken = githubService.getAccessToken(code);
+
+//        if( githubToken == null )
+//            return ApiResponse.error(StatusCode.ERROR);
+        oAuthService.registerToken("test@example.com", githubToken.getAccessToken(), VCSVendor.GITHUB);
+        return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
+    }
+
     @Operation(summary = "", description = "")
     @GetMapping("/repo")
-    public ResponseEntity<ApiResponse<List<String>>> getRepositoriesFromVersionControlSystem(
+    public ResponseEntity<ApiResponse<GithubRepository>> getRepositoriesFromVersionControlSystem(
             final HttpServletRequest request) {
         String accessToken = jsonWebTokenProvider.extractAccessToken(request);
         String accountId = jsonWebTokenProvider.parseClaims(accessToken).getSubject();
         String oAuthAccessToken = oAuthService.getAccessToken(accountId);
-
-        Flux<List<GithubRepository>> repositories = githubService.getRepositories(oAuthAccessToken)
-                .flatMap(githubRepository -> {
-                    return Flux.just(List.of(githubRepository));
-                })
-                .onErrorResume( error -> {
-                    return Flux.just(List.of());
-                });
-
-        return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, List.of());
+        GithubRepository repositories = githubService.getRepositories(oAuthAccessToken);
+        return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
     }
 
     @Operation(summary = "", description = "")

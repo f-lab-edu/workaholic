@@ -5,7 +5,7 @@ oauth2:
     accept: application/vnd.github+json
     base-url: https://api.github.com
     login-url: https://github.com/login/oauth/authorize
-    redirect-url: http://localhost:8080/callback/github
+    redirect-url: http://localhost:8080/github/callback
     access-token-url: https://github.com/login/oauth/access_token
 
 token:

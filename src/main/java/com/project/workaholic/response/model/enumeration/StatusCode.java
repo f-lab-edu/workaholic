@@ -36,6 +36,7 @@ public enum StatusCode {
     INVALID_VCS_VENDOR(BAD_REQUEST, "지원하지 않는 VCS Vendor 입니다."),
     INVALID_ACCESS_TOKEN(BAD_REQUEST,"토큰의 형식이 유효하지 않습니다."),
     EXPIRED_TOKEN(BAD_REQUEST,"토큰의 기간이 만료되었습니다."),
+    NON_SUPPORTED_VENDOR(BAD_REQUEST, "지원하지 않는 VCS 타입입니다."),
 
     /* 401 UNAUTHORIZED */
     UNAUTHORIZED_REQUEST(UNAUTHORIZED,"인증되지 않은 요청입니다."),

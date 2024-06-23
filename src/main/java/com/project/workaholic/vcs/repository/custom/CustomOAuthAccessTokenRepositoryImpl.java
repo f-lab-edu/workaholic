@@ -3,7 +3,6 @@ package com.project.workaholic.vcs.repository.custom;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.entity.QOAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +20,15 @@ public class CustomOAuthAccessTokenRepositoryImpl implements CustomOAuthAccessTo
                 jpaQueryFactory.selectFrom(qOAuthAccessToken)
                         .where(qOAuthAccessToken.accountId.eq(accountId)
                                 .and(qOAuthAccessToken.type.eq(VCSVendor.GITHUB)))
+                        .fetchOne());
+    }
+
+    @Override
+    public Optional<OAuthAccessToken> findGitlabByAccountId(String accountId) {
+        return Optional.ofNullable(
+                jpaQueryFactory.selectFrom(qOAuthAccessToken)
+                        .where(qOAuthAccessToken.accountId.eq(accountId)
+                                .and(qOAuthAccessToken.type.eq(VCSVendor.GITLAB)))
                         .fetchOne());
     }
 }

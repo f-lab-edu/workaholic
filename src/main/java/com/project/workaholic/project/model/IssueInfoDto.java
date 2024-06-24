@@ -1,9 +1,9 @@
-package com.project.workaholic.issue.model;
+package com.project.workaholic.project.model;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.project.workaholic.config.validation.ValidEnum;
-import com.project.workaholic.issue.model.enumeration.IssueStatus;
+import com.project.workaholic.project.model.enumeration.IssueStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

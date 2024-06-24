@@ -1,4 +1,4 @@
-package com.project.workaholic.issue.model.enumeration;
+package com.project.workaholic.project.model.enumeration;
 
 public enum IssueStatus {
     TODO,

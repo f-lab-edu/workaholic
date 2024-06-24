@@ -1,4 +1,4 @@
-package com.project.workaholic.issue.model;
+package com.project.workaholic.project.model;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

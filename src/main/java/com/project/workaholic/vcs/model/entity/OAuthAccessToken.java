@@ -2,7 +2,11 @@ package com.project.workaholic.vcs.model.entity;
 
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

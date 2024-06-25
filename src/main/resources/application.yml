@@ -8,8 +8,9 @@ oauth2:
   gitlab:
     client-id: ${GITLAB_CLIENT_ID}
     client-secret: ${GITLAB_CLIENT_SECRET}
-    base-url: https://gitlab.com/api/v4/
+    base-url: https://gitlab.com/api/v4
     access-token-url: https://gitlab.com/oauth/token
+    redirect-uri: http://localhost:8080/gitlab/callback
 
 token:
   secret: ${SECRET_KEY}

@@ -1,10 +1,13 @@
 package com.project.workaholic.vcs.vendor.gitlab.model;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class GitlabTokenResponse {
     @Schema(description = "GitLab OAuth AccessToken 값")
     private final String accessToken;

@@ -4,7 +4,11 @@ import com.project.workaholic.vcs.vendor.github.model.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @ConfigurationProperties(prefix = "oauth2.github")
 public class GithubService {
@@ -46,21 +50,23 @@ public class GithubService {
     }
 
     //https://docs.github.com/ko/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user
-    public GithubRepository getRepositories(String accessToken) {
+    public List<GithubRepository> getRepositories(String accessToken) {
         HttpHeaders headers = getHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        return restTemplate.getForObject(BASE_URL+"/user/repos", GithubRepository.class, entity);
+        ResponseEntity<GithubRepository[]> response = restTemplate.exchange(BASE_URL+"/user/repos", HttpMethod.GET, entity, GithubRepository[].class);
+        return response.getBody() == null ? List.of() :  List.of(response.getBody());
     }
 
     //https://docs.github.com/ko/rest/branches/branches?apiVersion=2022-11-28#list-branches
-    public GithubBranch getBranches(String accessToken, String owner, String repo) {
+    public List<GithubBranch> getBranches(String accessToken, String owner, String repo) {
         String url = String.format("%s/repos/%s/%s/branches", BASE_URL, owner, repo);
         HttpHeaders headers = getHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        return restTemplate.getForObject(url, GithubBranch.class, entity);
+        ResponseEntity<GithubBranch[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, GithubBranch[].class);
+        return response.getBody() == null ? List.of() :  List.of(response.getBody());
     }
 }

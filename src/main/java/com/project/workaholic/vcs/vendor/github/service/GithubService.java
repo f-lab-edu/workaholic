@@ -39,11 +39,7 @@ public class GithubService {
 
     public GithuTokenResponse getAccessToken(String code) {
         HttpHeaders headers = getHeaders();
-        GithubTokenRequest body = GithubTokenRequest.builder()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .code(code)
-                .build();
+        GithubTokenRequest body = new GithubTokenRequest(CLIENT_ID, CLIENT_SECRET, code, "");
 
         HttpEntity<GithubTokenRequest> entity = new HttpEntity<>(body, headers);
         return restTemplate.postForObject(ACCESS_TOKEN_URL, entity, GithuTokenResponse.class);

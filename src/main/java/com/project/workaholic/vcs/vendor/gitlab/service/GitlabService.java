@@ -34,13 +34,7 @@ public class GitlabService {
 
     public GitlabTokenResponse getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
-        GitlabTokenRequest body = GitlabTokenRequest.builder()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .code(code)
-                .grantType(GitlabGrantType.AUTHORIZATION_CODE.name().toLowerCase())
-                .redirectUri(REDIRECT_URI)
-                .build();
+        GitlabTokenRequest body = new GitlabTokenRequest(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI, GitlabGrantType.AUTHORIZATION_CODE);
 
         HttpEntity<GitlabTokenRequest> entity = new HttpEntity<>(body, headers);
         return restTemplate.postForObject(ACCESS_TOKEN_URL, entity, GitlabTokenResponse.class);

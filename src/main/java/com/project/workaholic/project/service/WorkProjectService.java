@@ -26,7 +26,7 @@ public class WorkProjectService {
     }
 
     public WorkProject createWorkProject(WorkProject newWorkProject) {
-        if(workProjectRepository.duplicateCheckByProjectName(newWorkProject.getName())) {
+        if(workProjectRepository.checkExistsProjectById(newWorkProject.getId())) {
             throw new CustomException(StatusCode.EXISTS_PROJECT_ID);
         }
 

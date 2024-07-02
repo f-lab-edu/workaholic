@@ -9,17 +9,22 @@ import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OAuthService {
+public class VCSApiService {
     private final VendorManager vendorManager;
     private final OAuthAccessTokenRepository tokenRepository;
 
-    public OAuthService(VendorManager vendorManager, OAuthAccessTokenRepository tokenRepository) {
+    public VCSApiService(VendorManager vendorManager, OAuthAccessTokenRepository tokenRepository) {
         this.vendorManager = vendorManager;
         this.tokenRepository = tokenRepository;
     }
 
     private VendorApiService getMatchServiceByWorkProject(WorkProject workProject) {
         return vendorManager.getService(workProject.getVendor())
+                .orElseThrow(() -> new CustomException(StatusCode.NON_SUPPORTED_VENDOR));
+    }
+
+    public VendorApiService getMatchServiceByVendor(VCSVendor vendor) {
+        return vendorManager.getService(vendor)
                 .orElseThrow(() -> new CustomException(StatusCode.NON_SUPPORTED_VENDOR));
     }
 
@@ -31,5 +36,10 @@ public class OAuthService {
     public void renewAccessToken(OAuthAccessToken existingToken, String token) {
         existingToken.setToken(token);
         tokenRepository.save(existingToken);
+    }
+
+    public OAuthAccessToken getOAuthAccessTokenByAccountId(VCSVendor vcsVendor, String accountId) {
+        VendorApiService service = getMatchServiceByVendor(vcsVendor);
+        return service.getOAuthAccessTokenByAccountId(accountId);
     }
 }

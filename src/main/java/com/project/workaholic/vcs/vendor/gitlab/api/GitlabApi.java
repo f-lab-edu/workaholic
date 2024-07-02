@@ -5,12 +5,12 @@ import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
-import com.project.workaholic.vcs.service.OAuthService;
+import com.project.workaholic.vcs.service.VCSApiService;
 import com.project.workaholic.vcs.vendor.gitlab.model.GitlabBranch;
-import com.project.workaholic.vcs.vendor.gitlab.model.GitlabRepository;
 import com.project.workaholic.vcs.vendor.gitlab.model.GitlabTokenResponse;
 import com.project.workaholic.vcs.vendor.gitlab.service.GitlabService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +25,11 @@ import java.util.List;
 @RequestMapping("/gitlab")
 public class GitlabApi {
     private final GitlabService gitlabService;
-    private final OAuthService oAuthService;
+    private final VCSApiService VCSApiService;
+
+    private String getAccountIdByRequest(HttpServletRequest request) {
+        return (String) request.getAttribute("id");
+    }
 
     @Operation(
             summary = "Gitlab OAuth CallBack API",
@@ -39,7 +43,7 @@ public class GitlabApi {
             return ApiResponse.error(StatusCode.ERROR);
 
 
-        oAuthService.registerToken(state, gitlabToken.getAccessToken(), VCSVendor.GITLAB);
+        VCSApiService.registerToken(state, gitlabToken.getAccessToken(), VCSVendor.GITLAB);
         return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
     }
 
@@ -47,12 +51,13 @@ public class GitlabApi {
             summary = "Gitlab get repository list API",
             description = "발급받은 OAuth AccessToken 을 이용해 Gitlab 에서 제공하는 레포지토리 목록을 가져오는 API 호출")
     @GetMapping("/repo")
-    public ResponseEntity<ApiResponse<List<GitlabRepository>>> getRepositoriesFromVersionControlSystem(
-            final @RequestParam String id) {
-        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(id);
+    public ResponseEntity<ApiResponse<List<String>>> getRepositoriesFromVersionControlSystem(
+            HttpServletRequest request) {
+        String accountId = getAccountIdByRequest(request);
+        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(accountId);
         if(oAuthAccessToken == null)
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
-        List<GitlabRepository> repositories = gitlabService.getRepositories(oAuthAccessToken.getToken());
+        List<String> repositories = gitlabService.getRepositoryNames(oAuthAccessToken.getToken());
         return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
     }
 
@@ -61,9 +66,10 @@ public class GitlabApi {
             description = "발급받은 OAuth AccessToken 을 이용해 Gitlab 에서 제공하는 레포지토리의 브랜치 목록을 가져오는 API 호출")
     @GetMapping("/branch")
     public ResponseEntity<ApiResponse<List<GitlabBranch>>> getBranchesFromRepository(
-            final @RequestParam String id,
+            HttpServletRequest request,
             final @RequestParam String repoId) {
-        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(id);
+        String accountId = getAccountIdByRequest(request);
+        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(accountId);
         if(oAuthAccessToken == null)
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
         //TODO 생성한 프로젝트의 REPO ID 추가 필요

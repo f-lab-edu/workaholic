@@ -1,6 +1,5 @@
 package com.project.workaholic.project.api;
 
-import com.project.workaholic.account.model.entity.Account;
 import com.project.workaholic.account.service.AccountService;
 import com.project.workaholic.config.exception.CustomException;
 import com.project.workaholic.project.model.WorkProjectConfigReqDto;
@@ -11,6 +10,10 @@ import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.service.WorkProjectService;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.vcs.model.VCSRepository;
+import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
+import com.project.workaholic.vcs.service.VCSApiService;
+import com.project.workaholic.vcs.service.VendorApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,14 +35,16 @@ import java.util.List;
 public class WorkProjectApi {
     private final WorkProjectService workProjectService;
     private final AccountService accountService;
+    private final VCSApiService vcsApiService;
 
-    public WorkProjectApi(WorkProjectService workProjectService, AccountService accountService) {
+    public WorkProjectApi(WorkProjectService workProjectService, AccountService accountService, VCSApiService vcsApiService) {
         this.workProjectService = workProjectService;
         this.accountService = accountService;
+        this.vcsApiService = vcsApiService;
     }
 
     private WorkProjectConfigResDto toConfigResDto(WorkProject workProject) {
-        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepository(), List.of(), "COMMIT");
+        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT");
     }
 
     private WorkProjectListViewDto toListViewDto(WorkProject workProject) {
@@ -49,14 +54,9 @@ public class WorkProjectApi {
                 .build();
     }
 
-    private WorkProject toEntity(WorkProjectConfigReqDto dto, String accountId) {
-        return new WorkProject(dto.getName(), dto.getRepository(), dto.getRepositoryName(), accountId, dto.getVendor());
-    }
-
     @Operation(summary = "프로젝트 조회 API", description = "ID에 해당되는 프로젝트에 대한 자세한 정보를 조회하는 API", tags = "Project API")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkProjectConfigResDto>> getWorkProjectConfigById(
-            HttpServletRequest request,
             final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, toConfigResDto(workProject));
@@ -76,13 +76,15 @@ public class WorkProjectApi {
     public ResponseEntity<ApiResponse<String>> createWorkProject(
             final HttpServletRequest httpServletRequest,
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectConfigReqDto dto) {
-        String accountId = httpServletRequest.getHeader("id");
+        String accountId = (String) httpServletRequest.getAttribute("id");
         if(accountId == null || !accountService.checkExistAccountById(accountId))
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
 
+        OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(dto.getVendor(), accountId);
+        VendorApiService service = vcsApiService.getMatchServiceByVendor(dto.getVendor());
+        VCSRepository vcsRepository = service.getRepositoryInformation(oAuthAccessToken.getToken(), dto.getRepositoryName());
 
-
-        WorkProject createdWorkProject = toEntity(dto, accountId);
+        WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
         createdWorkProject = workProjectService.createWorkProject(createdWorkProject);
         return ApiResponse.success(StatusCode.SUCCESS_CREATE_PROJECT, createdWorkProject.getId());
     }

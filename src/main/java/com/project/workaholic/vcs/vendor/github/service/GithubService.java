@@ -1,5 +1,6 @@
 package com.project.workaholic.vcs.vendor.github.service;
 
+import com.project.workaholic.vcs.model.VCSRepository;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -41,6 +43,16 @@ public class GithubService implements VendorApiService {
         return oAuthAccessTokenRepository.findGithubByAccountId(accountId).orElse(null);
     }
 
+    @Override
+    public VCSRepository getRepositoryInformation(String accessToken, String repositoryName) {
+        HttpHeaders headers = getHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<GithubRepository> response = restTemplate.exchange(properties.getBASE_URL() +"/repos/" + repositoryName, HttpMethod.GET, entity, GithubRepository.class);
+        return response.getBody();
+    }
+
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.ACCEPT, properties.getACCEPT());
@@ -59,13 +71,14 @@ public class GithubService implements VendorApiService {
     }
 
     //https://docs.github.com/ko/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user
-    public List<GithubRepository> getRepositories(String accessToken) {
+    public List<String> getRepositoryNames(String accessToken) {
         HttpHeaders headers = getHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GithubRepository[]> response = restTemplate.exchange(properties.getBASE_URL() +"/user/repos", HttpMethod.GET, entity, GithubRepository[].class);
-        return response.getBody() == null ? List.of() :  List.of(response.getBody());
+
+        return response.getBody() == null ? List.of() :  Arrays.stream(response.getBody()).map(GithubRepository::getFullName).toList();
     }
 
     //https://docs.github.com/ko/rest/branches/branches?apiVersion=2022-11-28#list-branches

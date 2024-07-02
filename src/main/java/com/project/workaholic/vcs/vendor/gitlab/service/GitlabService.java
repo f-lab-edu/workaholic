@@ -1,5 +1,6 @@
 package com.project.workaholic.vcs.vendor.gitlab.service;
 
+import com.project.workaholic.vcs.model.VCSRepository;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -45,6 +47,16 @@ public class GitlabService implements VendorApiService {
         return oAuthAccessTokenRepository.findGitlabByAccountId(accountId).orElse(null);
     }
 
+    @Override
+    public VCSRepository getRepositoryInformation(String accessToken, String repositoryName) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<GitlabRepository> response = restTemplate.exchange(properties.getBASE_URL() + "/projects?membership=true", HttpMethod.GET, entity, GitlabRepository.class);
+        return response.getBody();
+    }
+
     public GitlabTokenResponse getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         GitlabTokenRequest body = new GitlabTokenRequest(properties.getCLIENT_ID(), properties.getCLIENT_SECRET(), code, properties.getREDIRECT_URI(), GitlabGrantType.AUTHORIZATION_CODE);
@@ -54,13 +66,13 @@ public class GitlabService implements VendorApiService {
     }
 
     //https://docs.gitlab.com/ee/api/projects.html
-    public List<GitlabRepository> getRepositories(String accessToken) {
+    public List<String> getRepositoryNames(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GitlabRepository[]> response = restTemplate.exchange(properties.getBASE_URL() + "/projects?membership=true", HttpMethod.GET, entity, GitlabRepository[].class);
-        return response.getBody() == null ? List.of() : List.of(response.getBody());
+        return response.getBody() == null ? List.of() : Arrays.stream(response.getBody()).map(GitlabRepository::getName).toList();
     }
 
     //https://docs.gitlab.com/ee/api/branches.html , https://gitlab.com/api/v4/projects/48908504/repository/branches

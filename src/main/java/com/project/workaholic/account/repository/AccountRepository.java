@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
-    @Query("SELECT COUNT(a) FROM Account a WHERE a.id = :id")
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END FROM Account a WHERE a.id = :id")
     boolean existsByAccountId(@Param("id")String accountId);
 }

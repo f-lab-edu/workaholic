@@ -45,7 +45,8 @@ public class SwaggerConfig {
         String[] paths = {
                 "/account/**",
                 "/vcs/**",
-                "/github/**"
+                "/github/**",
+                "/gitlab/**"
         };
 
         return GroupedOpenApi.builder()

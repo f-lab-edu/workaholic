@@ -1,13 +1,15 @@
 package com.project.workaholic.deploy.model;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.*;
+
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PodConfigDto {
     private String name;
     private String image;

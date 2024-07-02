@@ -1,12 +1,9 @@
 package com.project.workaholic.vcs.vendor.gitlab.model;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class GitlabRepository {
     //https://docs.gitlab.com/ee/api/projects.html#get-single-project
     @Schema(description = "아이디")

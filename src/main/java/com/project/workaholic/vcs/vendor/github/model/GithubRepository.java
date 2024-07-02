@@ -1,12 +1,9 @@
 package com.project.workaholic.vcs.vendor.github.model;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class GithubRepository {
     @Schema(description = "고유 아이디")
     private Long id;

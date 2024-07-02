@@ -38,7 +38,7 @@ public class GithubApi {
         if( githubToken == null )
             return ApiResponse.error(StatusCode.ERROR);
 
-        OAuthAccessToken existingToken = oAuthService.findAccessTokenByAccountId(state, VCSVendor.GITHUB);
+        OAuthAccessToken existingToken = githubService.getOAuthAccessTokenByAccountId(state);
         if( existingToken != null )
             oAuthService.renewAccessToken(existingToken, githubToken.getAccessToken());
         oAuthService.registerToken(state, githubToken.getAccessToken(), VCSVendor.GITHUB);
@@ -51,7 +51,7 @@ public class GithubApi {
     @GetMapping("/repo")
     public ResponseEntity<ApiResponse<List<GithubRepository>>> getRepositoriesFromVersionControlSystem(
             final @RequestParam String id) {
-        OAuthAccessToken oAuthAccessToken = oAuthService.findAccessTokenByAccountId(id,VCSVendor.GITHUB);
+        OAuthAccessToken oAuthAccessToken = githubService.getOAuthAccessTokenByAccountId(id);
         if (oAuthAccessToken == null )
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
         List<GithubRepository> repositories = githubService.getRepositories(oAuthAccessToken.getToken());
@@ -66,7 +66,7 @@ public class GithubApi {
             final @RequestParam String id,
             final @RequestParam String owner,
             final @RequestParam String repo) {
-        OAuthAccessToken oAuthAccessToken = oAuthService.findAccessTokenByAccountId(id,VCSVendor.GITLAB);
+        OAuthAccessToken oAuthAccessToken = githubService.getOAuthAccessTokenByAccountId(id);
         if(oAuthAccessToken == null)
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
 

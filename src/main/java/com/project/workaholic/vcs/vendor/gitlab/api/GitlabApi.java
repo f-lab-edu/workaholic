@@ -49,7 +49,7 @@ public class GitlabApi {
     @GetMapping("/repo")
     public ResponseEntity<ApiResponse<List<GitlabRepository>>> getRepositoriesFromVersionControlSystem(
             final @RequestParam String id) {
-        OAuthAccessToken oAuthAccessToken = oAuthService.findAccessTokenByAccountId(id,VCSVendor.GITLAB);
+        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(id);
         if(oAuthAccessToken == null)
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
         List<GitlabRepository> repositories = gitlabService.getRepositories(oAuthAccessToken.getToken());
@@ -63,7 +63,7 @@ public class GitlabApi {
     public ResponseEntity<ApiResponse<List<GitlabBranch>>> getBranchesFromRepository(
             final @RequestParam String id,
             final @RequestParam String repoId) {
-        OAuthAccessToken oAuthAccessToken = oAuthService.findAccessTokenByAccountId(id,VCSVendor.GITLAB);
+        OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(id);
         if(oAuthAccessToken == null)
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
         //TODO 생성한 프로젝트의 REPO ID 추가 필요

@@ -1,6 +1,12 @@
 package com.project.workaholic.vcs.vendor.github.service;
 
+import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
+import com.project.workaholic.vcs.model.enumeration.VCSVendor;
+import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
+import com.project.workaholic.vcs.service.VendorApiService;
+import com.project.workaholic.vcs.service.VendorManager;
 import com.project.workaholic.vcs.vendor.github.model.*;
+import jakarta.annotation.PostConstruct;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,13 +17,28 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @Service
-public class GithubService {
+public class GithubService implements VendorApiService {
+    private final OAuthAccessTokenRepository oAuthAccessTokenRepository;
+    private final VendorManager vendorManager;
     private final GithubProperties properties;
     private final RestTemplate restTemplate;
 
-    public GithubService(GithubProperties properties, RestTemplate restTemplate) {
+    public GithubService(OAuthAccessTokenRepository oAuthAccessTokenRepository, VendorManager vendorManager, GithubProperties properties, RestTemplate restTemplate) {
+        this.oAuthAccessTokenRepository = oAuthAccessTokenRepository;
+        this.vendorManager = vendorManager;
         this.properties = properties;
         this.restTemplate = restTemplate;
+    }
+
+    @PostConstruct
+    @Override
+    public void init() {
+        vendorManager.registerService(VCSVendor.GITHUB, this);
+    }
+
+    @Override
+    public OAuthAccessToken getOAuthAccessTokenByAccountId(String accountId) {
+        return oAuthAccessTokenRepository.findGithubByAccountId(accountId).orElse(null);
     }
 
     private HttpHeaders getHeaders() {

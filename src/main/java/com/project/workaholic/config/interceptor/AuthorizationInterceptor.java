@@ -1,13 +1,9 @@
 package com.project.workaholic.config.interceptor;
 
-import com.project.workaholic.config.exception.CustomException;
-import com.project.workaholic.response.model.enumeration.StatusCode;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component

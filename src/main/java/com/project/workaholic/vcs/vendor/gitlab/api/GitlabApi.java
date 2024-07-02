@@ -38,6 +38,7 @@ public class GitlabApi {
         if (gitlabToken == null)
             return ApiResponse.error(StatusCode.ERROR);
 
+
         oAuthService.registerToken(state, gitlabToken.getAccessToken(), VCSVendor.GITLAB);
         return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
     }

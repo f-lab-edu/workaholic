@@ -1,8 +1,6 @@
 package com.project.workaholic.config.interceptor;
 
 import com.project.workaholic.account.model.entity.Account;
-import com.project.workaholic.account.model.entity.RefreshToken;
-import com.project.workaholic.account.repository.RefreshTokenRepository;
 import com.project.workaholic.config.exception.CustomException;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import io.jsonwebtoken.*;

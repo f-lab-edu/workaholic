@@ -17,9 +17,6 @@ public class GithubRepository {
     @Schema(description = "설명")
     private String description;
 
-    @Schema(description = "private 리포지토리 여부")
-    private String isPrivate;
-
     @Schema(description = "API URL")
     private String url;
 

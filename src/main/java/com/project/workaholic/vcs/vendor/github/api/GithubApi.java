@@ -37,6 +37,10 @@ public class GithubApi {
         GithuTokenResponse githubToken = githubService.getAccessToken(code);
         if( githubToken == null )
             return ApiResponse.error(StatusCode.ERROR);
+
+        OAuthAccessToken existingToken = oAuthService.findAccessTokenByAccountId(state, VCSVendor.GITHUB);
+        if( existingToken != null )
+            oAuthService.renewAccessToken(existingToken, githubToken.getAccessToken());
         oAuthService.registerToken(state, githubToken.getAccessToken(), VCSVendor.GITHUB);
         return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
     }

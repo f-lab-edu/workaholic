@@ -46,7 +46,8 @@ public class SwaggerConfig {
                 "/account/**",
                 "/vcs/**",
                 "/github/**",
-                "/gitlab/**"
+                "/gitlab/**",
+                "/project/**"
         };
 
         return GroupedOpenApi.builder()

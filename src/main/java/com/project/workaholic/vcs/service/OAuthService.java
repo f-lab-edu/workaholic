@@ -14,12 +14,13 @@ public class OAuthService {
     private final OAuthAccessTokenRepository tokenRepository;
 
     public void registerToken(String accountId, String token, VCSVendor vendor) {
-        OAuthAccessToken oAuthAccessToken = OAuthAccessToken.builder()
-                .accountId(accountId)
-                .type(vendor)
-                .token(token)
-                .build();
+        OAuthAccessToken oAuthAccessToken = new OAuthAccessToken(accountId, vendor, token);
         tokenRepository.save(oAuthAccessToken);
+    }
+
+    public void renewAccessToken(OAuthAccessToken existingToken, String token) {
+        existingToken.setToken(token);
+        tokenRepository.save(existingToken);
     }
 
     public OAuthAccessToken findAccessTokenByAccountId(String accountId, VCSVendor vendor) {

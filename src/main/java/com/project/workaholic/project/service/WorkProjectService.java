@@ -16,7 +16,7 @@ public class WorkProjectService {
         this.workProjectRepository = workProjectRepository;
     }
 
-    public WorkProject getWorkProjectById(Long projectId) {
+    public WorkProject getWorkProjectById(String projectId) {
         return workProjectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(StatusCode.NOT_FOUND_PROJECT));
     }
@@ -35,8 +35,6 @@ public class WorkProjectService {
     }
 
     public WorkProject updateWorkProject(WorkProject existingWorkProject, WorkProject updatedWorkProject) {
-        existingWorkProject.setName(updatedWorkProject.getName());
-
         updatedWorkProject = workProjectRepository.save(existingWorkProject);
         return updatedWorkProject;
     }

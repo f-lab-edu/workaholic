@@ -23,13 +23,13 @@ public class GitlabService {
     private final String REDIRECT_URI;
     private final RestTemplate restTemplate;
 
-    public GitlabService(String BASE_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String REDIRECT_URI, String CLIENT_SECRET) {
+    public GitlabService(String BASE_URL, String ACCESS_TOKEN_URL, String CLIENT_ID, String REDIRECT_URI, String CLIENT_SECRET, RestTemplate restTemplate) {
         this.BASE_URL = BASE_URL;
         this.ACCESS_TOKEN_URL = ACCESS_TOKEN_URL;
         this.CLIENT_ID = CLIENT_ID;
         this.CLIENT_SECRET = CLIENT_SECRET;
         this.REDIRECT_URI = REDIRECT_URI;
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
 
     public GitlabTokenResponse getAccessToken(String code) {

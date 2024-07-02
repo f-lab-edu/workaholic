@@ -2,6 +2,7 @@ package com.project.workaholic.project.api;
 
 import com.project.workaholic.account.model.entity.Account;
 import com.project.workaholic.account.service.AccountService;
+import com.project.workaholic.config.exception.CustomException;
 import com.project.workaholic.project.model.WorkProjectConfigReqDto;
 import com.project.workaholic.project.model.WorkProjectConfigResDto;
 import com.project.workaholic.project.model.WorkProjectListViewDto;
@@ -38,10 +39,7 @@ public class WorkProjectApi {
     }
 
     private WorkProjectConfigResDto toConfigResDto(WorkProject workProject) {
-        return WorkProjectConfigResDto.builder()
-                .name(workProject.getName())
-                .repositoryName(workProject.getRepositoryName())
-                .build();
+        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepository(), List.of(), "COMMIT");
     }
 
     private WorkProjectListViewDto toListViewDto(WorkProject workProject) {
@@ -51,23 +49,15 @@ public class WorkProjectApi {
                 .build();
     }
 
-    private WorkProject toEntity(WorkProjectConfigReqDto dto) {
-        return WorkProject.builder()
-                .name(dto.getName())
-                .repositoryName(dto.getRepositoryName())
-                .build();
+    private WorkProject toEntity(WorkProjectConfigReqDto dto, String accountId) {
+        return new WorkProject(dto.getName(), dto.getRepository(), dto.getRepositoryName(), accountId, dto.getVendor());
     }
 
-    private WorkProject toEntity(WorkProjectUpdateConfigReq dto) {
-        return WorkProject.builder()
-                .name(dto.getName())
-                .build();
-    }
-
-    @Operation(summary = "프로젝트 조회 API", description = "ID에 해당되는 프로젝트에 대한 자세한 정보를 조회하는 API")
+    @Operation(summary = "프로젝트 조회 API", description = "ID에 해당되는 프로젝트에 대한 자세한 정보를 조회하는 API", tags = "Project API")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkProjectConfigResDto>> getWorkProjectConfigById(
-            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") Long projectId) {
+            HttpServletRequest request,
+            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, toConfigResDto(workProject));
     }
@@ -81,35 +71,38 @@ public class WorkProjectApi {
         return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT_LIST, projectList);
     }
 
-    @Operation(summary = "프로젝트 생성 API", description = "Request Body 데이터를 통해서 새로운 프로젝트를 생성하는 API")
+    @Operation(summary = "프로젝트 생성 API", description = "Request Body 데이터를 통해서 새로운 프로젝트를 생성하는 API", tags = "Project API")
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Long>> createWorkProject(
+    public ResponseEntity<ApiResponse<String>> createWorkProject(
             final HttpServletRequest httpServletRequest,
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectConfigReqDto dto) {
         String accountId = httpServletRequest.getHeader("id");
-        Account account = accountService.getAccountById(accountId);
-        WorkProject createdWorkProject = workProjectService.createWorkProject(toEntity(dto));
-        createdWorkProject.setOwner(account);
+        if(accountId == null || !accountService.checkExistAccountById(accountId))
+            throw new CustomException(StatusCode.INVALID_ACCOUNT);
 
+
+
+        WorkProject createdWorkProject = toEntity(dto, accountId);
+        createdWorkProject = workProjectService.createWorkProject(createdWorkProject);
         return ApiResponse.success(StatusCode.SUCCESS_CREATE_PROJECT, createdWorkProject.getId());
     }
 
-    @Operation(summary = "프로젝트 수정 API", description = "ID에 해당된 프로젝트의 설정을 수정하는 API")
+    @Operation(summary = "프로젝트 수정 API", description = "ID에 해당된 프로젝트의 설정을 수정하는 API", tags = "Project API")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkProjectConfigResDto>> updateWorkProjectConfigById(
-            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") Long projectId,
+            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId,
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectUpdateConfigReq dto) {
         WorkProject existingWorkProject = workProjectService.getWorkProjectById(projectId);
-        WorkProject updatedWorkProject = toEntity(dto);
-        updatedWorkProject = workProjectService.updateWorkProject(existingWorkProject, updatedWorkProject);
+//        WorkProject updatedWorkProject = toEntity(dto);
+//        updatedWorkProject = workProjectService.updateWorkProject(existingWorkProject, updatedWorkProject);
 
-        return ApiResponse.success(StatusCode.SUCCESS_UPDATE_PROJECT, toConfigResDto(updatedWorkProject));
+        return ApiResponse.success(StatusCode.SUCCESS_UPDATE_PROJECT, toConfigResDto(existingWorkProject));
     }
 
-    @Operation(summary = "프로젝트 삭제 API", description = "ID에 해당되는 프로젝트 삭제 API")
+    @Operation(summary = "프로젝트 삭제 API", description = "ID에 해당되는 프로젝트 삭제 API", tags = "Project API")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<StatusCode>> deleteWorkProjectById(
-            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") Long projectId) {
+            final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
         WorkProject deletedWorkProject = workProjectService.getWorkProjectById(projectId);
         workProjectService.deleteWorkProject(deletedWorkProject);
 

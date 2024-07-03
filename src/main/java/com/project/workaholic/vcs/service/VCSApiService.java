@@ -3,6 +3,7 @@ package com.project.workaholic.vcs.service;
 import com.project.workaholic.config.exception.CustomException;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.vcs.model.VCSRepository;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
@@ -41,5 +42,10 @@ public class VCSApiService {
     public OAuthAccessToken getOAuthAccessTokenByAccountId(VCSVendor vcsVendor, String accountId) {
         VendorApiService service = getMatchServiceByVendor(vcsVendor);
         return service.getOAuthAccessTokenByAccountId(accountId);
+    }
+
+    public VCSRepository getSourceRepository(String accessToken, WorkProject workProject) {
+        VendorApiService service = getMatchServiceByWorkProject(workProject);
+        return service.getRepositoryInformation(accessToken, workProject.getRepositoryName());
     }
 }

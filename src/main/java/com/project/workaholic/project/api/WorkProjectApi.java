@@ -43,30 +43,44 @@ public class WorkProjectApi {
         this.vcsApiService = vcsApiService;
     }
 
+    private WorkProjectConfigResDto toConfigResDto(WorkProject workProject, VCSRepository vcsRepository) {
+        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT");
+    }
+
     private WorkProjectConfigResDto toConfigResDto(WorkProject workProject) {
         return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT");
     }
 
     private WorkProjectListViewDto toListViewDto(WorkProject workProject) {
-        return WorkProjectListViewDto.builder()
-                .name(workProject.getName())
-                .repositoryName(workProject.getRepositoryName())
-                .build();
+        return new WorkProjectListViewDto(workProject.getId(), workProject.getName(), workProject.getVendor(), workProject.getRepositoryName(), "commit", "branchName");
+    }
+
+    private String getAccountIdFromRequest(HttpServletRequest request) {
+        return (String) request.getAttribute("id");
     }
 
     @Operation(summary = "프로젝트 조회 API", description = "ID에 해당되는 프로젝트에 대한 자세한 정보를 조회하는 API", tags = "Project API")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkProjectConfigResDto>> getWorkProjectConfigById(
+            final HttpServletRequest request,
             final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
+        String accountId = getAccountIdFromRequest(request);
+        if(accountId == null || !accountService.checkExistAccountById(accountId))
+            throw new CustomException(StatusCode.INVALID_ACCOUNT);
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
-        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, toConfigResDto(workProject));
+        OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(workProject.getVendor(), accountId);
+        VCSRepository importedRepository = vcsApiService.getSourceRepository(oAuthAccessToken.getToken(), workProject);
+
+        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, toConfigResDto(workProject, importedRepository));
     }
 
-    @Operation(summary = "프로젝트 목록 조회 API", description = "전체 프로젝트 목록을 조회하는 API")
+    @Operation(summary = "프로젝트 목록 조회 API", description = "전체 프로젝트 목록을 조회하는 API", tags = "Project API")
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<WorkProjectListViewDto>>> getWorkProjectConfig() {
+    public ResponseEntity<ApiResponse<List<WorkProjectListViewDto>>> getWorkProjectConfig(
+            final HttpServletRequest request) {
+        String accountId = getAccountIdFromRequest(request);
         List<WorkProjectListViewDto> projectList =
-                workProjectService.getAllWorkProjects().stream().map(this::toListViewDto).toList();
+                workProjectService.getAllWorkProjectsByAccountId(accountId).stream().map(this::toListViewDto).toList();
 
         return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT_LIST, projectList);
     }
@@ -74,9 +88,9 @@ public class WorkProjectApi {
     @Operation(summary = "프로젝트 생성 API", description = "Request Body 데이터를 통해서 새로운 프로젝트를 생성하는 API", tags = "Project API")
     @PostMapping("")
     public ResponseEntity<ApiResponse<String>> createWorkProject(
-            final HttpServletRequest httpServletRequest,
+            final HttpServletRequest request,
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectConfigReqDto dto) {
-        String accountId = (String) httpServletRequest.getAttribute("id");
+        String accountId = getAccountIdFromRequest(request);
         if(accountId == null || !accountService.checkExistAccountById(accountId))
             throw new CustomException(StatusCode.INVALID_ACCOUNT);
 

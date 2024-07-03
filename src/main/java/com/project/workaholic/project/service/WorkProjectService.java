@@ -21,8 +21,8 @@ public class WorkProjectService {
                 .orElseThrow(() -> new CustomException(StatusCode.NOT_FOUND_PROJECT));
     }
 
-    public List<WorkProject> getAllWorkProjects() {
-        return workProjectRepository.findAll();
+    public List<WorkProject> getAllWorkProjectsByAccountId(String accountId) {
+        return workProjectRepository.findAllWorkProjectByAccountId(accountId);
     }
 
     public WorkProject createWorkProject(WorkProject newWorkProject) {

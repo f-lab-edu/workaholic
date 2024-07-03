@@ -1,16 +1,17 @@
 package com.project.workaholic.issue.model;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.project.workaholic.config.validation.ValidEnum;
 import com.project.workaholic.issue.model.enumeration.IssueStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class IssueInfoDto {
     @Schema(description = "이슈 이름")
     private String name;

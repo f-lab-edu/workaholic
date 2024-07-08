@@ -14,6 +14,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/api-docs/json/swagger-config",
             "/api-docs/json/**",
             "/account/login",
+            "/container/**"
     };
 
     @Override

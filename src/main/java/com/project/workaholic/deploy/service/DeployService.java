@@ -1,6 +1,6 @@
 package com.project.workaholic.deploy.service;
 
-import com.project.workaholic.deploy.model.PodDto;
+import com.project.workaholic.deploy.model.KubernetesResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -8,8 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 @Service
 public class DeployService {
@@ -23,18 +21,18 @@ public class DeployService {
 
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(config.getToken());
+        headers.setBearerAuth(config.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         return headers;
     }
 
-    public List<PodDto> getPods() {
+    public KubernetesResponse getPods() {
         HttpHeaders headers = getHeaders();
         String url = config.getUrl() + config.getBaseUrl() + "pods";
 
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<PodDto[]> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, PodDto[].class);
-        return response.getBody() == null ? List.of() : List.of(response.getBody());
+        ResponseEntity<KubernetesResponse> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, KubernetesResponse.class);
+        return response.getBody();
     }
 }

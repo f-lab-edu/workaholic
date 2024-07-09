@@ -1,5 +1,6 @@
 package com.project.workaholic.deploy.api;
 
+import com.project.workaholic.deploy.model.KubernetesResponse;
 import com.project.workaholic.deploy.model.PodDto;
 import com.project.workaholic.deploy.model.PodInfoDto;
 import com.project.workaholic.deploy.service.DeployService;
@@ -11,8 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Deploy API", description = "Workaholic Container 환경에 대한 배포관련 API")
 @RestController
@@ -26,8 +25,8 @@ public class DeployApi {
 
     @Operation(summary = "전체 Pod 조회", description = "Container 환경에 존재하는 전체 Pod 조회 API")
     @GetMapping("/pod")
-    public ResponseEntity<ApiResponse<List<PodDto>>> getPods() {
-        List<PodDto> pods = deployService.getPods();
+    public ResponseEntity<ApiResponse<KubernetesResponse>> getPods() {
+        KubernetesResponse pods = deployService.getPods();
         return ApiResponse.success(StatusCode.SUCCESS_READ_PODS, pods);
     }
 

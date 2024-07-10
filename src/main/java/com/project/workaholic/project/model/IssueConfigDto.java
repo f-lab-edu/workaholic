@@ -1,4 +1,4 @@
-package com.project.workaholic.issue.model;
+package com.project.workaholic.project.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

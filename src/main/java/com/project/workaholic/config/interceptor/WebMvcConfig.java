@@ -13,7 +13,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/swagger-ui/**",
             "/api-docs/json/swagger-config",
             "/api-docs/json/**",
-            "/login",
+            "/account/login",
     };
 
     @Override

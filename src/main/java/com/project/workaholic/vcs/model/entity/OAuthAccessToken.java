@@ -3,7 +3,6 @@ package com.project.workaholic.vcs.model.entity;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,8 +17,8 @@ import java.time.LocalDateTime;
 @Table(name = "OAUTH_TOKEN")
 @EntityListeners(AuditingEntityListener.class)
 public class OAuthAccessToken {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id
+    private String id;
 
     @Column(name = "ACCOUNT_ID")
     private String accountId;
@@ -36,12 +35,10 @@ public class OAuthAccessToken {
     @LastModifiedDate
     private LocalDateTime issueDate;
 
-    @Builder
-    public OAuthAccessToken(Long id, String accountId, VCSVendor type, String token, LocalDateTime issueDate) {
-        this.id = id;
+    public OAuthAccessToken(String accountId, VCSVendor type, String token) {
+        this.id = type + "_" + accountId;
         this.accountId = accountId;
         this.type = type;
         this.token = token;
-        this.issueDate = issueDate;
     }
 }

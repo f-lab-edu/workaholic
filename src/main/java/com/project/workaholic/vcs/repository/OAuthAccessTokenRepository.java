@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OAuthAccessTokenRepository extends JpaRepository<OAuthAccessToken, Long>, CustomOAuthAccessTokenRepository {
+public interface OAuthAccessTokenRepository extends JpaRepository<OAuthAccessToken, String>, CustomOAuthAccessTokenRepository {
 
 }

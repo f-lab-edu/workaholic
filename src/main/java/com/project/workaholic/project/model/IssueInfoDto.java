@@ -1,7 +1,7 @@
-package com.project.workaholic.issue.model;
+package com.project.workaholic.project.model;
 
 import com.project.workaholic.config.validation.ValidEnum;
-import com.project.workaholic.issue.model.enumeration.IssueStatus;
+import com.project.workaholic.project.model.enumeration.IssueStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;

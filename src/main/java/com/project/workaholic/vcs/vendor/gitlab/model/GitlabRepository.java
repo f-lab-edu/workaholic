@@ -1,26 +1,31 @@
 package com.project.workaholic.vcs.vendor.gitlab.model;
 
+import com.project.workaholic.vcs.model.VCSRepository;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class GitlabRepository {
-    //https://docs.gitlab.com/ee/api/projects.html#get-single-project
-    @Schema(description = "아이디")
-    private String id;
-
+public class GitlabRepository implements VCSRepository {
     @Schema(description = "이름")
     private String name;
 
-    @Schema(description = "풀 네임(네임스페이스/리포지토리_이름)")
-    private String path_with_namespace;
-
-    @Schema(description = "설명")
-    private String description;
-
-    @Schema(description = "private 리포지토리 여부")
-    private String visibility;
+    @Schema(description = "API URL")
+    private String url;
 
     @Schema(description = "웹 URL")
-    private String web_url;
+    private String htmlUrl;
+
+    @Schema(description = "클론 URL")
+    private String cloneUrl;
+
+    @Schema(description = "본 리포지토리 commit 정보 가져오기 위한 API URL")
+    private String commitsUrl;
+
+    @Schema(description = "본 리포지토리 branch 정보 가져오기 위한 API URL")
+    private String branchesUrl;
+
+    @Override
+    public String getApiUrl() {
+        return this.url;
+    }
 }

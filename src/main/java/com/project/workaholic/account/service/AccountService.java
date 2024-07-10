@@ -31,4 +31,8 @@ public class AccountService {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new CustomException(StatusCode.INVALID_ACCOUNT));
     }
+
+    public boolean checkExistAccountById(String accountId) {
+        return accountRepository.existsByAccountId(accountId);
+    }
 }

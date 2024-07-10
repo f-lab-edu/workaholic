@@ -1,7 +1,7 @@
-package com.project.workaholic.issue.api;
+package com.project.workaholic.project.api;
 
-import com.project.workaholic.issue.model.IssueInfoDto;
-import com.project.workaholic.issue.model.IssueConfigDto;
+import com.project.workaholic.project.model.IssueInfoDto;
+import com.project.workaholic.project.model.IssueConfigDto;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +34,7 @@ public class IssueTrackerApi {
     @Operation(summary = "이슈 목록 API", description = "지정된 프로젝트에 해당되는 이슈 목록을 조회하는 API")
     @GetMapping("/project/{id}")
     public ResponseEntity<ApiResponse<List<IssueInfoDto>>> getIssueListByProjectId(
-            final @Parameter(name = "아이디", description = "프로젝트 아이디")
-            @PathVariable("id") Long projectId) {
+            final @Parameter(name = "아이디", description = "프로젝트 아이디") @PathVariable("id") Long projectId) {
         return ApiResponse.success(StatusCode.SUCCESS_READ_ISSUE_LIST_BY_PROJECT,
                 List.of());
     }

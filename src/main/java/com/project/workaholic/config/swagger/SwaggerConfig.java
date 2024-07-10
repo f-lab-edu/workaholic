@@ -1,5 +1,7 @@
 package com.project.workaholic.config.swagger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -14,6 +16,11 @@ import java.util.Date;
 
 @Configuration
 public class SwaggerConfig {
+    @Bean
+    public ModelResolver modelResolver(ObjectMapper objectMapper){
+        return new ModelResolver(objectMapper);
+    }
+
     @Bean
     public OpenAPI openAPI() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd HH:mm");
@@ -46,7 +53,8 @@ public class SwaggerConfig {
                 "/account/**",
                 "/vcs/**",
                 "/github/**",
-                "/gitlab/**"
+                "/gitlab/**",
+                "/project/**"
         };
 
         return GroupedOpenApi.builder()

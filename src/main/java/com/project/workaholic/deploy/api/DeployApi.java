@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Deploy API", description = "Workaholic Container 환경에 대한 배포관련 API")
 @RestController
 @RequestMapping("/container")
@@ -24,18 +26,11 @@ public class DeployApi {
     }
 
     @Operation(summary = "전체 Pod 조회", description = "Container 환경에 존재하는 전체 Pod 조회 API")
-    @GetMapping("/pod")
-    public ResponseEntity<ApiResponse<KubernetesResponse>> getPods() {
-        KubernetesResponse pods = deployService.getPods();
+    @GetMapping("/pod/{namespace}")
+    public ResponseEntity<ApiResponse<List<String>>> getPods(
+            @PathVariable String namespace) {
+        List<String> pods = deployService.getPods(namespace);
         return ApiResponse.success(StatusCode.SUCCESS_READ_PODS, pods);
-    }
-
-    @Operation(summary = "Pod 조회", description = "Container 환경에 선택된 Pod 조회 API")
-    @GetMapping("/pod/{id}")
-    public ResponseEntity<ApiResponse<PodInfoDto>> getPodById(
-            final @Parameter(name = "아이디", description = "Pod 아이디")
-            @PathVariable("id") String podId) {
-        return ApiResponse.success(StatusCode.SUCCESS_READ_POD, PodInfoDto.builder().build());
     }
 
     @Operation(summary = "Pod 삭제", description = "Container 환경에 선택된 Pod 삭제 API")

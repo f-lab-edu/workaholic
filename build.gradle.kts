@@ -45,8 +45,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    //ssl
-    compileOnly("org.apache.httpcomponents.client5:httpclient5:5.3.1")
+    //kubernetes client lib
+    implementation("io.fabric8:kubernetes-client:6.12.0")
 
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")

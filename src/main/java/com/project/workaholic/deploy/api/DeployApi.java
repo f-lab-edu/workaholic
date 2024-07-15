@@ -1,11 +1,10 @@
 package com.project.workaholic.deploy.api;
 
-import com.project.workaholic.deploy.model.KubernetesResponse;
 import com.project.workaholic.deploy.model.PodDto;
-import com.project.workaholic.deploy.model.PodInfoDto;
 import com.project.workaholic.deploy.service.DeployService;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,15 +28,25 @@ public class DeployApi {
     @GetMapping("/pod/{namespace}")
     public ResponseEntity<ApiResponse<List<String>>> getPods(
             @PathVariable String namespace) {
-        List<String> pods = deployService.getPods(namespace);
+        List<String> pods = deployService.getPodByNamespace(namespace);
         return ApiResponse.success(StatusCode.SUCCESS_READ_PODS, pods);
     }
 
+    @Operation(summary = "프로젝트 배포", description = "Container 환경에 존재하는 Pod 배포하는 API")
+    @PostMapping("/pod/{namespace}")
+    public ResponseEntity<ApiResponse<Pod>> deployment(
+            final @PathVariable String namespace,
+            final @RequestParam String podName) {
+        Pod pod = deployService.createPod(namespace, podName, "nginx:latest");
+        return ApiResponse.success(StatusCode.SUCCESS_DEPLOY_POD, pod);
+    }
+
     @Operation(summary = "Pod 삭제", description = "Container 환경에 선택된 Pod 삭제 API")
-    @DeleteMapping("/pod/{id}")
-    public ResponseEntity<ApiResponse<StatusCode>> deletePodById(
-            final @Parameter(name = "아이디", description = "Pod 아이디")
-            @PathVariable("id") String podId) {
+    @DeleteMapping("/pod/{namespace}")
+    public ResponseEntity<ApiResponse<StatusCode>> deleteDeployment(
+            final @PathVariable String namespace,
+            final @RequestParam("id") String podName) {
+        deployService.removePod(namespace, podName);
         return ApiResponse.success(StatusCode.SUCCESS_DELETE_POD);
     }
 
@@ -48,13 +57,5 @@ public class DeployApi {
             @PathVariable("id") String podId,
             @Valid @RequestBody PodDto configDto) {
         return ApiResponse.success(StatusCode.SUCCESS_UPDATE_POD, podId);
-    }
-
-    @Operation(summary = "프로젝트 배포", description = "Container 환경에 존재하는 Pod 배포하는 API")
-    @PostMapping("/pod/{id}/deploy")
-    public ResponseEntity<ApiResponse<StatusCode>> deployment(
-            final @Parameter(name = "아이디", description = "Pod 아이디")
-            @PathVariable("id") String podId) {
-        return ApiResponse.success(StatusCode.SUCCESS_DEPLOY_POD);
     }
 }

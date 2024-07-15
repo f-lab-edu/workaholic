@@ -1,5 +1,7 @@
 package com.project.workaholic.deploy.service;
 
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
@@ -23,7 +25,7 @@ public class DeployService {
         this.restTemplate = restTemplate;
     }
 
-    public List<String> getPods(String namespace) {
+    public List<String> getPodByNamespace(String namespace) {
         return kubernetesClient.pods().inNamespace(namespace).list().getItems().stream()
                 .map(Pod::getMetadata)
                 .map(ObjectMeta::getName)
@@ -31,6 +33,7 @@ public class DeployService {
     }
 
     public Pod createPod(String namespace, String podName, String imageName) {
+        //namespace == accountID , podName == projectName, imageName == TODO
         Pod pod = new PodBuilder()
                 .withNewMetadata().withName(podName).endMetadata()
                 .withNewSpec()
@@ -61,5 +64,19 @@ public class DeployService {
 
     public List<StatusDetails> removePod(String namespace, String podName) {
         return kubernetesClient.pods().inNamespace(namespace).withName(podName).delete();
+    }
+
+    public Namespace createNamespaceByAccountId(String accountId) {
+        Namespace namespace = new NamespaceBuilder()
+                .withNewMetadata()
+                .withName(accountId)
+                .endMetadata()
+                .build();
+
+        return kubernetesClient.namespaces().resource(namespace).create();
+    }
+
+    public List<StatusDetails> removeNamespaceByAccountId(String accountId) {
+        return kubernetesClient.namespaces().withName(accountId).delete();
     }
 }

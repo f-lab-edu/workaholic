@@ -24,21 +24,12 @@ public class DeployApi {
         this.deployService = deployService;
     }
 
-    @Operation(summary = "전체 Pod 조회", description = "Container 환경에 존재하는 전체 Pod 조회 API")
+    @Operation(summary = "Namespace 속해있는 전체 Pod 조회", description = "Namespace 환경에 존재하는 전체 Pod 조회 API")
     @GetMapping("/pod/{namespace}")
     public ResponseEntity<ApiResponse<List<String>>> getPods(
-            @PathVariable String namespace) {
+            final @PathVariable String namespace) {
         List<String> pods = deployService.getPodByNamespace(namespace);
         return ApiResponse.success(StatusCode.SUCCESS_READ_PODS, pods);
-    }
-
-    @Operation(summary = "프로젝트 배포", description = "Container 환경에 존재하는 Pod 배포하는 API")
-    @PostMapping("/pod/{namespace}")
-    public ResponseEntity<ApiResponse<Pod>> deployment(
-            final @PathVariable String namespace,
-            final @RequestParam String podName) {
-        Pod pod = deployService.createPod(namespace, podName, "nginx:latest");
-        return ApiResponse.success(StatusCode.SUCCESS_DEPLOY_POD, pod);
     }
 
     @Operation(summary = "Pod 삭제", description = "Container 환경에 선택된 Pod 삭제 API")

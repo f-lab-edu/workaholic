@@ -1,6 +1,8 @@
 package com.project.workaholic.project.service;
 
 import com.project.workaholic.config.exception.CustomException;
+import com.project.workaholic.deploy.model.entity.KubeNamespace;
+import com.project.workaholic.deploy.service.DeployService;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.repository.WorkProjectRepository;
 import com.project.workaholic.response.model.enumeration.StatusCode;
@@ -11,9 +13,11 @@ import java.util.List;
 @Service
 public class WorkProjectService {
     private final WorkProjectRepository workProjectRepository;
+    private final DeployService deployService;
 
-    public WorkProjectService(WorkProjectRepository workProjectRepository) {
+    public WorkProjectService(WorkProjectRepository workProjectRepository, DeployService deployService) {
         this.workProjectRepository = workProjectRepository;
+        this.deployService = deployService;
     }
 
     public WorkProject getWorkProjectById(String projectId) {
@@ -31,6 +35,8 @@ public class WorkProjectService {
         }
 
         newWorkProject = workProjectRepository.save(newWorkProject);
+        KubeNamespace kubeNamespace = deployService.getNamespaceByAccountId(newWorkProject.getOwner());
+        deployService.createPod(kubeNamespace, newWorkProject.getName(),"nginx:latest");
         return newWorkProject;
     }
 

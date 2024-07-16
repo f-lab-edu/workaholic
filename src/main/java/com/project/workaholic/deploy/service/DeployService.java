@@ -1,5 +1,7 @@
 package com.project.workaholic.deploy.service;
 
+import com.project.workaholic.deploy.model.entity.KubeNamespace;
+import com.project.workaholic.deploy.repository.KubeNamespaceRepository;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -9,7 +11,6 @@ import io.fabric8.kubernetes.api.model.StatusDetails;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,13 @@ import java.util.stream.Collectors;
 @Service
 public class DeployService {
     private final KubernetesClient kubernetesClient;
-    private final RestTemplate restTemplate;
+    private final KubeNamespaceRepository namespaceRepository;
+    private final KubeNamespaceRepository kubeNamespaceRepository;
 
-    public DeployService(KubernetesClient kubernetesClient, RestTemplate restTemplate) {
+    public DeployService(KubernetesClient kubernetesClient, KubeNamespaceRepository namespaceRepository, KubeNamespaceRepository kubeNamespaceRepository) {
         this.kubernetesClient = kubernetesClient;
-        this.restTemplate = restTemplate;
+        this.namespaceRepository = namespaceRepository;
+        this.kubeNamespaceRepository = kubeNamespaceRepository;
     }
 
     public List<String> getPodByNamespace(String namespace) {
@@ -32,7 +35,7 @@ public class DeployService {
                 .collect(Collectors.toList());
     }
 
-    public Pod createPod(String namespace, String podName, String imageName) {
+    public void createPod(KubeNamespace namespace, String podName, String imageName) {
         //namespace == accountID , podName == projectName, imageName == TODO
         Pod pod = new PodBuilder()
                 .withNewMetadata().withName(podName).endMetadata()
@@ -43,7 +46,10 @@ public class DeployService {
                 .endContainer()
                 .endSpec().build();
 
-        return kubernetesClient.pods().inNamespace(namespace).resource(pod).create();
+        kubernetesClient.pods()
+                .inNamespace(namespace.getId().toString())
+                .resource(pod)
+                .create();
     }
 
     public Deployment updatePod(String namespace, String podName, String imageName, Map<String, String> envMap) {
@@ -66,17 +72,23 @@ public class DeployService {
         return kubernetesClient.pods().inNamespace(namespace).withName(podName).delete();
     }
 
-    public Namespace createNamespaceByAccountId(String accountId) {
+    public void createNamespaceByAccountId(String accountId) {
+        KubeNamespace kubeNamespace = new KubeNamespace(accountId);
         Namespace namespace = new NamespaceBuilder()
                 .withNewMetadata()
-                .withName(accountId)
+                .withName(kubeNamespace.getId().toString())
                 .endMetadata()
                 .build();
 
-        return kubernetesClient.namespaces().resource(namespace).create();
+        kubernetesClient.namespaces().resource(namespace).create();
+        namespaceRepository.save(kubeNamespace);
     }
 
     public List<StatusDetails> removeNamespaceByAccountId(String accountId) {
         return kubernetesClient.namespaces().withName(accountId).delete();
+    }
+
+    public KubeNamespace getNamespaceByAccountId(String accountId) {
+        return kubeNamespaceRepository.findNamespaceByAccountId(accountId);
     }
 }

@@ -6,6 +6,7 @@ import com.project.workaholic.account.model.entity.Account;
 import com.project.workaholic.account.service.AccountService;
 import com.project.workaholic.config.interceptor.JsonWebToken;
 import com.project.workaholic.config.interceptor.JsonWebTokenProvider;
+import com.project.workaholic.deploy.service.DeployService;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +22,15 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Account API", description = "Workaholic 계정 API")
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/account")
 public class AccountApi {
     private final AccountService accountService;
     private final JsonWebTokenProvider jsonWebTokenProvider;
+
+    public AccountApi(AccountService accountService, JsonWebTokenProvider jsonWebTokenProvider) {
+        this.accountService = accountService;
+        this.jsonWebTokenProvider = jsonWebTokenProvider;
+    }
 
     private Account toEntity(AccountSignIdDto dto) {
         return Account.builder()

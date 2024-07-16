@@ -22,4 +22,7 @@ public class WorkProjectConfigReqDto {
 
     @Schema(description = "버전관리 Vendor")
     private VCSVendor vendor;
+
+    @Schema(description = "Project 설정 값")
+    private ProjectConfiguration configuration;
 }

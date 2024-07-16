@@ -6,6 +6,7 @@ import com.project.workaholic.project.model.WorkProjectConfigReqDto;
 import com.project.workaholic.project.model.WorkProjectConfigResDto;
 import com.project.workaholic.project.model.WorkProjectListViewDto;
 import com.project.workaholic.project.model.WorkProjectUpdateConfigReq;
+import com.project.workaholic.project.model.entity.ProjectSetting;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.service.WorkProjectService;
 import com.project.workaholic.response.model.ApiResponse;
@@ -99,7 +100,8 @@ public class WorkProjectApi {
         VCSRepository vcsRepository = service.getRepositoryInformation(oAuthAccessToken.getToken(), dto.getRepositoryName());
 
         WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
-        createdWorkProject = workProjectService.createWorkProject(createdWorkProject);
+        ProjectSetting setting = new ProjectSetting(createdWorkProject.getId(), dto.getConfiguration().getJdkVersion(), dto.getConfiguration().getRootDirectory(), dto.getConfiguration().getVariables());
+        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, setting);
         return ApiResponse.success(StatusCode.SUCCESS_CREATE_PROJECT, createdWorkProject.getId());
     }
 

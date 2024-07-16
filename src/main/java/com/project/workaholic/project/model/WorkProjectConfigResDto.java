@@ -2,7 +2,6 @@ package com.project.workaholic.project.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +26,9 @@ public class WorkProjectConfigResDto {
 
     @Schema(description = "latest commit")
     private String latestCommit;
+
+    @Schema(description = "Project 설정 값")
+    private ProjectConfiguration configuration;
 
     public WorkProjectConfigResDto(String name, String repositoryName, String repoUrl, List<String> branches, String latestCommit) {
         this.name = name;

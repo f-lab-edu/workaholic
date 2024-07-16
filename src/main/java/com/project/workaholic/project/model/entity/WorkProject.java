@@ -26,7 +26,7 @@ public class WorkProject {
     @Column(name = "REPOSITORY_NAME")
     private String repositoryName;
 
-    @Column(name = "COMIIT_URL")
+    @Column(name = "COMMIT_URL")
     private String commitUrl;
 
     @Column(name = "BRANCH_URL")

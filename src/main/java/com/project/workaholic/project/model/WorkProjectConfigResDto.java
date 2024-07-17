@@ -28,13 +28,14 @@ public class WorkProjectConfigResDto {
     private String latestCommit;
 
     @Schema(description = "Project 설정 값")
-    private ProjectConfiguration configuration;
+    private WorkProjectConfiguration configuration;
 
-    public WorkProjectConfigResDto(String name, String repositoryName, String repoUrl, List<String> branches, String latestCommit) {
+    public WorkProjectConfigResDto(String name, String repositoryName, String repoUrl, List<String> branches, String latestCommit, WorkProjectConfiguration configuration) {
         this.name = name;
         this.repositoryName = repositoryName;
         this.repoUrl = repoUrl;
         this.branches = branches;
         this.latestCommit = latestCommit;
+        this.configuration = configuration;
     }
 }

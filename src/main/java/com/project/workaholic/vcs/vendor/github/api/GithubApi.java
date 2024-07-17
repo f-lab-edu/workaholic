@@ -1,7 +1,8 @@
 package com.project.workaholic.vcs.vendor.github.api;
 
 import com.project.workaholic.account.service.AccountService;
-import com.project.workaholic.config.exception.CustomException;
+import com.project.workaholic.config.exception.type.FailedOAuthToken;
+import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
@@ -42,7 +43,7 @@ public class GithubApi {
             final @RequestParam String state) {
         GithuTokenResponse githubToken = githubService.getAccessToken(code);
         if( githubToken == null )
-            return ApiResponse.error(StatusCode.ERROR);
+            throw new FailedOAuthToken(VCSVendor.GITHUB);
 
         OAuthAccessToken existingToken = githubService.getOAuthAccessTokenByAccountId(state);
         if( existingToken != null )
@@ -56,11 +57,11 @@ public class GithubApi {
             description = "발급받은 OAuth AccessToken 을 이용해 Github 에서 제공하는 레포지토리 목록을 가져오는 API 호출")
     @GetMapping("/repo")
     public ResponseEntity<ApiResponse<List<String>>> getRepositoriesFromVersionControlSystem(
-            HttpServletRequest request) {
+            final HttpServletRequest request) {
         String accountId = getAccountIdByRequest(request);
         OAuthAccessToken oAuthAccessToken = githubService.getOAuthAccessTokenByAccountId(accountId);
         if (oAuthAccessToken == null )
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundOAuthTokenException(VCSVendor.GITHUB);
         List<String> repositories = githubService.getRepositoryNames(oAuthAccessToken.getToken());
         return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
     }
@@ -70,13 +71,13 @@ public class GithubApi {
             description = "발급받은 OAuth AccessToken 을 이용해 Github 에서 제공하는 레포지토리의 브랜치 목록을 가져오는 API 호출")
     @GetMapping("/branch")
     public ResponseEntity<ApiResponse<List<GithubBranch>>> getBranchesFromRepository(
-            HttpServletRequest request,
+            final HttpServletRequest request,
             final @RequestParam String owner,
             final @RequestParam String repo) {
         String accountId = getAccountIdByRequest(request);
         OAuthAccessToken oAuthAccessToken = githubService.getOAuthAccessTokenByAccountId(accountId);
         if(oAuthAccessToken == null)
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundOAuthTokenException(VCSVendor.GITHUB);
 
         List<GithubBranch> branches = githubService.getBranches(oAuthAccessToken.getToken(), owner, repo);
         return ApiResponse.success(StatusCode.SUCCESS_READ_BRANCHES, branches);

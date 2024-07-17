@@ -1,8 +1,6 @@
 package com.project.workaholic.vcs.service;
 
-import com.project.workaholic.config.exception.CustomException;
 import com.project.workaholic.project.model.entity.WorkProject;
-import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.VCSRepository;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
@@ -20,13 +18,11 @@ public class VCSApiService {
     }
 
     private VendorApiService getMatchServiceByWorkProject(WorkProject workProject) {
-        return vendorManager.getService(workProject.getVendor())
-                .orElseThrow(() -> new CustomException(StatusCode.NON_SUPPORTED_VENDOR));
+        return vendorManager.getService(workProject.getVendor());
     }
 
     public VendorApiService getMatchServiceByVendor(VCSVendor vendor) {
-        return vendorManager.getService(vendor)
-                .orElseThrow(() -> new CustomException(StatusCode.NON_SUPPORTED_VENDOR));
+        return vendorManager.getService(vendor);
     }
 
     public void registerToken(String accountId, String token, VCSVendor vendor) {

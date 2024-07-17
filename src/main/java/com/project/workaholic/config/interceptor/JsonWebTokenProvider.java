@@ -1,8 +1,8 @@
 package com.project.workaholic.config.interceptor;
 
 import com.project.workaholic.account.model.entity.Account;
-import com.project.workaholic.config.exception.CustomException;
-import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.config.exception.type.ExpiredTokenException;
+import com.project.workaholic.config.exception.type.InvalidAccessTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -123,9 +123,9 @@ public class JsonWebTokenProvider {
         try {
             parseClaims(token);
         } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            throw new CustomException(StatusCode.INVALID_ACCESS_TOKEN);
+            throw new InvalidAccessTokenException();
         } catch (ExpiredJwtException e){
-            throw new CustomException(StatusCode.EXPIRED_TOKEN);
+            throw new ExpiredTokenException();
         }
         return true;
     }

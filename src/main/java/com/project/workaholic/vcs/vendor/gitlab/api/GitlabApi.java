@@ -1,6 +1,7 @@
 package com.project.workaholic.vcs.vendor.gitlab.api;
 
-import com.project.workaholic.config.exception.CustomException;
+import com.project.workaholic.config.exception.type.FailedOAuthToken;
+import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
 import com.project.workaholic.response.model.ApiResponse;
 import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
@@ -40,8 +41,7 @@ public class GitlabApi {
             final @RequestParam String state) {
         GitlabTokenResponse gitlabToken = gitlabService.getAccessToken(code);
         if (gitlabToken == null)
-            return ApiResponse.error(StatusCode.ERROR);
-
+            throw new FailedOAuthToken(VCSVendor.GITLAB);
 
         VCSApiService.registerToken(state, gitlabToken.getAccessToken(), VCSVendor.GITLAB);
         return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
@@ -56,7 +56,7 @@ public class GitlabApi {
         String accountId = getAccountIdByRequest(request);
         OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(accountId);
         if(oAuthAccessToken == null)
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundOAuthTokenException(VCSVendor.GITLAB);
         List<String> repositories = gitlabService.getRepositoryNames(oAuthAccessToken.getToken());
         return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
     }
@@ -71,7 +71,7 @@ public class GitlabApi {
         String accountId = getAccountIdByRequest(request);
         OAuthAccessToken oAuthAccessToken = gitlabService.getOAuthAccessTokenByAccountId(accountId);
         if(oAuthAccessToken == null)
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundOAuthTokenException(VCSVendor.GITLAB);
         //TODO 생성한 프로젝트의 REPO ID 추가 필요
         List<GitlabBranch> branches = gitlabService.getBranches(oAuthAccessToken.getToken(), repoId);
         return ApiResponse.success(StatusCode.SUCCESS_READ_BRANCHES, branches);

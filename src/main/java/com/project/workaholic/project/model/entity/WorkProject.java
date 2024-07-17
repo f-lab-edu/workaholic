@@ -1,8 +1,7 @@
 package com.project.workaholic.project.model.entity;
 
 
-import com.project.workaholic.config.exception.CustomException;
-import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.config.exception.type.NonSupportedAlgorithmException;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -60,7 +59,7 @@ public class WorkProject {
             hash = digest.digest(String.format(vendor + ":" + repositoryName + ":" + owner).getBytes());
             return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new CustomException(StatusCode.ERROR);
+            throw new NonSupportedAlgorithmException("SHA-256");
         }
     }
 }

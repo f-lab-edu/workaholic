@@ -1,12 +1,13 @@
 package com.project.workaholic.project.api;
 
 import com.project.workaholic.account.service.AccountService;
-import com.project.workaholic.config.exception.CustomException;
+import com.project.workaholic.config.exception.type.NotFoundAccountException;
+import com.project.workaholic.project.model.WorkProjectConfiguration;
 import com.project.workaholic.project.model.WorkProjectConfigReqDto;
 import com.project.workaholic.project.model.WorkProjectConfigResDto;
 import com.project.workaholic.project.model.WorkProjectListViewDto;
 import com.project.workaholic.project.model.WorkProjectUpdateConfigReq;
-import com.project.workaholic.project.model.entity.ProjectSetting;
+import com.project.workaholic.project.model.entity.WorkProjectSetting;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.service.WorkProjectService;
 import com.project.workaholic.response.model.ApiResponse;
@@ -44,12 +45,9 @@ public class WorkProjectApi {
         this.vcsApiService = vcsApiService;
     }
 
-    private WorkProjectConfigResDto toConfigResDto(WorkProject workProject, VCSRepository vcsRepository) {
-        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT");
-    }
-
-    private WorkProjectConfigResDto toConfigResDto(WorkProject workProject) {
-        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT");
+    private WorkProjectConfigResDto toConfigResDto(WorkProject workProject, WorkProjectSetting setting) {
+        WorkProjectConfiguration configuration = new WorkProjectConfiguration(setting.getBaseJavaVersion(), setting.getWorkDir(), setting.getEnvVariables());
+        return new WorkProjectConfigResDto(workProject.getName(), workProject.getRepositoryName(), workProject.getRepositoryName(), List.of(), "COMMIT", configuration);
     }
 
     private WorkProjectListViewDto toListViewDto(WorkProject workProject) {
@@ -67,12 +65,11 @@ public class WorkProjectApi {
             final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
         String accountId = getAccountIdFromRequest(request);
         if(accountId == null || !accountService.checkExistAccountById(accountId))
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundAccountException();
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
-        OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(workProject.getVendor(), accountId);
-        VCSRepository importedRepository = vcsApiService.getSourceRepository(oAuthAccessToken.getToken(), workProject);
-
-        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, toConfigResDto(workProject, importedRepository));
+        WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
+        WorkProjectConfigResDto response = toConfigResDto(workProject, setting);
+        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, response);
     }
 
     @Operation(summary = "프로젝트 목록 조회 API", description = "전체 프로젝트 목록을 조회하는 API", tags = "Project API")
@@ -93,28 +90,28 @@ public class WorkProjectApi {
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectConfigReqDto dto) {
         String accountId = getAccountIdFromRequest(request);
         if(accountId == null || !accountService.checkExistAccountById(accountId))
-            throw new CustomException(StatusCode.INVALID_ACCOUNT);
+            throw new NotFoundAccountException();
 
         OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(dto.getVendor(), accountId);
         VendorApiService service = vcsApiService.getMatchServiceByVendor(dto.getVendor());
         VCSRepository vcsRepository = service.getRepositoryInformation(oAuthAccessToken.getToken(), dto.getRepositoryName());
 
         WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
-        ProjectSetting setting = new ProjectSetting(createdWorkProject.getId(), dto.getConfiguration().getJdkVersion(), dto.getConfiguration().getRootDirectory(), dto.getConfiguration().getVariables());
+        WorkProjectSetting setting = new WorkProjectSetting(createdWorkProject.getId(), dto.getConfiguration().getJdkVersion(), dto.getConfiguration().getRootDirectory(), dto.getConfiguration().getVariables());
         createdWorkProject = workProjectService.createWorkProject(createdWorkProject, setting);
         return ApiResponse.success(StatusCode.SUCCESS_CREATE_PROJECT, createdWorkProject.getId());
     }
 
     @Operation(summary = "프로젝트 수정 API", description = "ID에 해당된 프로젝트의 설정을 수정하는 API", tags = "Project API")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkProjectConfigResDto>> updateWorkProjectConfigById(
+    public ResponseEntity<ApiResponse<String>> updateWorkProjectConfigById(
             final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId,
             final @Valid @Parameter(description = "WorkProject config form") @RequestBody WorkProjectUpdateConfigReq dto) {
         WorkProject existingWorkProject = workProjectService.getWorkProjectById(projectId);
 //        WorkProject updatedWorkProject = toEntity(dto);
 //        updatedWorkProject = workProjectService.updateWorkProject(existingWorkProject, updatedWorkProject);
 
-        return ApiResponse.success(StatusCode.SUCCESS_UPDATE_PROJECT, toConfigResDto(existingWorkProject));
+        return ApiResponse.success(StatusCode.SUCCESS_UPDATE_PROJECT, existingWorkProject.getId());
     }
 
     @Operation(summary = "프로젝트 삭제 API", description = "ID에 해당되는 프로젝트 삭제 API", tags = "Project API")

@@ -14,9 +14,9 @@ public class WorkProjectUpdateConfigReq {
     private String name;
 
     @Schema(description = "Project 설정 값")
-    private ProjectConfiguration configuration;
+    private WorkProjectConfiguration configuration;
 
-    public WorkProjectUpdateConfigReq(String name, ProjectConfiguration configuration) {
+    public WorkProjectUpdateConfigReq(String name, WorkProjectConfiguration configuration) {
         this.name = name;
         this.configuration = configuration;
     }

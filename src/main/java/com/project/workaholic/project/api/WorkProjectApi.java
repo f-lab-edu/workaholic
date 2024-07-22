@@ -10,8 +10,7 @@ import com.project.workaholic.project.model.WorkProjectUpdateConfigReq;
 import com.project.workaholic.project.model.entity.WorkProjectSetting;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.service.WorkProjectService;
-import com.project.workaholic.response.model.ApiResponse;
-import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.config.ApiResponse;
 import com.project.workaholic.vcs.model.VCSRepository;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.service.VCSApiService;
@@ -69,7 +68,7 @@ public class WorkProjectApi {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
         WorkProjectConfigResDto response = toConfigResDto(workProject, setting);
-        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT, response);
+        return ApiResponse.success(response);
     }
 
     @Operation(summary = "프로젝트 목록 조회 API", description = "전체 프로젝트 목록을 조회하는 API", tags = "Project API")
@@ -80,7 +79,7 @@ public class WorkProjectApi {
         List<WorkProjectListViewDto> projectList =
                 workProjectService.getAllWorkProjectsByAccountId(accountId).stream().map(this::toListViewDto).toList();
 
-        return ApiResponse.success(StatusCode.SUCCESS_READ_PROJECT_LIST, projectList);
+        return ApiResponse.success(projectList);
     }
 
     @Operation(summary = "프로젝트 생성 API", description = "Request Body 데이터를 통해서 새로운 프로젝트를 생성하는 API", tags = "Project API")
@@ -99,7 +98,7 @@ public class WorkProjectApi {
         WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
         WorkProjectSetting setting = new WorkProjectSetting(createdWorkProject.getId(), dto.getConfiguration().getJdkVersion(), dto.getConfiguration().getRootDirectory(), dto.getConfiguration().getVariables());
         createdWorkProject = workProjectService.createWorkProject(createdWorkProject, setting);
-        return ApiResponse.success(StatusCode.SUCCESS_CREATE_PROJECT, createdWorkProject.getId());
+        return ApiResponse.success(createdWorkProject.getId());
     }
 
     @Operation(summary = "프로젝트 수정 API", description = "ID에 해당된 프로젝트의 설정을 수정하는 API", tags = "Project API")
@@ -111,16 +110,16 @@ public class WorkProjectApi {
 //        WorkProject updatedWorkProject = toEntity(dto);
 //        updatedWorkProject = workProjectService.updateWorkProject(existingWorkProject, updatedWorkProject);
 
-        return ApiResponse.success(StatusCode.SUCCESS_UPDATE_PROJECT, existingWorkProject.getId());
+        return ApiResponse.success(existingWorkProject.getId());
     }
 
     @Operation(summary = "프로젝트 삭제 API", description = "ID에 해당되는 프로젝트 삭제 API", tags = "Project API")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<StatusCode>> deleteWorkProjectById(
+    public ResponseEntity<Void> deleteWorkProjectById(
             final @Parameter(description = "프로젝트 아이디") @PathVariable("id") String projectId) {
         WorkProject deletedWorkProject = workProjectService.getWorkProjectById(projectId);
         workProjectService.deleteWorkProject(deletedWorkProject);
 
-        return ApiResponse.success(StatusCode.SUCCESS_DELETE_PROJECT);
+        return ApiResponse.success();
     }
 }

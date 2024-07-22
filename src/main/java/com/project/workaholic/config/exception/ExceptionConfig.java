@@ -10,6 +10,7 @@ import com.project.workaholic.config.exception.type.NonSupportedAlgorithmExcepti
 import com.project.workaholic.config.exception.type.NotFoundAccountException;
 import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
 import com.project.workaholic.config.exception.type.NotFoundProjectException;
+import com.project.workaholic.config.exception.type.NotSetTemplateModelException;
 import com.project.workaholic.config.exception.type.UnauthorizedRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -103,6 +104,13 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getAlgorithmName() + "이 지원되지 않습니다."));
+    }
+
+    @ExceptionHandler(NotSetTemplateModelException.class)
+    protected ResponseEntity<ExceptionResponse> handleNotSetTemplateModelException(NotSetTemplateModelException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker 파일을 생성하기 위한 Template 의 Model 이 설정되어있지 않습니다."));
     }
 
     private static List<FieldException> toList(BindingResult bindingResult) {

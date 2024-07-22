@@ -48,9 +48,13 @@ dependencies {
     //kubernetes client lib
     implementation("io.fabric8:kubernetes-client:6.12.0")
 
+    //Freemarker
+    implementation("org.springframework.boot:spring-boot-starter-freemarker")
+
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

@@ -4,6 +4,7 @@ import com.project.workaholic.config.exception.type.DuplicateProjectException;
 import com.project.workaholic.config.exception.type.NotFoundProjectException;
 import com.project.workaholic.deploy.model.entity.KubeNamespace;
 import com.project.workaholic.deploy.service.DeployService;
+import com.project.workaholic.deploy.service.DockerFileService;
 import com.project.workaholic.project.model.entity.WorkProjectSetting;
 import com.project.workaholic.project.model.entity.WorkProject;
 import com.project.workaholic.project.repository.WorkProjectSettingRepository;
@@ -18,11 +19,13 @@ public class WorkProjectService {
     private final WorkProjectRepository workProjectRepository;
     private final WorkProjectSettingRepository settingRepository;
     private final DeployService deployService;
+    private final DockerFileService dockerFileService;
 
-    public WorkProjectService(WorkProjectRepository workProjectRepository, WorkProjectSettingRepository settingRepository, DeployService deployService) {
+    public WorkProjectService(WorkProjectRepository workProjectRepository, WorkProjectSettingRepository settingRepository, DeployService deployService, DockerFileService dockerFileService) {
         this.workProjectRepository = workProjectRepository;
         this.settingRepository = settingRepository;
         this.deployService = deployService;
+        this.dockerFileService = dockerFileService;
     }
 
     public WorkProject getWorkProjectById(String projectId) {
@@ -42,6 +45,10 @@ public class WorkProjectService {
         newWorkProject = workProjectRepository.save(newWorkProject);
         settingRepository.save(setting);
         KubeNamespace kubeNamespace = deployService.getNamespaceByAccountId(newWorkProject.getOwner());
+
+        dockerFileService.setModel(setting.getEnvVariables());
+        dockerFileService.generateDockerFile(newWorkProject.getName());
+
         deployService.createPod(kubeNamespace, newWorkProject.getName(),"nginx:latest");
         return newWorkProject;
     }

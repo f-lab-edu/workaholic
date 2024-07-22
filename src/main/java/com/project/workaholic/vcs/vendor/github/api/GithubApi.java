@@ -3,8 +3,7 @@ package com.project.workaholic.vcs.vendor.github.api;
 import com.project.workaholic.account.service.AccountService;
 import com.project.workaholic.config.exception.type.FailedOAuthToken;
 import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
-import com.project.workaholic.response.model.ApiResponse;
-import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.config.ApiResponse;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.service.VCSApiService;
@@ -38,7 +37,7 @@ public class GithubApi {
             summary = "Github OAuth CallBack API",
             description = "Github 에 설정한 CallBack URL로 명명해 인증 서버를 통해서 받아온 code를 사용해 AccessToken 반환")
     @GetMapping("/callback")
-    private ResponseEntity<ApiResponse<StatusCode>> githubOAuthCallback(
+    private ResponseEntity<Void> githubOAuthCallback(
             final @RequestParam String code,
             final @RequestParam String state) {
         GithuTokenResponse githubToken = githubService.getAccessToken(code);
@@ -49,7 +48,7 @@ public class GithubApi {
         if( existingToken != null )
             VCSApiService.renewAccessToken(existingToken, githubToken.getAccessToken());
         VCSApiService.registerToken(state, githubToken.getAccessToken(), VCSVendor.GITHUB);
-        return ApiResponse.success(StatusCode.SUCCESS_AUTH_VCS);
+        return ApiResponse.success();
     }
 
     @Operation(
@@ -63,7 +62,7 @@ public class GithubApi {
         if (oAuthAccessToken == null )
             throw new NotFoundOAuthTokenException(VCSVendor.GITHUB);
         List<String> repositories = githubService.getRepositoryNames(oAuthAccessToken.getToken());
-        return ApiResponse.success(StatusCode.SUCCESS_READ_REPO_LIST, repositories);
+        return ApiResponse.success(repositories);
     }
 
     @Operation(
@@ -80,6 +79,6 @@ public class GithubApi {
             throw new NotFoundOAuthTokenException(VCSVendor.GITHUB);
 
         List<GithubBranch> branches = githubService.getBranches(oAuthAccessToken.getToken(), owner, repo);
-        return ApiResponse.success(StatusCode.SUCCESS_READ_BRANCHES, branches);
+        return ApiResponse.success(branches);
     }
 }

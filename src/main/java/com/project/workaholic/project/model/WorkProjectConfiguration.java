@@ -13,14 +13,14 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkProjectConfiguration {
-    @Schema(name = "Container 에서 실행 시킬 JDK Version")
+    @Schema(description = "Container 에서 실행 시킬 JDK Version")
     @ValidEnum(enumClass = BaseJavaVersion.class)
     private BaseJavaVersion jdkVersion = BaseJavaVersion.JAVA_8;
 
-    @Schema(name = "컨테이너 위치 지정")
+    @Schema(description = "컨테이너 위치 지정")
     private String rootDirectory = "";
 
-    @Schema(name = "환경 변수")
+    @Schema(description = "환경 변수")
     private Map<String, String> variables = new HashMap<>();
 
     public WorkProjectConfiguration(BaseJavaVersion jdkVersion, String rootDirectory, Map<String, String> variables) {

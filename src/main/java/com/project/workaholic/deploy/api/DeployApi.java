@@ -1,8 +1,7 @@
 package com.project.workaholic.deploy.api;
 
 import com.project.workaholic.deploy.service.DeployService;
-import com.project.workaholic.response.model.ApiResponse;
-import com.project.workaholic.response.model.enumeration.StatusCode;
+import com.project.workaholic.config.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -25,15 +24,15 @@ public class DeployApi {
     public ResponseEntity<ApiResponse<List<String>>> getPods(
             final @PathVariable String namespace) {
         List<String> pods = deployService.getPodByNamespace(namespace);
-        return ApiResponse.success(StatusCode.SUCCESS_READ_PODS, pods);
+        return ApiResponse.success(pods);
     }
 
     @Operation(summary = "Pod 삭제", description = "Container 환경에 선택된 Pod 삭제 API")
     @DeleteMapping("/pod/{namespace}")
-    public ResponseEntity<ApiResponse<StatusCode>> deleteDeployment(
+    public ResponseEntity<Void> deleteDeployment(
             final @PathVariable String namespace,
             final @RequestParam("id") String podName) {
         deployService.removePod(namespace, podName);
-        return ApiResponse.success(StatusCode.SUCCESS_DELETE_POD);
+        return ApiResponse.success();
     }
 }

@@ -51,6 +51,9 @@ dependencies {
     //Freemarker
     implementation("org.springframework.boot:spring-boot-starter-freemarker")
 
+    //JGit
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
+
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

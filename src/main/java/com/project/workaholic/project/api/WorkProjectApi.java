@@ -100,6 +100,7 @@ public class WorkProjectApi {
         OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(dto.getVendor(), accountId);
         VendorApiService service = vcsApiService.getMatchServiceByVendor(dto.getVendor());
         VCSRepository vcsRepository = service.getRepositoryInformation(oAuthAccessToken.getToken(), dto.getRepositoryName());
+        vcsApiService.cloneRepository(vcsRepository.getCloneUrl(), oAuthAccessToken.getToken(), "test");
 
         WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
         WorkProjectSetting setting = toSettingEntity(createdWorkProject, dto);

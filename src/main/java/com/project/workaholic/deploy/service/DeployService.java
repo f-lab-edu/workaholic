@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,13 +36,13 @@ public class DeployService {
                 .collect(Collectors.toList());
     }
 
-    public void createPod(KubeNamespace namespace, String podName, String imageName) {
+    public void createPod(KubeNamespace namespace, UUID projectId, String imageName) {
         //namespace == accountID , podName == projectName, imageName == TODO
         Pod pod = new PodBuilder()
-                .withNewMetadata().withName(podName).endMetadata()
+                .withNewMetadata().withName(projectId.toString()).endMetadata()
                 .withNewSpec()
                 .addNewContainer()
-                .withName(podName)
+                .withName(projectId.toString())
                 .withImage(imageName)
                 .endContainer()
                 .endSpec().build();

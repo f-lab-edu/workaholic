@@ -6,11 +6,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkProjectListViewDto {
     @Schema(description = "프로젝트 아이디")
-    private String id;
+    private UUID id;
 
     @Schema(description = "프로젝트 이름")
     private String name;
@@ -27,7 +29,7 @@ public class WorkProjectListViewDto {
     @Schema(description = "배포된 branch")
     private String branch;
 
-    public WorkProjectListViewDto(String id, String name, VCSVendor vendor, String repositoryName, String commit, String branch) {
+    public WorkProjectListViewDto(UUID id, String name, VCSVendor vendor, String repositoryName, String commit, String branch) {
         this.id = id;
         this.name = name;
         this.vendor = vendor;

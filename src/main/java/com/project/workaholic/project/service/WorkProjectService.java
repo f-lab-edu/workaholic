@@ -12,7 +12,10 @@ import com.project.workaholic.project.repository.WorkProjectRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class WorkProjectService {
@@ -28,13 +31,22 @@ public class WorkProjectService {
         this.dockerFileService = dockerFileService;
     }
 
-    public WorkProject getWorkProjectById(String projectId) {
+    public WorkProject getWorkProjectById(UUID projectId) {
         return workProjectRepository.findById(projectId)
                 .orElseThrow(NotFoundProjectException::new);
     }
 
     public List<WorkProject> getAllWorkProjectsByAccountId(String accountId) {
         return workProjectRepository.findAllWorkProjectByAccountId(accountId);
+    }
+
+    private Map<String, Object> toModel(WorkProjectSetting setting) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("javaVersion", setting.getBaseJavaVersion().getImageName());
+        model.put("commands", setting.getBuildType().getCommands());
+        model.put("jarFilePath", setting.getBuildType().getJarFilePath());
+        model.put("envVariables", setting.getEnvVariables());
+        return model;
     }
 
     @Transactional
@@ -46,10 +58,11 @@ public class WorkProjectService {
         settingRepository.save(setting);
         KubeNamespace kubeNamespace = deployService.getNamespaceByAccountId(newWorkProject.getOwner());
 
-        dockerFileService.setModel(setting.getEnvVariables());
+        Map<String, Object> model = toModel(setting);
+        dockerFileService.setModel(model);
         dockerFileService.generateDockerFile(newWorkProject.getName());
 
-        deployService.createPod(kubeNamespace, newWorkProject.getName(),"nginx:latest");
+        deployService.createPod(kubeNamespace, newWorkProject.getId(),"nginx:latest");
         return newWorkProject;
     }
 
@@ -62,7 +75,7 @@ public class WorkProjectService {
         workProjectRepository.delete(deletedWorkProject);
     }
 
-    public WorkProjectSetting getSettingByWorkProjectId(String projectId) {
+    public WorkProjectSetting getSettingByWorkProjectId(UUID projectId) {
         return settingRepository.findById(projectId)
                 .orElseThrow(NotFoundProjectException::new);
     }

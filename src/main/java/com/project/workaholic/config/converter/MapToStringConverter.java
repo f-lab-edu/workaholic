@@ -9,7 +9,7 @@ import jakarta.persistence.Converter;
 import java.util.Map;
 
 @Converter
-public class MapToToStringConverter implements AttributeConverter<Map<String, String>, String> {
+public class MapToStringConverter implements AttributeConverter<Map<String, String>, String> {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

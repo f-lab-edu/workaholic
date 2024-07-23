@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -24,12 +25,13 @@ public class DockerFileService {
     private static final String TEMPLATE_PATH = "/templates";
     private static final String OUTPUT_PATH = "src/main/resources/docker";
     private static final String DOCKER_TEMPLATE_FILE = "DockerTemplate.ftl";
+    private static final String DOCKER_FILE_NAME = "DockerFile";
 
     private Configuration configuration;
     private Template template;
 
     @Setter
-    private Map<String, String> model;
+    private Map<String, Object> model = new HashMap<>();
 
     private void initConfiguration() {
         configuration = new Configuration(Configuration.VERSION_2_3_23);
@@ -76,8 +78,8 @@ public class DockerFileService {
         }
     }
 
-    public String generateDockerFile(String name) {
-        if( model == null || model.isEmpty() )
+    public void generateDockerFile(String name) {
+        if( model == null)
             throw new NotSetTemplateModelException();
 
         Path dockerFilePath = Paths.get(OUTPUT_PATH);
@@ -85,13 +87,11 @@ public class DockerFileService {
             makeDirectories(dockerFilePath);
 
         String dockerFileContent = renderTemplate();
-        Path dockerFile = dockerFilePath.resolve(name + "-Dockerfile");
+        Path dockerFile = dockerFilePath.resolve(DOCKER_FILE_NAME);
         try {
             Files.write(dockerFile, dockerFileContent.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return dockerFile.toString();
     }
 }

@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkProjectConfigReqDto {
+
     @Schema(description = "프로젝트 이름")
     private String name;
 

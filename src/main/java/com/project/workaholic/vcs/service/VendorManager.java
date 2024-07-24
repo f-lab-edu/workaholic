@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class VendorManager {
@@ -15,7 +14,7 @@ public class VendorManager {
         serviceMap.put(vendor, service);
     }
 
-    public Optional<VendorApiService> getService(VCSVendor vendor) {
-        return Optional.ofNullable(serviceMap.get(vendor));
+    public VendorApiService getService(VCSVendor vendor) {
+        return serviceMap.get(vendor);
     }
 }

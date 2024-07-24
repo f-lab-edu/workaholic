@@ -1,16 +1,12 @@
 package com.project.workaholic.project.model.entity;
 
 
-import com.project.workaholic.config.exception.CustomException;
-import com.project.workaholic.response.model.enumeration.StatusCode;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -18,7 +14,8 @@ import java.util.Base64;
 @Table(name = "WORK_PROJECT")
 public class WorkProject {
     @Id
-    private String id;
+    @Column(name = "ID")
+    private UUID id;
 
     @Column(name = "NAME")
     private String name;
@@ -26,7 +23,7 @@ public class WorkProject {
     @Column(name = "REPOSITORY_NAME")
     private String repositoryName;
 
-    @Column(name = "COMIIT_URL")
+    @Column(name = "COMMIT_URL")
     private String commitUrl;
 
     @Column(name = "BRANCH_URL")
@@ -43,6 +40,7 @@ public class WorkProject {
     private String owner;
 
     public WorkProject(String name, String repositoryName, String commitUrl, String branchUrl, String cloneUrl, VCSVendor vendor, String owner) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.repositoryName = repositoryName;
         this.commitUrl = commitUrl;
@@ -50,17 +48,5 @@ public class WorkProject {
         this.cloneUrl = cloneUrl;
         this.vendor = vendor;
         this.owner = owner;
-        this.id = hashingId(vendor.name(), repositoryName, owner);
-    }
-
-    private String hashingId(String vendor, String repositoryName, String owner) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash;
-            hash = digest.digest(String.format(vendor + ":" + repositoryName + ":" + owner).getBytes());
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CustomException(StatusCode.ERROR);
-        }
     }
 }

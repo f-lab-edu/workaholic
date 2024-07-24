@@ -12,6 +12,11 @@ oauth2:
     access-token-url: https://gitlab.com/oauth/token
     redirect-uri: http://localhost:8080/gitlab/callback
 
+kubernetes:
+  url: ${KUBE_SERVER}
+  token: ${KUBE_TOKEN}
+  base-url: /api/v1/namespaces/default/
+
 token:
   secret: ${SECRET_KEY}
   access-exp: ${ACCESS_EXP}

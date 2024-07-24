@@ -14,6 +14,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/api-docs/json/swagger-config",
             "/api-docs/json/**",
             "/account/login",
+            "/account/signup",
+            "/container/**",
+            "/github/callback/**",
+            "/gitlab/callback/**"
     };
 
     @Override

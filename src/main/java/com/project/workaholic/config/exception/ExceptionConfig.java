@@ -3,14 +3,20 @@ package com.project.workaholic.config.exception;
 import com.project.workaholic.config.exception.type.DuplicateAccountException;
 import com.project.workaholic.config.exception.type.DuplicateProjectException;
 import com.project.workaholic.config.exception.type.ExpiredTokenException;
+import com.project.workaholic.config.exception.type.FailedBuildDockerFileException;
+import com.project.workaholic.config.exception.type.FailedCreateDockerFile;
+import com.project.workaholic.config.exception.type.FailedCreatedWorkProject;
 import com.project.workaholic.config.exception.type.FailedOAuthToken;
 import com.project.workaholic.config.exception.type.InvalidAccessTokenException;
 import com.project.workaholic.config.exception.type.InvalidAccountException;
+import com.project.workaholic.config.exception.type.InvalidRepositoryException;
+import com.project.workaholic.config.exception.type.JGitApiException;
 import com.project.workaholic.config.exception.type.NonSupportedAlgorithmException;
 import com.project.workaholic.config.exception.type.NotFoundAccountException;
 import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
 import com.project.workaholic.config.exception.type.NotFoundProjectException;
 import com.project.workaholic.config.exception.type.NotSetTemplateModelException;
+import com.project.workaholic.config.exception.type.TransportRepositoryException;
 import com.project.workaholic.config.exception.type.UnauthorizedRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -111,6 +117,48 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker 파일을 생성하기 위한 Template 의 Model 이 설정되어있지 않습니다."));
+    }
+
+    @ExceptionHandler(InvalidRepositoryException.class)
+    protected ResponseEntity<ExceptionResponse> handleInvalidRepositoryException(InvalidRepositoryException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Repository url 확인 해주세요. : " + e.getRepositoryUrl()));
+    }
+
+    @ExceptionHandler(TransportRepositoryException.class)
+    protected ResponseEntity<ExceptionResponse> handleTransportRepositoryException(TransportRepositoryException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Git Repository 와 통신중 문제가 발생했습니다."));
+    }
+
+    @ExceptionHandler(JGitApiException.class)
+    protected ResponseEntity<ExceptionResponse> handleJGitApiException(JGitApiException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "JGIT API 사용 도중 예기치 못한 오류가 발생했습니다."));
+    }
+
+    @ExceptionHandler(FailedCreateDockerFile.class)
+    protected ResponseEntity<ExceptionResponse> handleFailedCreateDockerFile(FailedCreateDockerFile e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker file 생성 중에 예기치 못한 오류가 발생했습니다."));
+    }
+
+    @ExceptionHandler(FailedBuildDockerFileException.class)
+    protected ResponseEntity<ExceptionResponse> handleFailedBuildDockerFileException(FailedBuildDockerFileException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker file 빌드에 실패하였습니다."));
+    }
+
+    @ExceptionHandler(FailedCreatedWorkProject.class)
+    protected ResponseEntity<ExceptionResponse> handleFailedCreatedWorkProject(FailedCreatedWorkProject e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Work Project 생성 중 오류가 발생하였습니다."));
     }
 
     private static List<FieldException> toList(BindingResult bindingResult) {

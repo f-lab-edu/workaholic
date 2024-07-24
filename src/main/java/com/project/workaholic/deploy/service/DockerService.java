@@ -1,5 +1,7 @@
 package com.project.workaholic.deploy.service;
 
+import com.project.workaholic.config.exception.type.FailedBuildDockerFileException;
+import com.project.workaholic.config.exception.type.FailedCreateDockerFile;
 import com.project.workaholic.config.exception.type.NotSetTemplateModelException;
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
@@ -8,30 +10,25 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.TemplateNotFoundException;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class DockerFileService {
+public class DockerService {
     private static final String TEMPLATE_PATH = "/templates";
-    private static final String OUTPUT_PATH = "src/main/resources/docker";
     private static final String DOCKER_TEMPLATE_FILE = "DockerTemplate.ftl";
-    private static final String DOCKER_FILE_NAME = "DockerFile";
+    private static final String DOCKER_FILE_NAME = "Dockerfile";
 
     private Configuration configuration;
     private Template template;
-
-    @Setter
-    private Map<String, Object> model = new HashMap<>();
 
     private void initConfiguration() {
         configuration = new Configuration(Configuration.VERSION_2_3_23);
@@ -54,12 +51,12 @@ public class DockerFileService {
         }
     }
 
-    public DockerFileService() {
+    public DockerService() {
         initConfiguration();
         loadDockerFileTemplate();
     }
 
-    private String renderTemplate() {
+    private String renderTemplate(Map<String, Object> model) {
         try (StringWriter writer = new StringWriter()) {
             template.process(model, writer);
             return writer.toString();
@@ -78,20 +75,59 @@ public class DockerFileService {
         }
     }
 
-    public void generateDockerFile(String name) {
+    public String generateDockerFile(String workDirectoryPath, Map<String, Object> model) {
         if( model == null)
             throw new NotSetTemplateModelException();
 
-        Path dockerFilePath = Paths.get(OUTPUT_PATH);
+        Path dockerFilePath = Paths.get(workDirectoryPath);
         if(!Files.exists(dockerFilePath))
             makeDirectories(dockerFilePath);
 
-        String dockerFileContent = renderTemplate();
+        String dockerFileContent = renderTemplate(model);
         Path dockerFile = dockerFilePath.resolve(DOCKER_FILE_NAME);
         try {
-            Files.write(dockerFile, dockerFileContent.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(dockerFile, dockerFileContent);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FailedCreateDockerFile();
+        }
+
+        return dockerFilePath.toFile().getAbsolutePath();
+    }
+
+    public void buildDockerImage(String imageName, String dockerfilePath) {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("docker", "build", dockerfilePath, "--tag", imageName);
+
+        try {
+            Process process = processBuilder.start();
+
+            // 표준 출력과 오류를 읽기 위한 BufferedReader
+            BufferedReader stdOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+            String line;
+
+            // 표준 출력을 읽고 저장
+            while ((line = stdOutput.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            // 표준 오류를 읽고 저장
+            while ((line = stdError.readLine()) != null) {
+                error.append(line).append("\n");
+            }
+
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Docker build failed with exit code " + exitCode);
+                System.err.println("Error output:\n" + error.toString());
+                throw new FailedBuildDockerFileException();
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new FailedBuildDockerFileException();
         }
     }
 }

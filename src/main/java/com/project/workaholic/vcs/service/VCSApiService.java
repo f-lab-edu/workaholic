@@ -1,6 +1,9 @@
 package com.project.workaholic.vcs.service;
 
-import com.project.workaholic.project.model.entity.WorkProject;
+import com.project.workaholic.config.exception.type.FailedCreateDirectory;
+import com.project.workaholic.config.exception.type.InvalidRepositoryException;
+import com.project.workaholic.config.exception.type.JGitApiException;
+import com.project.workaholic.config.exception.type.TransportRepositoryException;
 import com.project.workaholic.vcs.model.entity.OAuthAccessToken;
 import com.project.workaholic.vcs.model.enumeration.VCSVendor;
 import com.project.workaholic.vcs.repository.OAuthAccessTokenRepository;
@@ -12,23 +15,16 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @Service
 public class VCSApiService {
-    private static final String BASE_DIR = "src/main/resources/repository";
+    private static final String BASE_DIR = "C:\\Users\\Tmax\\Desktop";
     private final VendorManager vendorManager;
     private final OAuthAccessTokenRepository tokenRepository;
 
     public VCSApiService(VendorManager vendorManager, OAuthAccessTokenRepository tokenRepository) {
         this.vendorManager = vendorManager;
         this.tokenRepository = tokenRepository;
-    }
-
-    private VendorApiService getMatchServiceByWorkProject(WorkProject workProject) {
-        return vendorManager.getService(workProject.getVendor());
     }
 
     public VendorApiService getMatchServiceByVendor(VCSVendor vendor) {
@@ -50,18 +46,13 @@ public class VCSApiService {
         return service.getOAuthAccessTokenByAccountId(accountId);
     }
 
-    private void makeDirectories(Path outputPath) {
-        try {
-            Files.createDirectories(outputPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void cloneRepository(String cloneUrl, String accessToken, String directoryName) {
+    public String cloneRepository(String cloneUrl, String accessToken, String directoryName) {
         File directory = new File(BASE_DIR, directoryName);
         if (!directory.exists()) {
-            directory.mkdirs();
+            boolean isCreated = directory.mkdirs();
+            if (!isCreated) {
+                throw new FailedCreateDirectory(directory.getAbsolutePath());
+            }
         }
 
         try{
@@ -70,11 +61,13 @@ public class VCSApiService {
                     .setCredentialsProvider(new UsernamePasswordCredentialsProvider(accessToken, ""))
                     .call();
         } catch (InvalidRemoteException e) {
-            throw new RuntimeException(e);
+            throw new InvalidRepositoryException(cloneUrl);
         } catch (TransportException e) {
-            throw new RuntimeException(e);
+            throw new TransportRepositoryException();
         } catch (GitAPIException e) {
-            throw new RuntimeException(e);
+            throw new JGitApiException();
         }
+
+        return directory.getAbsolutePath();
     }
 }

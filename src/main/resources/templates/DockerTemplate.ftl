@@ -1,10 +1,6 @@
 <#compress>
     FROM openjdk:${javaVersion}
-
-    <#if commands?? && commands?size gt 0>
-        CMD [<#list commands as command>"${command}"<#if command_has_next>, </#if></#list>]
-    </#if>
-
+    RUN ${buildCommand}
     ARG JAR_FILE_PATH=${jarFilePath}
     COPY ${"$"}{JAR_FILE_PATH} app.jar
 

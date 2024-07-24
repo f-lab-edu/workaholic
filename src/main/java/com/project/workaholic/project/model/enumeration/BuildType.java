@@ -2,18 +2,16 @@ package com.project.workaholic.project.model.enumeration;
 
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 public enum BuildType {
-    MAVEN(List.of("./mvnw", "clean", "package"), "target/*.jar"),
-    GRADLE(List.of("./gradlew", "clean", "build"), "build/libs/*.jar");
+    MAVEN("./mvnw clean package", "target/*.jar"),
+    GRADLE("gradle clean bootJar", "build/libs/*.jar");
 
-    private final List<String> commands;
+    private final String buildCommand;
     private final String jarFilePath;
 
-    BuildType(List<String> commands, String jarFilePath) {
-        this.commands = commands;
+    BuildType(String buildCommand, String jarFilePath) {
+        this.buildCommand = buildCommand;
         this.jarFilePath = jarFilePath;
     }
 }

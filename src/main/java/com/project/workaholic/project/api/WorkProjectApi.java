@@ -1,7 +1,10 @@
 package com.project.workaholic.project.api;
 
 import com.project.workaholic.account.service.AccountService;
+import com.project.workaholic.config.exception.type.FailedCreatedWorkProject;
 import com.project.workaholic.config.exception.type.NotFoundAccountException;
+import com.project.workaholic.deploy.service.DeployService;
+import com.project.workaholic.deploy.service.DockerService;
 import com.project.workaholic.project.model.WorkProjectConfiguration;
 import com.project.workaholic.project.model.WorkProjectConfigReqDto;
 import com.project.workaholic.project.model.WorkProjectConfigResDto;
@@ -29,7 +32,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,11 +43,15 @@ public class WorkProjectApi {
     private final WorkProjectService workProjectService;
     private final AccountService accountService;
     private final VCSApiService vcsApiService;
+    private final DockerService dockerService;
+    private final DeployService deployService;
 
-    public WorkProjectApi(WorkProjectService workProjectService, AccountService accountService, VCSApiService vcsApiService) {
+    public WorkProjectApi(WorkProjectService workProjectService, AccountService accountService, VCSApiService vcsApiService, DockerService dockerService, DeployService deployService) {
         this.workProjectService = workProjectService;
         this.accountService = accountService;
         this.vcsApiService = vcsApiService;
+        this.dockerService = dockerService;
+        this.deployService = deployService;
     }
 
     private WorkProjectConfigResDto toConfigResDto(WorkProject workProject, WorkProjectSetting setting) {
@@ -61,6 +70,16 @@ public class WorkProjectApi {
     private WorkProjectSetting toSettingEntity(WorkProject createdWorkProject, WorkProjectConfigReqDto dto) {
         WorkProjectConfiguration configuration = dto.getConfiguration();
         return new WorkProjectSetting(createdWorkProject.getId(), configuration.getBuildTool(), configuration.getJdkVersion(), configuration.getPort(), configuration.getRootDirectory(), configuration.getEnvVariables(), configuration.getExecuteParameters());
+    }
+
+    private Map<String, Object> toModel(WorkProjectSetting setting) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("javaVersion", setting.getBaseJavaVersion().getImageName());
+        model.put("buildCommand", setting.getBuildType().getBuildCommand());
+        model.put("jarFilePath", setting.getBuildType().getJarFilePath());
+        model.put("envVariables", setting.getEnvVariables());
+        model.put("port", setting.getPort());
+        return model;
     }
 
     @Operation(summary = "프로젝트 조회 API", description = "ID에 해당되는 프로젝트에 대한 자세한 정보를 조회하는 API", tags = "Project API")
@@ -97,14 +116,34 @@ public class WorkProjectApi {
         if(accountId == null || !accountService.checkExistAccountById(accountId))
             throw new NotFoundAccountException();
 
+        // VCS Repository information 가져오기
         OAuthAccessToken oAuthAccessToken = vcsApiService.getOAuthAccessTokenByAccountId(dto.getVendor(), accountId);
         VendorApiService service = vcsApiService.getMatchServiceByVendor(dto.getVendor());
         VCSRepository vcsRepository = service.getRepositoryInformation(oAuthAccessToken.getToken(), dto.getRepositoryName());
-        vcsApiService.cloneRepository(vcsRepository.getCloneUrl(), oAuthAccessToken.getToken(), "test");
 
+        // 가져온 Repository 정보를 기반으로 WorkProject 와 WorkProjectSetting Entity 구성
         WorkProject createdWorkProject = new WorkProject(dto.getName(), dto.getRepositoryName(), vcsRepository.getCommitsUrl(), vcsRepository.getBranchesUrl(), vcsRepository.getCloneUrl(), dto.getVendor(), accountId);
-        WorkProjectSetting setting = toSettingEntity(createdWorkProject, dto);
-        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, setting);
+        WorkProjectSetting createdSetting = toSettingEntity(createdWorkProject, dto);
+        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, createdSetting);
+
+        try {
+            // Repository Clone
+            String clonedPath = vcsApiService.cloneRepository(vcsRepository.getCloneUrl(), oAuthAccessToken.getToken(), createdWorkProject.getId().toString());
+
+            // 구성된 Entity 기반으로 DockerFile 생성과  로직 마지막에 Image build 까지
+            String dockerFilePath = dockerService.generateDockerFile(clonedPath, toModel(createdSetting));
+            dockerService.buildDockerImage(createdWorkProject.getId().toString(), dockerFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            workProjectService.deleteWorkProject(createdWorkProject);
+            throw new FailedCreatedWorkProject(e);
+        }
+
+        // 생성된 Image pod deploy
+//        KubeNamespace kubeNamespace = deployService.getNamespaceByAccountId(createdWorkProject.getOwner());
+//        deployService.createPod(kubeNamespace, createdWorkProject.getId(),"nginx:latest");
+
         return ApiResponse.success(createdWorkProject.getId());
     }
 

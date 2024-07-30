@@ -3,19 +3,14 @@ package com.project.workaholic.config.exception;
 import com.project.workaholic.config.exception.type.DuplicateAccountException;
 import com.project.workaholic.config.exception.type.DuplicateProjectException;
 import com.project.workaholic.config.exception.type.ExpiredTokenException;
-import com.project.workaholic.config.exception.type.FailedBuildDockerFileException;
-import com.project.workaholic.config.exception.type.FailedCreateDockerFile;
 import com.project.workaholic.config.exception.type.FailedCreatedWorkProject;
-import com.project.workaholic.config.exception.type.FailedOAuthToken;
 import com.project.workaholic.config.exception.type.InvalidAccessTokenException;
 import com.project.workaholic.config.exception.type.InvalidAccountException;
 import com.project.workaholic.config.exception.type.InvalidRepositoryException;
 import com.project.workaholic.config.exception.type.JGitApiException;
 import com.project.workaholic.config.exception.type.NonSupportedAlgorithmException;
 import com.project.workaholic.config.exception.type.NotFoundAccountException;
-import com.project.workaholic.config.exception.type.NotFoundOAuthTokenException;
 import com.project.workaholic.config.exception.type.NotFoundProjectException;
-import com.project.workaholic.config.exception.type.NotSetTemplateModelException;
 import com.project.workaholic.config.exception.type.TransportRepositoryException;
 import com.project.workaholic.config.exception.type.UnauthorizedRequestException;
 import org.springframework.http.HttpHeaders;
@@ -47,13 +42,6 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ExceptionResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), "해당 계정은 존재하지 않습니다."));
-    }
-
-    @ExceptionHandler(NotFoundOAuthTokenException.class)
-    protected ResponseEntity<ExceptionResponse> handleNotFoundOAuthTokenException(NotFoundOAuthTokenException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ExceptionResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), "해당 계정은 " + e.getVendor() +"의 OAuth Token 존재하지 않습니다."));
     }
 
     @ExceptionHandler(NotFoundProjectException.class)
@@ -98,25 +86,11 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
                 .body(new ExceptionResponse(HttpStatus.CONFLICT.getReasonPhrase(), "이미 존재하는 프로젝트 입니다."));
     }
 
-    @ExceptionHandler(FailedOAuthToken.class)
-    protected ResponseEntity<ExceptionResponse> handleFailedOAuthToken(FailedOAuthToken e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getVendor() + "의 OAuth Token 발급도중 문제가 발생하였습니다."));
-    }
-
     @ExceptionHandler(NonSupportedAlgorithmException.class)
     protected ResponseEntity<ExceptionResponse> handleNonSupportedAlgorithmException(NonSupportedAlgorithmException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getAlgorithmName() + "이 지원되지 않습니다."));
-    }
-
-    @ExceptionHandler(NotSetTemplateModelException.class)
-    protected ResponseEntity<ExceptionResponse> handleNotSetTemplateModelException(NotSetTemplateModelException e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker 파일을 생성하기 위한 Template 의 Model 이 설정되어있지 않습니다."));
     }
 
     @ExceptionHandler(InvalidRepositoryException.class)
@@ -138,20 +112,6 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "JGIT API 사용 도중 예기치 못한 오류가 발생했습니다."));
-    }
-
-    @ExceptionHandler(FailedCreateDockerFile.class)
-    protected ResponseEntity<ExceptionResponse> handleFailedCreateDockerFile(FailedCreateDockerFile e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker file 생성 중에 예기치 못한 오류가 발생했습니다."));
-    }
-
-    @ExceptionHandler(FailedBuildDockerFileException.class)
-    protected ResponseEntity<ExceptionResponse> handleFailedBuildDockerFileException(FailedBuildDockerFileException e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Docker file 빌드에 실패하였습니다."));
     }
 
     @ExceptionHandler(FailedCreatedWorkProject.class)

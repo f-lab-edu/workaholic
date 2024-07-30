@@ -25,8 +25,6 @@ dependencies {
     //QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
-    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -45,20 +43,38 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    //kubernetes client lib
-    implementation("io.fabric8:kubernetes-client:6.12.0")
-
-    //Freemarker
-    implementation("org.springframework.boot:spring-boot-starter-freemarker")
-
-    //JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
-
     runtimeOnly("com.h2database:h2")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "org.springframework.boot")
+    apply(plugin = "io.spring.dependency-management")
+
+    dependencies {
+        "compileOnly"("org.projectlombok:lombok")
+        "annotationProcessor"("org.projectlombok:lombok")
+        "annotationProcessor"("jakarta.annotation:jakarta.annotation-api")
+        "annotationProcessor"("jakarta.persistence:jakarta.persistence-api")
+        "testImplementation"("org.springframework.boot:spring-boot-starter-test")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+    }
+
+    tasks.named<Jar>("bootJar") {
+        enabled = false
+    }
+
+    tasks.named<Jar>("jar") {
+        enabled = true
+    }
+
+    tasks.named<Test>("test") {
+        useJUnitPlatform()
+    }
 }
 
 tasks.withType<Test> {

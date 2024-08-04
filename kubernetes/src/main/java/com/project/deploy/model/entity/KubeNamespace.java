@@ -19,11 +19,11 @@ public class KubeNamespace {
     @Column(name = "ID")
     private UUID id;
 
-    @Column(name = "ACCOUNT_ID")
-    private String accountId;
+    @Column(name = "PROJECT_NAME")
+    private String projectName;
 
-    public KubeNamespace(String accountId) {
+    public KubeNamespace(String projectName) {
         this.id = UUID.randomUUID();
-        this.accountId = accountId;
+        this.projectName = projectName;
     }
 }

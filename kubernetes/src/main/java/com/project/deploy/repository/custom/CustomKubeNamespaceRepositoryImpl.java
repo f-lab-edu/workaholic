@@ -12,10 +12,11 @@ public class CustomKubeNamespaceRepositoryImpl implements CustomKubeNamespaceRep
     public CustomKubeNamespaceRepositoryImpl(JPQLQueryFactory jpqlQueryFactory) {
         this.jpqlQueryFactory = jpqlQueryFactory;
     }
+
     @Override
-    public KubeNamespace findNamespaceByAccountId(String accountId) {
+    public KubeNamespace findNamespaceByProjectName(String projectName) {
         return jpqlQueryFactory.selectFrom(qKubeNamespace)
-                .where(qKubeNamespace.accountId.eq(accountId))
+                .where(qKubeNamespace.projectName.eq(projectName))
                 .fetchOne();
     }
 }

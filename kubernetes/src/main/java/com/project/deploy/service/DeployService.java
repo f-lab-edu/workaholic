@@ -36,7 +36,7 @@ public class DeployService {
                 .collect(Collectors.toList());
     }
 
-    public void createPod(KubeNamespace namespace, UUID projectId, String imageName) {
+    public void createPod(String namespace, UUID projectId, String imageName) {
         //namespace == accountID , podName == projectName, imageName == TODO
         Pod pod = new PodBuilder()
                 .withNewMetadata().withName(projectId.toString()).endMetadata()
@@ -48,7 +48,7 @@ public class DeployService {
                 .endSpec().build();
 
         kubernetesClient.pods()
-                .inNamespace(namespace.getId().toString())
+                .inNamespace(namespace)
                 .resource(pod)
                 .create();
     }
@@ -89,7 +89,7 @@ public class DeployService {
         return kubernetesClient.namespaces().withName(accountId).delete();
     }
 
-    public KubeNamespace getNamespaceByAccountId(String accountId) {
-        return kubeNamespaceRepository.findNamespaceByAccountId(accountId);
+    public KubeNamespace getNamespaceByProjectName(String projectName) {
+        return kubeNamespaceRepository.findNamespaceByAccountId(projectName);
     }
 }

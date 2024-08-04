@@ -2,7 +2,6 @@ package com.project.workaholic.config.exception;
 
 import com.project.workaholic.config.exception.type.DuplicateAccountException;
 import com.project.workaholic.config.exception.type.DuplicateProjectException;
-import com.project.workaholic.config.exception.type.ExpiredTokenException;
 import com.project.workaholic.config.exception.type.FailedCreatedWorkProject;
 import com.project.workaholic.config.exception.type.InvalidAccessTokenException;
 import com.project.workaholic.config.exception.type.InvalidAccountException;
@@ -10,9 +9,7 @@ import com.project.workaholic.config.exception.type.InvalidRepositoryException;
 import com.project.workaholic.config.exception.type.JGitApiException;
 import com.project.workaholic.config.exception.type.NonSupportedAlgorithmException;
 import com.project.workaholic.config.exception.type.NotFoundAccountException;
-import com.project.workaholic.config.exception.type.NotFoundProjectException;
 import com.project.workaholic.config.exception.type.TransportRepositoryException;
-import com.project.workaholic.config.exception.type.UnauthorizedRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -44,19 +41,7 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
                 .body(new ExceptionResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), "해당 계정은 존재하지 않습니다."));
     }
 
-    @ExceptionHandler(NotFoundProjectException.class)
-    protected ResponseEntity<ExceptionResponse> handleNotFoundProjectException(NotFoundProjectException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ExceptionResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), "해당 프로젝트는 존재하지 않습니다."));
-    }
 
-    @ExceptionHandler(ExpiredTokenException.class)
-    protected ResponseEntity<ExceptionResponse> handleExpiredTokenException(ExpiredTokenException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ExceptionResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "토큰의 기간이 만료되었습니다."));
-    }
 
     @ExceptionHandler(InvalidAccessTokenException.class)
     protected ResponseEntity<ExceptionResponse> handleInvalidAccessTokenException(InvalidAccessTokenException e) {
@@ -65,12 +50,7 @@ public class ExceptionConfig extends ResponseEntityExceptionHandler {
                 .body(new ExceptionResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "토큰의 형식이 유효하지 않습니다."));
     }
 
-    @ExceptionHandler(UnauthorizedRequestException.class)
-    protected ResponseEntity<ExceptionResponse> handleUnauthorizedRequestException(UnauthorizedRequestException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(new ExceptionResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), "인증되지 않은 요청입니다."));
-    }
+
 
     @ExceptionHandler(DuplicateAccountException.class)
     protected ResponseEntity<ExceptionResponse> handleDuplicateProjectException(DuplicateAccountException e) {

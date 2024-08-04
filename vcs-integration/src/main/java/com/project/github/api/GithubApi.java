@@ -1,5 +1,6 @@
 package com.project.github.api;
 
+import com.project.exception.type.FailedCloneRepositoryException;
 import com.project.exception.type.FailedOAuthToken;
 import com.project.exception.type.NotFoundOAuthTokenException;
 import com.project.github.model.GithuTokenResponse;
@@ -11,10 +12,7 @@ import com.project.oauth.service.OAuthApiService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -71,5 +69,22 @@ public class GithubApi {
 
         List<GithubBranch> branches = githubService.getBranches(oAuthAccessToken.getToken(), owner, repo);
         return ResponseEntity.status(HttpStatus.OK).body(branches);
+    }
+
+    @PatchMapping("/clone")
+    public ResponseEntity<Void> cloningRepository(
+            final String workId,
+            final String githubId,
+            final String cloneUrl
+    ) {
+        OAuthAccessToken oAuthAccessToken = githubService.getOAuthAccessTokenByAccountId(githubId);
+
+        try {
+            String clonedPath = githubService.cloneRepository(workId, cloneUrl, oAuthAccessToken.getToken());
+        } catch (FailedCloneRepositoryException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

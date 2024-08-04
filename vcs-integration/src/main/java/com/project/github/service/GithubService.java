@@ -1,5 +1,7 @@
 package com.project.github.service;
 
+import com.project.exception.type.FailedCloneRepositoryException;
+import com.project.exception.type.FailedCreateDirectory;
 import com.project.github.model.GithuTokenResponse;
 import com.project.github.model.GithubBranch;
 import com.project.github.model.GithubRepository;
@@ -11,6 +13,11 @@ import com.project.oauth.repository.OAuthAccessTokenRepository;
 import com.project.oauth.service.VendorApiService;
 import com.project.oauth.service.VendorManager;
 import jakarta.annotation.PostConstruct;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,11 +25,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class GithubService implements VendorApiService {
+    private static final String BASE_DIR = "C:\\Users\\Tmax\\Desktop";
+
     private final OAuthAccessTokenRepository oAuthAccessTokenRepository;
     private final VendorManager vendorManager;
     private final GithubProperties properties;
@@ -93,5 +103,28 @@ public class GithubService implements VendorApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GithubBranch[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, GithubBranch[].class);
         return response.getBody() == null ? List.of() :  List.of(response.getBody());
+    }
+
+    public String cloneRepository(String workId, String cloneUrl, String token) throws FailedCloneRepositoryException {
+        File directory = new File(BASE_DIR, workId);
+
+        if (!directory.exists()) {
+            boolean isCreated = directory.mkdirs();
+            if (!isCreated) {
+                throw new FailedCreateDirectory(directory.getAbsolutePath());
+            }
+        }
+
+        try{
+            Git.cloneRepository().setURI(cloneUrl)
+                    .setDirectory(directory)
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                    .call();
+        } catch (GitAPIException e) {
+            throw new FailedCloneRepositoryException(cloneUrl);
+        }
+
+        return directory.getAbsolutePath();
+
     }
 }

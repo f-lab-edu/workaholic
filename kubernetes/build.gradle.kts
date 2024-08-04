@@ -15,9 +15,6 @@ dependencies {
 
     //kubernetes client lib
     implementation("io.fabric8:kubernetes-client:6.12.0")
-
-    //Freemarker
-    implementation("org.springframework.boot:spring-boot-starter-freemarker")
 }
 
 tasks.test {

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class WorkProjectService {
@@ -21,7 +20,7 @@ public class WorkProjectService {
         this.settingRepository = settingRepository;
     }
 
-    public WorkProject getWorkProjectById(UUID projectId) {
+    public WorkProject getWorkProjectById(String projectId) {
         return workProjectRepository.findById(projectId)
                 .orElseThrow(NotFoundProjectException::new);
     }
@@ -40,14 +39,20 @@ public class WorkProjectService {
         workProjectRepository.delete(deletedWorkProject);
     }
 
-    public WorkProjectSetting getSettingByWorkProjectId(UUID projectId) {
+    public WorkProjectSetting getSettingByWorkProjectId(String projectId) {
         return settingRepository.findById(projectId)
                 .orElseThrow(NotFoundProjectException::new);
     }
 
-    public WorkProject updateWorkProject(WorkProject existingWorkProject, WorkProject updatedWorkProject) {
-        updatedWorkProject = workProjectRepository.save(existingWorkProject);
-        return updatedWorkProject;
+    public void updateWorkProject(WorkProjectSetting existingSetting, WorkProjectSetting updatedSetting) {
+        existingSetting.setBuildType(updatedSetting.getBuildType());
+        existingSetting.setJavaVersion(updatedSetting.getJavaVersion());
+        existingSetting.setPort(updatedSetting.getPort());
+        existingSetting.setWorkDirectory(updatedSetting.getWorkDirectory());
+        existingSetting.setEnvVariables(updatedSetting.getEnvVariables());
+        existingSetting.setExecuteParameters(updatedSetting.getExecuteParameters());
+
+        settingRepository.save(existingSetting);
     }
 
     public List<WorkProject> getAllWorkProject() {

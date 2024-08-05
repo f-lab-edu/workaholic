@@ -12,19 +12,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "WORK_PROJECT")
 public class WorkProject {
     @Id
-    @Column(name = "ID")
-    private UUID id;
-
-    @Column(name = "NAME")
-    private String name;
+    @Column(name = "ID", unique = true, updatable = false, nullable = false)
+    private String id;
 
     @Setter
     @Column(name = "COMMIT_URL")
@@ -42,17 +37,8 @@ public class WorkProject {
     @Enumerated(EnumType.STRING)
     private VCSVendor vendor;
 
-    public WorkProject(String name, String commitUrl, String branchUrl, String cloneUrl, VCSVendor vendor) {
-        this.id = UUID.randomUUID();
-        this.name = name;
-        this.commitUrl = commitUrl;
-        this.branchUrl = branchUrl;
-        this.cloneUrl = cloneUrl;
-        this.vendor = vendor;
-    }
-
-    public WorkProject(String name, VCSVendor vendor) {
-        this.name = name;
+    public WorkProject(String id, VCSVendor vendor) {
+        this.id = id;
         this.vendor = vendor;
     }
 }

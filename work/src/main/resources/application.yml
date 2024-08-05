@@ -3,9 +3,9 @@ spring:
     name: workaholic
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://192.168.115.11:14306/ANYLINK7
-    username: anylink
-    password: anylink
+    url: jdbc:mariadb://localhost:3306/WORKAHOLIC
+    username: root
+    password: admin
   jpa:
     hibernate:
       ddl-auto: create

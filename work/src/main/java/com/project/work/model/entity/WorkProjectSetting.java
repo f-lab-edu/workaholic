@@ -17,7 +17,6 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -26,7 +25,7 @@ import java.util.UUID;
 public class WorkProjectSetting {
     @Id
     @Column(name = "PROJECT_ID")
-    private UUID id;
+    private String id;
 
     @Setter
     @Column(name = "BUILD_TYPE")
@@ -44,7 +43,7 @@ public class WorkProjectSetting {
 
     @Setter
     @Column(name = "WORK_DIR")
-    private String workDir; //WORK_DIR
+    private String workDirectory; //WORK_DIR
 
     @Setter
     @Column(name = "ENV_VARIABLE")
@@ -56,7 +55,22 @@ public class WorkProjectSetting {
     @Convert(converter = ListToStringConverter.class)
     private List<String> executeParameters;
 
-    public WorkProjectSetting(UUID id) {
+    public WorkProjectSetting(String id, BuildType buildType, JavaVersion javaVersion, int port, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
         this.id = id;
+        this.buildType = buildType;
+        this.javaVersion = javaVersion;
+        this.port = port;
+        this.workDirectory = workDirectory;
+        this.envVariables = envVariables;
+        this.executeParameters = executeParameters;
+    }
+
+    public WorkProjectSetting(BuildType buildType, JavaVersion javaVersion, int port, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
+        this.buildType = buildType;
+        this.javaVersion = javaVersion;
+        this.port = port;
+        this.workDirectory = workDirectory;
+        this.envVariables = envVariables;
+        this.executeParameters = executeParameters;
     }
 }

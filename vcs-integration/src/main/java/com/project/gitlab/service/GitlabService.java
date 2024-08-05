@@ -1,5 +1,7 @@
 package com.project.gitlab.service;
 
+import com.project.exception.type.FailedCloneRepositoryException;
+import com.project.exception.type.FailedCreateDirectory;
 import com.project.gitlab.model.GitlabBranch;
 import com.project.gitlab.model.GitlabRepository;
 import com.project.gitlab.model.GitlabTokenRequest;
@@ -12,6 +14,9 @@ import com.project.oauth.repository.OAuthAccessTokenRepository;
 import com.project.oauth.service.VendorApiService;
 import com.project.oauth.service.VendorManager;
 import jakarta.annotation.PostConstruct;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,11 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class GitlabService implements VendorApiService {
+    private static final String BASE_DIR = "C:\\Users\\Tmax\\Desktop";
+
     private final OAuthAccessTokenRepository oAuthAccessTokenRepository;
     private final VendorManager vendorManager;
     private final GitlabProperties properties;
@@ -34,12 +42,6 @@ public class GitlabService implements VendorApiService {
         this.vendorManager = vendorManager;
         this.properties = properties;
         this.restTemplate = restTemplate;
-    }
-
-    @PostConstruct
-    @Override
-    public void init() {
-        vendorManager.registerService(VCSVendor.GITLAB, this);
     }
 
     @Override
@@ -55,6 +57,28 @@ public class GitlabService implements VendorApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GitlabRepository> response = restTemplate.exchange(properties.getBASE_URL() + "/projects?membership=true", HttpMethod.GET, entity, GitlabRepository.class);
         return response.getBody();
+    }
+
+    public String cloneRepository(String workId, String cloneUrl, String token) throws FailedCloneRepositoryException {
+        File directory = new File(BASE_DIR, workId);
+
+        if (!directory.exists()) {
+            boolean isCreated = directory.mkdirs();
+            if (!isCreated) {
+                throw new FailedCreateDirectory(directory.getAbsolutePath());
+            }
+        }
+
+        try{
+            Git.cloneRepository().setURI(cloneUrl)
+                    .setDirectory(directory)
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                    .call();
+        } catch (GitAPIException e) {
+            throw new FailedCloneRepositoryException(cloneUrl);
+        }
+
+        return directory.getAbsolutePath();
     }
 
     public GitlabTokenResponse getAccessToken(String code) {

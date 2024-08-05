@@ -45,12 +45,6 @@ public class GithubService implements VendorApiService {
         this.restTemplate = restTemplate;
     }
 
-    @PostConstruct
-    @Override
-    public void init() {
-        vendorManager.registerService(VCSVendor.GITHUB, this);
-    }
-
     @Override
     public OAuthAccessToken getOAuthAccessTokenByAccountId(String accountId) {
         return oAuthAccessTokenRepository.findGithubByAccountId(accountId).orElse(null);
@@ -64,6 +58,28 @@ public class GithubService implements VendorApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GithubRepository> response = restTemplate.exchange(properties.getBASE_URL() +"/repos/" + repositoryName, HttpMethod.GET, entity, GithubRepository.class);
         return response.getBody();
+    }
+
+    public String cloneRepository(String workId, String cloneUrl, String token) throws FailedCloneRepositoryException {
+        File directory = new File(BASE_DIR, workId);
+
+        if (!directory.exists()) {
+            boolean isCreated = directory.mkdirs();
+            if (!isCreated) {
+                throw new FailedCreateDirectory(directory.getAbsolutePath());
+            }
+        }
+
+        try{
+            Git.cloneRepository().setURI(cloneUrl)
+                    .setDirectory(directory)
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                    .call();
+        } catch (GitAPIException e) {
+            throw new FailedCloneRepositoryException(cloneUrl);
+        }
+
+        return directory.getAbsolutePath();
     }
 
     private HttpHeaders getHeaders() {
@@ -103,28 +119,5 @@ public class GithubService implements VendorApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GithubBranch[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, GithubBranch[].class);
         return response.getBody() == null ? List.of() :  List.of(response.getBody());
-    }
-
-    public String cloneRepository(String workId, String cloneUrl, String token) throws FailedCloneRepositoryException {
-        File directory = new File(BASE_DIR, workId);
-
-        if (!directory.exists()) {
-            boolean isCreated = directory.mkdirs();
-            if (!isCreated) {
-                throw new FailedCreateDirectory(directory.getAbsolutePath());
-            }
-        }
-
-        try{
-            Git.cloneRepository().setURI(cloneUrl)
-                    .setDirectory(directory)
-                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
-                    .call();
-        } catch (GitAPIException e) {
-            throw new FailedCloneRepositoryException(cloneUrl);
-        }
-
-        return directory.getAbsolutePath();
-
     }
 }

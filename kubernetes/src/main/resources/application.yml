@@ -1,3 +1,8 @@
+kubernetes:
+  url: ${KUBE_SERVER}
+  token: ${KUBE_TOKEN}
+  base-url: /api/v1/namespaces/default/
+
 spring:
   application:
     name: workaholic
@@ -8,7 +13,7 @@ spring:
     password: anylink
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:

@@ -1,7 +1,12 @@
 package com.project.work.model.entity;
 
 import com.project.work.model.enumeration.VCSVendor;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +43,7 @@ public class WorkProject {
     private VCSVendor vendor;
 
     public WorkProject(String name, String commitUrl, String branchUrl, String cloneUrl, VCSVendor vendor) {
-        this.id = UUID.randomUUID();;
+        this.id = UUID.randomUUID();
         this.name = name;
         this.commitUrl = commitUrl;
         this.branchUrl = branchUrl;

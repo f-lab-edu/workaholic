@@ -8,6 +8,7 @@ repositories {
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
     //QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")

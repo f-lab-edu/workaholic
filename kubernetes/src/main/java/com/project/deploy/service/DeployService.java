@@ -20,12 +20,10 @@ import java.util.stream.Collectors;
 @Service
 public class DeployService {
     private final KubernetesClient kubernetesClient;
-    private final KubeNamespaceRepository namespaceRepository;
     private final KubeNamespaceRepository kubeNamespaceRepository;
 
-    public DeployService(KubernetesClient kubernetesClient, KubeNamespaceRepository namespaceRepository, KubeNamespaceRepository kubeNamespaceRepository) {
+    public DeployService(KubernetesClient kubernetesClient, KubeNamespaceRepository kubeNamespaceRepository) {
         this.kubernetesClient = kubernetesClient;
-        this.namespaceRepository = namespaceRepository;
         this.kubeNamespaceRepository = kubeNamespaceRepository;
     }
 
@@ -36,7 +34,7 @@ public class DeployService {
                 .collect(Collectors.toList());
     }
 
-    public void createPod(String namespace, UUID projectId, String imageName) {
+    public void createPod(KubeNamespace namespace, UUID projectId, String imageName) {
         //namespace == accountID , podName == projectName, imageName == TODO
         Pod pod = new PodBuilder()
                 .withNewMetadata().withName(projectId.toString()).endMetadata()
@@ -48,7 +46,7 @@ public class DeployService {
                 .endSpec().build();
 
         kubernetesClient.pods()
-                .inNamespace(namespace)
+                .inNamespace(namespace.getId().toString())
                 .resource(pod)
                 .create();
     }
@@ -82,7 +80,7 @@ public class DeployService {
                 .build();
 
         kubernetesClient.namespaces().resource(namespace).create();
-        namespaceRepository.save(kubeNamespace);
+        kubeNamespaceRepository.save(kubeNamespace);
     }
 
     public List<StatusDetails> removeNamespaceByAccountId(String accountId) {
@@ -90,6 +88,6 @@ public class DeployService {
     }
 
     public KubeNamespace getNamespaceByProjectName(String projectName) {
-        return kubeNamespaceRepository.findNamespaceByAccountId(projectName);
+        return kubeNamespaceRepository.findNamespaceByProjectName(projectName);
     }
 }

@@ -8,7 +8,6 @@ import com.project.work.model.entity.WorkProject;
 import com.project.work.model.entity.WorkProjectSetting;
 import com.project.work.service.WorkProjectService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,10 +40,10 @@ public class WorkProjectApi {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<String>> getWorkProjectConfig() {
+    public ResponseEntity<ApiResponse<List<String>>> getWorkProjectConfig() {
         List<String> response = workProjectService.getAllWorkProject()
                 .stream().map(WorkProject::getId).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ApiResponse.success(response);
     }
 
     @PostMapping("")

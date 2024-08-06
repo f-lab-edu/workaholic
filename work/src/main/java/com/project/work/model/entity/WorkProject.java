@@ -1,6 +1,6 @@
 package com.project.work.model.entity;
 
-import com.project.work.model.enumeration.VCSVendor;
+import common.model.enumeration.VCSVendor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

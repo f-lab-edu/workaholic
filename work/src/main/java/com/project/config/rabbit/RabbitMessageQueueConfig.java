@@ -33,10 +33,10 @@ public class RabbitMessageQueueConfig {
 
     @Bean
     public Binding binding(Queue queue, DirectExchange directExchange) {
-        return BindingBuilder.bind(queue).to(directExchange).with("vcs-integration");
+        return BindingBuilder
+                .bind(queue).to(directExchange).with("vcs-integration");
+
     }
-
-
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {

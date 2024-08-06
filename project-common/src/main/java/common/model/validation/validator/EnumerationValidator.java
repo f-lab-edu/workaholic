@@ -1,6 +1,6 @@
-package com.project.work.model.validation.validator;
+package common.model.validation.validator;
 
-import com.project.work.model.validation.ValidEnumeration;
+import common.model.validation.ValidEnumeration;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,9 +1,9 @@
-package com.project.work.model;
+package common.model;
 
-import com.project.work.model.enumeration.BuildType;
-import com.project.work.model.enumeration.JavaVersion;
-import com.project.work.model.enumeration.VCSVendor;
-import com.project.work.model.validation.ValidEnumeration;
+import common.model.enumeration.BuildType;
+import common.model.enumeration.JavaVersion;
+import common.model.enumeration.VCSVendor;
+import common.model.validation.ValidEnumeration;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class WorkProjectRequestDto {
     @ValidEnumeration(enumClass = JavaVersion.class)
     private JavaVersion javaVersion = JavaVersion.JAVA_21;
 
-    private String repositoryName;
+    private String repositoryUrl;
 
     @ValidEnumeration(enumClass = BuildType.class)
     private BuildType buildType = BuildType.GRADLE;

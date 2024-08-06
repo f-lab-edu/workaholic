@@ -1,4 +1,4 @@
-package com.project.work.model.enumeration;
+package common.model.enumeration;
 
 import lombok.Getter;
 

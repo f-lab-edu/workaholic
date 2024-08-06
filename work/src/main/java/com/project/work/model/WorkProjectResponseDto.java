@@ -1,9 +1,9 @@
 package com.project.work.model;
 
-import com.project.work.model.enumeration.BuildType;
-import com.project.work.model.enumeration.JavaVersion;
-import com.project.work.model.enumeration.VCSVendor;
-import com.project.work.model.validation.ValidEnumeration;
+import common.model.enumeration.BuildType;
+import common.model.enumeration.JavaVersion;
+import common.model.enumeration.VCSVendor;
+import common.model.validation.ValidEnumeration;
 import lombok.Getter;
 import lombok.Setter;
 

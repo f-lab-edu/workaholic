@@ -1,6 +1,6 @@
-package com.project.work.model.validation;
+package common.model.validation;
 
-import com.project.work.model.validation.validator.EnumerationValidator;
+import common.model.validation.validator.EnumerationValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

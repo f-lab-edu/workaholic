@@ -3,8 +3,11 @@ package com.project.deploy.api;
 
 import com.project.deploy.model.entity.KubeNamespace;
 import com.project.deploy.service.DeployService;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Comment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/container")
+@Slf4j
+@Component
 public class DeployApi {
     private final DeployService deployService;
 

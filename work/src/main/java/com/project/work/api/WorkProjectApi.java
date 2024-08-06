@@ -2,7 +2,7 @@ package com.project.work.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.config.response.ApiResponse;
-import com.project.work.model.WorkProjectRequestDto;
+import common.model.WorkProjectRequestDto;
 import com.project.work.model.WorkProjectResponseDto;
 import com.project.work.model.WorkProjectUpdateDto;
 import com.project.work.model.entity.WorkProject;

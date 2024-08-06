@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ public class WorkProjectRequestDto {
     @ValidEnumeration(enumClass = JavaVersion.class)
     private JavaVersion javaVersion = JavaVersion.JAVA_21;
 
+    private String repositoryName;
+
     @ValidEnumeration(enumClass = BuildType.class)
     private BuildType buildType = BuildType.GRADLE;
 
@@ -32,5 +35,5 @@ public class WorkProjectRequestDto {
 
     private Map<String, String> envVariables = new HashMap<>();
 
-    private List<String> args;
+    private List<String> args = new ArrayList<>();
 }

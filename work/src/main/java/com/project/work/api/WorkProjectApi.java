@@ -1,5 +1,6 @@
 package com.project.work.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.config.response.ApiResponse;
 import com.project.work.model.WorkProjectRequestDto;
 import com.project.work.model.WorkProjectResponseDto;
@@ -8,6 +9,7 @@ import com.project.work.model.entity.WorkProject;
 import com.project.work.model.entity.WorkProjectSetting;
 import com.project.work.service.WorkProjectService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,14 +50,23 @@ public class WorkProjectApi {
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<String>> createWorkProject(
+    public ResponseEntity<ApiResponse<WorkProjectRequestDto>> createWorkProject(
+            final @RequestHeader("Authorization") String authorizationHeader,
             final @Valid @RequestBody WorkProjectRequestDto dto) {
+        String token = authorizationHeader.replace("Bearer ", "");
+
         // 가져온 Repository 정보를 기반으로 WorkProject 와 WorkProjectSetting Entity 구성
         WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getVendor());
-        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
-        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, createdSetting);
+        try {
+            workProjectService.sendMessage("vcs-integration", createdWorkProject);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
-        return ApiResponse.success(createdWorkProject.getId());
+//        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+//        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, createdSetting);
+
+        return ApiResponse.success(dto);
     }
 
     @PutMapping("/{id}")
@@ -75,5 +87,18 @@ public class WorkProjectApi {
         workProjectService.deleteWorkProject(deletedWorkProject);
 
         return ApiResponse.success();
+    }
+
+    @GetMapping("/test/{id}")
+    public ResponseEntity<Void> importRepositoryCommand(
+            final @PathVariable("id") String projectId) {
+        WorkProject clonedWorkProject = workProjectService.getWorkProjectById(projectId);
+        try {
+            workProjectService.sendMessageQueue("vcs-integration", clonedWorkProject);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

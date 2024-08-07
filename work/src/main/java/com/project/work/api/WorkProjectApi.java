@@ -2,6 +2,7 @@ package com.project.work.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.config.response.ApiResponse;
+import com.project.work.service.ProducerService;
 import common.model.WorkProjectRequestDto;
 import com.project.work.model.WorkProjectResponseDto;
 import com.project.work.model.WorkProjectUpdateDto;
@@ -9,10 +10,13 @@ import com.project.work.model.entity.WorkProject;
 import com.project.work.model.entity.WorkProjectSetting;
 import com.project.work.service.WorkProjectService;
 import jakarta.validation.Valid;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,10 +30,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/project")
 public class WorkProjectApi {
-    private final WorkProjectService workProjectService;
+    private final static String VCS_ROUTING_KEY = "vcs-integration";
+    private final static String KUBE_ROUTING_KEY = "kubernetes";
 
-    public WorkProjectApi(WorkProjectService workProjectService) {
+    private final WorkProjectService workProjectService;
+    private final ProducerService producerService;
+
+    public WorkProjectApi(WorkProjectService workProjectService, ProducerService producerService) {
         this.workProjectService = workProjectService;
+        this.producerService = producerService;
+    }
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<WorkProjectRequestDto>> createWorkProject(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            final @Valid @RequestBody WorkProjectRequestDto dto) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+        try {
+            producerService.sendMessageQueue(VCS_ROUTING_KEY, dto, messageProperties);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getVendor());
+        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        workProjectService.createWorkProject(createdWorkProject, createdSetting);
+        return ApiResponse.success(dto);
     }
 
     @GetMapping("/{id}")
@@ -47,26 +74,6 @@ public class WorkProjectApi {
         List<String> response = workProjectService.getAllWorkProject()
                 .stream().map(WorkProject::getId).toList();
         return ApiResponse.success(response);
-    }
-
-    @PostMapping("")
-    public ResponseEntity<ApiResponse<WorkProjectRequestDto>> createWorkProject(
-            final @RequestHeader("Authorization") String authorizationHeader,
-            final @Valid @RequestBody WorkProjectRequestDto dto) {
-        String token = authorizationHeader.replace("Bearer ", "");
-
-        // 가져온 Repository 정보를 기반으로 WorkProject 와 WorkProjectSetting Entity 구성
-        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getVendor());
-        try {
-            workProjectService.sendMessage("vcs-integration", createdWorkProject);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-//        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
-//        createdWorkProject = workProjectService.createWorkProject(createdWorkProject, createdSetting);
-
-        return ApiResponse.success(dto);
     }
 
     @PutMapping("/{id}")
@@ -89,12 +96,13 @@ public class WorkProjectApi {
         return ApiResponse.success();
     }
 
-    @GetMapping("/test/{id}")
-    public ResponseEntity<Void> importRepositoryCommand(
+    @PatchMapping("/deploy/{id}")
+    public ResponseEntity<Void> deployRepositoryById(
             final @PathVariable("id") String projectId) {
         WorkProject clonedWorkProject = workProjectService.getWorkProjectById(projectId);
+
         try {
-            workProjectService.sendMessageQueue("vcs-integration", clonedWorkProject);
+            producerService.sendMessageQueue(KUBE_ROUTING_KEY, clonedWorkProject);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

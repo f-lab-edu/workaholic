@@ -24,3 +24,4 @@ spring:
     username: guest
     password: guest
     virtual-host: /
+    exchange: workaholic.exchange

@@ -2,7 +2,6 @@ package com.project.work.model;
 
 import common.model.enumeration.BuildType;
 import common.model.enumeration.JavaVersion;
-import common.model.enumeration.VCSVendor;
 import common.model.validation.ValidEnumeration;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,9 +13,6 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkProjectUpdateDto {
-    @ValidEnumeration(enumClass = VCSVendor.class)
-    private VCSVendor vendor;
-
     @ValidEnumeration(enumClass = JavaVersion.class)
     private JavaVersion javaVersion;
 

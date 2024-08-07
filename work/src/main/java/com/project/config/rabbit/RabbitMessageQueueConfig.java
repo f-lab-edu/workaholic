@@ -4,10 +4,8 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -15,15 +13,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMessageQueueConfig {
-    private final RabbitMessageQueueProperties properties;
-
-    public RabbitMessageQueueConfig(RabbitMessageQueueProperties properties) {
-        this.properties = properties;
+    @Bean
+    public Queue kubeQueue() {
+        return new Queue("workaholic.kubernetes");
     }
 
     @Bean
-    public Queue queue() {
-        return new Queue("workaholic.queue");
+    public Queue vcsQueue() {
+        return new Queue("workaholic.vcs");
     }
 
     @Bean
@@ -32,9 +29,16 @@ public class RabbitMessageQueueConfig {
     }
 
     @Bean
-    public Binding binding(Queue queue, DirectExchange directExchange) {
+    public Binding kubeBinding(Queue kubeQueue, DirectExchange directExchange) {
         return BindingBuilder
-                .bind(queue).to(directExchange).with("vcs-integration");
+                .bind(kubeQueue).to(directExchange).with("kubernetes");
+
+    }
+
+    @Bean
+    public Binding vcsBinding(Queue vcsQueue, DirectExchange directExchange) {
+        return BindingBuilder
+                .bind(vcsQueue).to(directExchange).with("vcs-integration");
 
     }
 

@@ -4,6 +4,7 @@ import common.model.enumeration.BuildType;
 import common.model.enumeration.JavaVersion;
 import common.model.enumeration.VCSVendor;
 import common.model.validation.ValidEnumeration;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkProjectRequestDto {
+    @NotBlank
     private String id;
 
     @ValidEnumeration(enumClass = VCSVendor.class)
@@ -24,6 +26,7 @@ public class WorkProjectRequestDto {
     @ValidEnumeration(enumClass = JavaVersion.class)
     private JavaVersion javaVersion = JavaVersion.JAVA_21;
 
+    @NotBlank
     private String repositoryUrl;
 
     @ValidEnumeration(enumClass = BuildType.class)

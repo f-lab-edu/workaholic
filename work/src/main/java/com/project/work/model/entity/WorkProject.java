@@ -22,16 +22,8 @@ public class WorkProject {
     private String id;
 
     @Setter
-    @Column(name = "COMMIT_URL")
-    private String commitUrl;
-
-    @Setter
-    @Column(name = "BRANCH_URL")
-    private String branchUrl;
-
-    @Setter
-    @Column(name = "CLONE_URL")
-    private String cloneUrl;
+    @Column(name = "REPOSITORY_URL")
+    private String repoUrl;
 
     @Column(name = "VENDOR")
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,6 @@
 package com.project;
 
-import com.project.config.KubernetesConfig;
+import com.project.kubernetes.config.KubernetesConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

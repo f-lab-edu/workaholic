@@ -10,7 +10,7 @@ spring:
     password: anylink
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -24,3 +24,4 @@ spring:
     username: guest
     password: guest
     virtual-host: /
+    exchange: workaholic.exchange

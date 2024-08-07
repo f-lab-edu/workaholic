@@ -1,9 +1,8 @@
 package com.project.work.model;
 
-import common.model.enumeration.BuildType;
-import common.model.enumeration.JavaVersion;
-import common.model.enumeration.VCSVendor;
-import common.model.validation.ValidEnumeration;
+import com.project.work.model.enumeration.BuildType;
+import com.project.work.model.enumeration.JavaVersion;
+import com.project.work.model.enumeration.VCSVendor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,13 +14,10 @@ import java.util.Map;
 public class WorkProjectResponseDto {
     private final String id;
 
-    @ValidEnumeration(enumClass = VCSVendor.class)
     private final VCSVendor vendor;
 
-    @ValidEnumeration(enumClass = JavaVersion.class)
     private final JavaVersion javaVersion;
 
-    @ValidEnumeration(enumClass = BuildType.class)
     private final BuildType buildType;
 
     private final String workDirectory;

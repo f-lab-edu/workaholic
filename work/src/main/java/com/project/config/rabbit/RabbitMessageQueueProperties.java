@@ -10,11 +10,13 @@ public class RabbitMessageQueueProperties {
     private final int port;
     private final String username;
     private final String password;
+    private final String exchange;
 
-    public RabbitMessageQueueProperties(String host, int port, String username, String password) {
+    public RabbitMessageQueueProperties(String host, int port, String username, String password, String exchange) {
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
+        this.exchange = exchange;
     }
 }

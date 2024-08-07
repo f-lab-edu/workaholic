@@ -61,7 +61,7 @@ project(":work") {
     }
 
     dependencies {
-        implementation(project(":project-common"))
+
     }
 }
 
@@ -76,6 +76,21 @@ project(":vcs-integration") {
     }
 
     dependencies {
-        implementation(project(":project-common"))
+
+    }
+}
+
+project(":kubernetes") {
+    tasks {
+        named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+            enabled = true
+        }
+        named<Jar>("jar") {
+            enabled = true
+        }
+    }
+
+    dependencies {
+
     }
 }

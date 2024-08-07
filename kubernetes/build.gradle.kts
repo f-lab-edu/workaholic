@@ -1,15 +1,8 @@
-group = "com.project"
-version = "0.0.1-SNAPSHOT"
+plugins {
 
-repositories {
-    mavenCentral()
 }
 
 dependencies {
-    compileOnly("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-
     //QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")

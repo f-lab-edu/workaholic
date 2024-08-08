@@ -1,4 +1,4 @@
-package com.project.datasource.work.model.converter;
+package datasource.work.model.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

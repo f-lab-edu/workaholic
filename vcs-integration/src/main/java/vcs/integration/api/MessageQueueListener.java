@@ -1,7 +1,7 @@
 package vcs.integration.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.datasource.work.model.entity.WorkProject;
+import datasource.work.model.entity.WorkProject;
 import rabbit.message.queue.ProducerService;
 import vcs.integration.exception.type.FailedCloneRepositoryException;
 import vcs.integration.service.VCSIntegrationService;
@@ -33,11 +33,14 @@ public class MessageQueueListener {
         WorkProject createdWorkProject = objectMapper.readValue(message.getBody(), WorkProject.class);
         try {
             String projectPath = vcsIntegrationService.cloneRepository(createdWorkProject.getId(), createdWorkProject.getRepoUrl(), token);
-            producerService.sendMessageQueue("kubernetes.build", projectPath);
+            MessageProperties messageProperties = new MessageProperties();
+            messageProperties.setHeader("project-id", createdWorkProject.getId());
+            producerService.sendMessageQueue("kubernetes.build", projectPath, messageProperties);
         } catch (FailedCloneRepositoryException e) {
             log.error("Message processing failed", e);
             producerService.sendMessageQueue("error.clone", createdWorkProject.getId());
         }
+
     }
 
     private void handleRetry(Message message) {

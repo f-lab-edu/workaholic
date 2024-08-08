@@ -1,6 +1,6 @@
-package com.project.datasource.work.repository;
+package datasource.work.repository;
 
-import com.project.datasource.work.model.entity.WorkProjectSetting;
+import datasource.work.model.entity.WorkProjectSetting;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

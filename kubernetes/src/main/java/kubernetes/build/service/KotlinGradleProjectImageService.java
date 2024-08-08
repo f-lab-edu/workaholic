@@ -1,6 +1,6 @@
 package kubernetes.build.service;
 
-import kubernetes.build.model.enumeration.JavaVersion;
+import datasource.work.model.enumeration.JavaVersion;
 import kubernetes.exception.type.FailedInjectionJibDependency;
 import kubernetes.exception.type.FailedReadBuildFileException;
 import org.springframework.stereotype.Service;

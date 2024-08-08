@@ -1,7 +1,7 @@
-package com.project.datasource.work.model.entity;
+package datasource.work.model.entity;
 
-import com.project.datasource.work.model.enumeration.ProjectStatus;
-import com.project.datasource.work.model.enumeration.VCSVendor;
+import datasource.work.model.enumeration.ProjectStatus;
+import datasource.work.model.enumeration.VCSVendor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

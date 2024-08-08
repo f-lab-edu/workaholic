@@ -1,10 +1,10 @@
-package com.project.work.service;
+package datasource.work.service;
 
-import com.project.config.exception.type.NotFoundProjectException;
-import com.project.datasource.work.model.entity.WorkProject;
-import com.project.datasource.work.model.entity.WorkProjectSetting;
-import com.project.datasource.work.repository.WorkProjectRepository;
-import com.project.datasource.work.repository.WorkProjectSettingRepository;
+import datasource.work.config.excpetion.type.NotFoundProjectException;
+import datasource.work.model.entity.WorkProject;
+import datasource.work.model.entity.WorkProjectSetting;
+import datasource.work.repository.WorkProjectRepository;
+import datasource.work.repository.WorkProjectSettingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +27,7 @@ public class WorkProjectService {
 
     @Transactional
     public void createWorkProject(WorkProject newWorkProject, WorkProjectSetting setting) {
-        newWorkProject = projectRepository.save(newWorkProject);
+        projectRepository.save(newWorkProject);
         settingRepository.save(setting);
     }
 

@@ -1,7 +1,7 @@
 package com.project.work.model;
 
-import com.project.datasource.work.model.enumeration.BuildType;
-import com.project.datasource.work.model.enumeration.JavaVersion;
+import datasource.work.model.enumeration.BuildType;
+import datasource.work.model.enumeration.JavaVersion;
 import com.project.work.model.validation.ValidEnumeration;
 import lombok.AccessLevel;
 import lombok.Getter;

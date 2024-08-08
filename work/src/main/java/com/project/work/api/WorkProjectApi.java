@@ -2,14 +2,14 @@ package com.project.work.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.config.response.ApiResponse;
-import com.project.datasource.work.model.entity.WorkProject;
-import com.project.datasource.work.model.entity.WorkProjectSetting;
-import com.project.datasource.work.model.enumeration.ProjectStatus;
+import datasource.work.model.entity.WorkProject;
+import datasource.work.model.entity.WorkProjectSetting;
+import datasource.work.model.enumeration.ProjectStatus;
 import com.project.work.model.WorkProjectRequestDto;
 import rabbit.message.queue.ProducerService;
 import com.project.work.model.WorkProjectResponseDto;
 import com.project.work.model.WorkProjectUpdateDto;
-import com.project.work.service.WorkProjectService;
+import datasource.work.service.WorkProjectService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.http.HttpHeaders;

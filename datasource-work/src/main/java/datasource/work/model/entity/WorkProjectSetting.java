@@ -1,9 +1,9 @@
-package com.project.datasource.work.model.entity;
+package datasource.work.model.entity;
 
-import com.project.datasource.work.model.converter.ListToStringConverter;
-import com.project.datasource.work.model.converter.MapToStringConverter;
-import com.project.datasource.work.model.enumeration.BuildType;
-import com.project.datasource.work.model.enumeration.JavaVersion;
+import datasource.work.model.converter.ListToStringConverter;
+import datasource.work.model.converter.MapToStringConverter;
+import datasource.work.model.enumeration.BuildType;
+import datasource.work.model.enumeration.JavaVersion;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

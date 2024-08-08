@@ -1,4 +1,4 @@
-package kubernetes.build.model.enumeration;
+package datasource.work.model.enumeration;
 
 import lombok.Getter;
 

@@ -1,6 +1,6 @@
 package kubernetes.build.service;
 
-import kubernetes.build.model.ProjectBuild;
+import datasource.work.model.entity.WorkProjectSetting;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,9 +15,7 @@ public class ProjectBuildService {
         this.mavenProjectImageService = mavenProjectImageService;
     }
 
-    public void buildImage(ProjectBuild dto) {
-        switch (dto.getBuildType()) {
-
-        }
+    public void buildImage(String projectPath, WorkProjectSetting projectSetting) {
+        kotlinGradleProjectImageService.jibSetting(projectPath, projectSetting.getJavaVersion());
     }
 }

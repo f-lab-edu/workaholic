@@ -1,6 +1,6 @@
 package com.project.config.exception;
 
-import com.project.config.exception.type.NotFoundProjectException;
+import datasource.work.config.excpetion.type.NotFoundProjectException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

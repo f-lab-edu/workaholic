@@ -1,4 +1,4 @@
-package com.project.datasource.work.model.converter;
+package datasource.work.model.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

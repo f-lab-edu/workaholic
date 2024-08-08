@@ -1,4 +1,4 @@
-package com.project.config.exception.type;
+package datasource.work.config.excpetion.type;
 
 public class NotFoundProjectException extends RuntimeException{
 }

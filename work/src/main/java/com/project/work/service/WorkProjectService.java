@@ -1,10 +1,10 @@
 package com.project.work.service;
 
 import com.project.config.exception.type.NotFoundProjectException;
-import com.project.work.model.entity.WorkProject;
-import com.project.work.model.entity.WorkProjectSetting;
-import com.project.work.repository.WorkProjectRepository;
-import com.project.work.repository.WorkProjectSettingRepository;
+import com.project.datasource.work.model.entity.WorkProject;
+import com.project.datasource.work.model.entity.WorkProjectSetting;
+import com.project.datasource.work.repository.WorkProjectRepository;
+import com.project.datasource.work.repository.WorkProjectSettingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,31 +12,30 @@ import java.util.List;
 
 @Service
 public class WorkProjectService {
-    private final WorkProjectRepository workProjectRepository;
+    private final WorkProjectRepository projectRepository;
     private final WorkProjectSettingRepository settingRepository;
 
-    public WorkProjectService(WorkProjectRepository workProjectRepository, WorkProjectSettingRepository settingRepository) {
-        this.workProjectRepository = workProjectRepository;
+    public WorkProjectService(WorkProjectRepository projectRepository, WorkProjectSettingRepository settingRepository) {
+        this.projectRepository = projectRepository;
         this.settingRepository = settingRepository;
     }
 
     public WorkProject getWorkProjectById(String projectId) {
-        return workProjectRepository.findById(projectId)
+        return projectRepository.findById(projectId)
                 .orElseThrow(NotFoundProjectException::new);
     }
 
     @Transactional
-    public WorkProject createWorkProject(WorkProject newWorkProject, WorkProjectSetting setting) {
-        newWorkProject = workProjectRepository.save(newWorkProject);
+    public void createWorkProject(WorkProject newWorkProject, WorkProjectSetting setting) {
+        newWorkProject = projectRepository.save(newWorkProject);
         settingRepository.save(setting);
-        return newWorkProject;
     }
 
     @Transactional
     public void deleteWorkProject(WorkProject deletedWorkProject) {
         WorkProjectSetting setting = getSettingByWorkProjectId(deletedWorkProject.getId());
         settingRepository.delete(setting);
-        workProjectRepository.delete(deletedWorkProject);
+        projectRepository.delete(deletedWorkProject);
     }
 
     public WorkProjectSetting getSettingByWorkProjectId(String projectId) {
@@ -56,7 +55,7 @@ public class WorkProjectService {
     }
 
     public List<WorkProject> getAllWorkProject() {
-        return workProjectRepository.findAll();
+        return projectRepository.findAll();
     }
 
 

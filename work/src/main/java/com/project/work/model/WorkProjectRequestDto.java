@@ -1,8 +1,8 @@
 package com.project.work.model;
 
-import com.project.work.model.enumeration.BuildType;
-import com.project.work.model.enumeration.JavaVersion;
-import com.project.work.model.enumeration.VCSVendor;
+import com.project.datasource.work.model.enumeration.BuildType;
+import com.project.datasource.work.model.enumeration.JavaVersion;
+import com.project.datasource.work.model.enumeration.VCSVendor;
 import com.project.work.model.validation.ValidEnumeration;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;

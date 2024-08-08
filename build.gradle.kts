@@ -61,7 +61,9 @@ project(":work") {
     }
 
     dependencies {
-
+        implementation(project(":mq-error"))
+        implementation(project(":rabbitmq"))
+        implementation(project(":datasource-work"))
     }
 }
 
@@ -76,7 +78,9 @@ project(":vcs-integration") {
     }
 
     dependencies {
-
+        implementation(project(":mq-error"))
+        implementation(project(":rabbitmq"))
+        implementation(project(":datasource-work"))
     }
 }
 
@@ -91,6 +95,8 @@ project(":kubernetes") {
     }
 
     dependencies {
-
+        implementation(project(":mq-error"))
+        implementation(project(":rabbitmq"))
+        implementation(project(":datasource-work"))
     }
 }

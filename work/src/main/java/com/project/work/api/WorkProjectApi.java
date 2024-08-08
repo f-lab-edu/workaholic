@@ -2,23 +2,20 @@ package com.project.work.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.config.response.ApiResponse;
-import com.project.work.model.CloningProjectDto;
-import com.project.work.model.ProjectBuildRequestDto;
+import com.project.datasource.work.model.entity.WorkProject;
+import com.project.datasource.work.model.entity.WorkProjectSetting;
+import com.project.datasource.work.model.enumeration.ProjectStatus;
 import com.project.work.model.WorkProjectRequestDto;
-import com.project.work.service.ProducerService;
+import rabbit.message.queue.ProducerService;
 import com.project.work.model.WorkProjectResponseDto;
 import com.project.work.model.WorkProjectUpdateDto;
-import com.project.work.model.entity.WorkProject;
-import com.project.work.model.entity.WorkProjectSetting;
 import com.project.work.service.WorkProjectService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/project")
 public class WorkProjectApi {
-    private final static String VCS_ROUTING_KEY = "vcs-integration";
+    private final static String VCS_ROUTING_KEY = "integration.clone";
     private final static String KUBE_ROUTING_KEY = "kubernetes";
 
     private final WorkProjectService workProjectService;
@@ -50,16 +47,16 @@ public class WorkProjectApi {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
+        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), dto.getVendor(), ProjectStatus.CREATE);
+        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        workProjectService.createWorkProject(createdWorkProject, createdSetting);
+
         try {
-            CloningProjectDto cloningProjectDto = new CloningProjectDto(dto.getId(), dto.getRepositoryUrl());
-            producerService.sendMessageQueue(VCS_ROUTING_KEY, cloningProjectDto, messageProperties);
+            producerService.sendMessageQueue(VCS_ROUTING_KEY, createdWorkProject, messageProperties);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
-        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), dto.getVendor());
-        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
-        workProjectService.createWorkProject(createdWorkProject, createdSetting);
         return ApiResponse.success(dto);
     }
 
@@ -98,21 +95,5 @@ public class WorkProjectApi {
         workProjectService.deleteWorkProject(deletedWorkProject);
 
         return ApiResponse.success();
-    }
-
-    @PatchMapping("/deploy/{id}")
-    public ResponseEntity<Void> deployRepositoryById(
-            final @PathVariable("id") String projectId) {
-        WorkProject buildWorkProject = workProjectService.getWorkProjectById(projectId);
-        WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(buildWorkProject.getId());
-
-        ProjectBuildRequestDto dto = new ProjectBuildRequestDto(buildWorkProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getEnvVariables(), setting.getExecuteParameters());
-        try {
-            producerService.sendMessageQueue(KUBE_ROUTING_KEY, dto);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

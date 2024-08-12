@@ -67,7 +67,7 @@ public class GradleProjectImageService {
             buildFileLines.add("");
             buildFileLines.add("jib {");
             buildFileLines.add("    from {");
-            buildFileLines.add("        image = \"" + "openjdk:11-jdk" + "\"");
+            buildFileLines.add("        image = \"" + "openjdk:17-jdk" + "\"");
             buildFileLines.add("    }");
             buildFileLines.add("    to {");
             buildFileLines.add("        image = \"parklibra1011/test\"");
@@ -102,9 +102,27 @@ public class GradleProjectImageService {
 
     public void buildContainerImage(String clonePath) {
         String os = System.getProperty("os.name").toLowerCase();
+
+        // gradlew 실행 권한을 체크하고, 없으면 부여
+        File gradlew = new File(clonePath, "gradlew");
+        if (!os.contains("win") && !gradlew.canExecute()) {
+            try {
+                ProcessBuilder chmodBuilder = new ProcessBuilder("chmod", "+x", gradlew.getAbsolutePath());
+                Process chmodProcess = chmodBuilder.start();
+                int chmodExitCode = chmodProcess.waitFor();
+                if (chmodExitCode != 0) {
+                    System.err.println("Failed to make gradlew executable.");
+                    return;
+                }
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException("Failed to set execute permission for gradlew", e);
+            }
+        }
+
+        // gradlew jib 명령어 실행
         ProcessBuilder processBuilder = os.contains("win")
                 ? new ProcessBuilder("cmd.exe", "/c", "gradlew.bat", "jib")
-                : new ProcessBuilder("sh", "-c", "./gradlew jib");
+                : new ProcessBuilder("sh", "-c", "./gradlew jib --stacktrace");
         processBuilder.directory(new File(clonePath));
 
         try {
@@ -129,8 +147,12 @@ public class GradleProjectImageService {
             }
 
             int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException();
+            if (exitCode == 0) {
+                System.out.println("Jib build succeeded.");
+                System.out.println(output.toString());
+            } else {
+                System.err.println("Jib build failed with exit code: " + exitCode);
+                System.err.println(error.toString());
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);

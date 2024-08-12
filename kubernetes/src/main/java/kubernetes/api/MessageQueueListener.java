@@ -34,8 +34,8 @@ public class MessageQueueListener {
         WorkProjectSetting projectSetting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
         try {
-//            buildService.buildImage(workProject.getClonePath(), projectSetting);
-            deployService.deployApplication("TEST", "parklibra1011/test:latest", 9000);
+            buildService.buildImage(workProject.getClonePath(), projectSetting);
+            deployService.deployApplication("TEST", "nginx:latest", 9000);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -26,10 +26,15 @@ public class WorkProject {
     @Column(name = "REPOSITORY_URL")
     private String repoUrl;
 
+    @Setter
+    @Column(name = "CLONED_PATH")
+    private String clonePath;
+
     @Column(name = "VENDOR")
     @Enumerated(EnumType.STRING)
     private VCSVendor vendor;
 
+    @Setter
     @Column
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;

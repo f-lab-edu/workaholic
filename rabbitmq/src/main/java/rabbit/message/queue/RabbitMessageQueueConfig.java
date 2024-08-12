@@ -34,38 +34,38 @@ public class RabbitMessageQueueConfig {
     }
 
     @Bean
-    public Binding kubeBindingBuild(Queue kubeQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeQueue).to(topicExchange).with("kubernetes.build");
+    public Binding kubeBindingBuild(TopicExchange topicExchange) {
+        return BindingBuilder.bind(kubeQueue()).to(topicExchange).with("kubernetes.build");
     }
 
     @Bean
-    public Binding kubeBindingDeploy(Queue kubeQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeQueue).to(topicExchange).with("kubernetes.deploy");
+    public Binding kubeBindingDeploy(TopicExchange topicExchange) {
+        return BindingBuilder.bind(kubeQueue()).to(topicExchange).with("kubernetes.deploy");
     }
 
     @Bean
-    public Binding vcsIntegrationBindingClone(Queue vcsQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(vcsQueue).to(topicExchange).with("integration.clone");
+    public Binding vcsIntegrationBindingClone(TopicExchange topicExchange) {
+        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with("integration.clone");
     }
 
     @Bean
-    public Binding vcsIntegrationBindingBranch(Queue vcsQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(vcsQueue).to(topicExchange).with("integration.branch");
+    public Binding vcsIntegrationBindingBranch(TopicExchange topicExchange) {
+        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with("integration.branch");
     }
 
     @Bean
-    public Binding errorBindingClone(Queue errorQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue).to(topicExchange).with("error.clone");
+    public Binding errorBindingClone(TopicExchange topicExchange) {
+        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.clone");
     }
 
     @Bean
-    public Binding errorBindingBuild(Queue errorQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue).to(topicExchange).with("error.build");
+    public Binding errorBindingBuild(TopicExchange topicExchange) {
+        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.build");
     }
 
     @Bean
-    public Binding errorBindingDeploy(Queue errorQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue).to(topicExchange).with("error.deploy");
+    public Binding errorBindingDeploy(TopicExchange topicExchange) {
+        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.deploy");
     }
 
     @Bean

@@ -1,6 +1,9 @@
 package kubernetes.build.service;
 
 import datasource.work.model.entity.WorkProjectSetting;
+import kubernetes.build.service.type.GradleProjectImageService;
+import kubernetes.build.service.type.KotlinGradleProjectImageService;
+import kubernetes.build.service.type.MavenProjectImageService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +19,10 @@ public class ProjectBuildService {
     }
 
     public void buildImage(String projectPath, WorkProjectSetting projectSetting) {
-        kotlinGradleProjectImageService.jibSetting(projectPath, projectSetting.getJavaVersion());
+        switch (projectSetting.getBuildType()) {
+            case MAVEN -> mavenProjectImageService.jibSetting(projectPath, projectSetting);
+            case GRADLE -> gradleProjectImageService.jibSetting(projectPath, projectSetting);
+            case KOTLIN -> kotlinGradleProjectImageService.jibSetting(projectPath, projectSetting);
+        }
     }
 }

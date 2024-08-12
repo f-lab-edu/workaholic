@@ -1,4 +1,4 @@
-package com.project.work.model;
+package workaholic.model;
 
 import datasource.work.model.enumeration.BuildType;
 import datasource.work.model.enumeration.JavaVersion;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class WorkProjectResponseDto {
+public class WorkaholicResponseDTO {
     private final String id;
 
     private final VCSVendor vendor;
@@ -28,7 +28,7 @@ public class WorkProjectResponseDto {
 
     private final List<String> args;
 
-    public WorkProjectResponseDto(String id, VCSVendor vendor, JavaVersion javaVersion, BuildType buildType, String workDirectory, int port, Map<String, String> envVariables, List<String> args) {
+    public WorkaholicResponseDTO(String id, VCSVendor vendor, JavaVersion javaVersion, BuildType buildType, String workDirectory, int port, Map<String, String> envVariables, List<String> args) {
         this.id = id;
         this.vendor = vendor;
         this.javaVersion = javaVersion;

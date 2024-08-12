@@ -3,6 +3,7 @@ package datasource.work.service;
 import datasource.work.config.excpetion.type.NotFoundProjectException;
 import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
+import datasource.work.model.enumeration.ProjectStatus;
 import datasource.work.repository.WorkProjectRepository;
 import datasource.work.repository.WorkProjectSettingRepository;
 import org.springframework.stereotype.Service;
@@ -58,5 +59,14 @@ public class WorkProjectService {
         return projectRepository.findAll();
     }
 
+    public void setClonedPath(WorkProject workProject, String clonePath) {
+        workProject.setClonePath(clonePath);
+        workProject.setStatus(ProjectStatus.REPO_CLONE);
+        projectRepository.save(workProject);
+    }
 
+    public void failedCloneRepo(WorkProject workProject) {
+        workProject.setStatus(ProjectStatus.FAILED_CLONE);
+        projectRepository.save(workProject);
+    }
 }

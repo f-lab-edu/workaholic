@@ -1,6 +1,6 @@
-package com.project.work.model.validation.validator;
+package workaholic.model.validation.validator;
 
-import com.project.work.model.validation.ValidEnumeration;
+import workaholic.model.validation.ValidEnumeration;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,4 +1,4 @@
-package com.project.config.exception;
+package workaholic.config.exception;
 
 import lombok.Getter;
 

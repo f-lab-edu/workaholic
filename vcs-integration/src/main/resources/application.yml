@@ -1,8 +1,10 @@
 server:
   port: 9000
+
 integration:
   name: workaholic
   base-url: ${BASE_URL}
+
 spring:
   application:
     name: workaholic-vcs

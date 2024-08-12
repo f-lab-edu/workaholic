@@ -1,14 +1,14 @@
-package com.project.work.api;
+package workaholic.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.project.config.response.ApiResponse;
+import workaholic.config.response.ApiResponse;
 import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
 import datasource.work.model.enumeration.ProjectStatus;
-import com.project.work.model.WorkProjectRequestDto;
+import workaholic.model.WorkaholicRequestDTO;
 import rabbit.message.queue.ProducerService;
-import com.project.work.model.WorkProjectResponseDto;
-import com.project.work.model.WorkProjectUpdateDto;
+import workaholic.model.WorkaholicResponseDTO;
+import workaholic.model.WorkaholicUpdateDTO;
 import datasource.work.service.WorkProjectService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.core.MessageProperties;
@@ -28,22 +28,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/project")
-public class WorkProjectApi {
+public class WorkaholicApi {
     private final static String VCS_ROUTING_KEY = "integration.clone";
     private final static String KUBE_ROUTING_KEY = "kubernetes";
 
     private final WorkProjectService workProjectService;
     private final ProducerService producerService;
 
-    public WorkProjectApi(WorkProjectService workProjectService, ProducerService producerService) {
+    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService) {
         this.workProjectService = workProjectService;
         this.producerService = producerService;
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<WorkProjectRequestDto>> createWorkProject(
+    public ResponseEntity<ApiResponse<WorkaholicRequestDTO>> createWorkProject(
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-            final @Valid @RequestBody WorkProjectRequestDto dto) {
+            final @Valid @RequestBody WorkaholicRequestDTO dto) {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
@@ -61,12 +61,12 @@ public class WorkProjectApi {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkProjectResponseDto>> getWorkProjectConfigById(
+    public ResponseEntity<ApiResponse<WorkaholicResponseDTO>> getWorkProjectConfigById(
             final @PathVariable("id") String projectId) {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
-        WorkProjectResponseDto response = new WorkProjectResponseDto(workProject.getId(), workProject.getVendor(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
+        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), workProject.getVendor(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
         return ApiResponse.success(response);
     }
 
@@ -80,7 +80,7 @@ public class WorkProjectApi {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> updateWorkProjectConfigById(
             final @PathVariable("id") String projectId,
-            final @RequestBody WorkProjectUpdateDto dto) {
+            final @RequestBody WorkaholicUpdateDTO dto) {
         WorkProjectSetting existingSetting = workProjectService.getSettingByWorkProjectId(projectId);
         WorkProjectSetting updatedSetting = new WorkProjectSetting(dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
 

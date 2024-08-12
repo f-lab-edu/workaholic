@@ -1,6 +1,6 @@
-package kubernetes.build.service;
+package kubernetes.build.service.type;
 
-import kubernetes.build.model.enumeration.JavaVersion;
+import datasource.work.model.entity.WorkProjectSetting;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,7 +81,7 @@ public class MavenProjectImageService {
         return pluginElement;
     }
 
-    public void jibSetting(String projectPath, JavaVersion javaVersion) {
+    public void jibSetting(String projectPath, WorkProjectSetting projectSetting) {
         Path pomFilePath = Paths.get(projectPath, "pom.xml");
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;

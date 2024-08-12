@@ -1,9 +1,9 @@
-package com.project.work.model;
+package workaholic.model;
 
 import datasource.work.model.enumeration.BuildType;
 import datasource.work.model.enumeration.JavaVersion;
 import datasource.work.model.enumeration.VCSVendor;
-import com.project.work.model.validation.ValidEnumeration;
+import workaholic.model.validation.ValidEnumeration;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WorkProjectRequestDto {
+public class WorkaholicRequestDTO {
     @NotBlank
     private String id;
 

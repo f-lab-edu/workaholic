@@ -1,4 +1,4 @@
-package com.project.config.response;
+package workaholic.config.response;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

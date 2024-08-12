@@ -1,6 +1,6 @@
-package kubernetes.build.service;
+package kubernetes.build.service.type;
 
-import datasource.work.model.enumeration.JavaVersion;
+import datasource.work.model.entity.WorkProjectSetting;
 import kubernetes.exception.type.FailedInjectionJibDependency;
 import kubernetes.exception.type.FailedReadBuildFileException;
 import org.springframework.stereotype.Service;
@@ -82,7 +82,7 @@ public class KotlinGradleProjectImageService {
         }
     }
 
-    public void jibSetting(String projectPath, JavaVersion javaVersion) {
+    public void jibSetting(String projectPath, WorkProjectSetting projectSetting) {
         Path buildFilePath = Paths.get(projectPath, "build.gradle.kts");
         List<String> buildFileLines;
 

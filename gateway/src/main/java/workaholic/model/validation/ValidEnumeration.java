@@ -1,6 +1,6 @@
-package com.project.work.model.validation;
+package workaholic.model.validation;
 
-import com.project.work.model.validation.validator.EnumerationValidator;
+import workaholic.model.validation.validator.EnumerationValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

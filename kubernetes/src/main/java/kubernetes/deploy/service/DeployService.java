@@ -1,20 +1,14 @@
 package kubernetes.deploy.service;
 
-import kubernetes.deploy.model.entity.KubeNamespace;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.StatusDetails;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.kubernetes.client.dsl.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DeployService {
@@ -24,58 +18,33 @@ public class DeployService {
         this.kubernetesClient = kubernetesClient;
     }
 
-    public List<String> getPodByNamespace(String namespace) {
-        return kubernetesClient.pods().inNamespace(namespace).list().getItems().stream()
-                .map(Pod::getMetadata)
-                .map(ObjectMeta::getName)
-                .collect(Collectors.toList());
-    }
-
-    public void createPod(KubeNamespace namespace, UUID projectId, String imageName) {
-        //namespace == accountID , podName == projectName, imageName == TODO
-        Pod pod = new PodBuilder()
-                .withNewMetadata().withName(projectId.toString()).endMetadata()
-                .withNewSpec()
-                .addNewContainer()
-                .withName(projectId.toString())
-                .withImage(imageName)
-                .endContainer()
-                .endSpec().build();
-
-        kubernetesClient.pods()
-                .inNamespace(namespace.getId().toString())
-                .resource(pod)
-                .create();
-    }
-
-    public Deployment updatePod(String namespace, String podName, String imageName, Map<String, String> envMap) {
-        Deployment existingDeployment = kubernetesClient.apps().deployments().inNamespace(namespace).withName(podName).get();
-
-        if(existingDeployment != null ) {
-            // image update
-
-            // 환경변수 업데이트
-            if(envMap != null) {
-
-            }
-        } else {
-
-        }
-        return kubernetesClient.apps().deployments().inNamespace(namespace).withName(podName).get();
-    }
-
-    public List<StatusDetails> removePod(String namespace, String podName) {
-        return kubernetesClient.pods().inNamespace(namespace).withName(podName).delete();
-    }
-
-    public void createNamespaceByAccountId(String accountId) {
-        KubeNamespace kubeNamespace = new KubeNamespace(accountId);
-        Namespace namespace = new NamespaceBuilder()
+    private Pod createPod(String namespace, String imageName, int accessPort) {
+        return new PodBuilder()
                 .withNewMetadata()
-                .withName(kubeNamespace.getId().toString())
+                    .withNamespace(namespace)
                 .endMetadata()
+                .withNewSpec()
+                    .addNewContainer()
+                        .withImage(imageName)
+                        .addNewPort()
+                            .withContainerPort(accessPort) // Container's internal port
+                        .endPort()
+                    .endContainer()
+                .endSpec()
                 .build();
+    }
 
-        kubernetesClient.namespaces().resource(namespace).create();
+    public void deployApplication(String namespace, String imageName, int port) {
+        try {
+            Pod createdPod = createPod(namespace, imageName, port);
+            Resource<Pod> resource = kubernetesClient.pods()
+                    .inNamespace(namespace).resource(createdPod);
+
+            createdPod = resource.waitUntilReady(5, TimeUnit.MINUTES);
+            String podIp = createdPod.getStatus().getPodIP();
+            System.out.println(podIp + ":" + port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

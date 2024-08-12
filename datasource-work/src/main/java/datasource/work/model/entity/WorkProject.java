@@ -1,7 +1,6 @@
 package datasource.work.model.entity;
 
 import datasource.work.model.enumeration.ProjectStatus;
-import datasource.work.model.enumeration.VCSVendor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,19 +29,14 @@ public class WorkProject {
     @Column(name = "CLONED_PATH")
     private String clonePath;
 
-    @Column(name = "VENDOR")
-    @Enumerated(EnumType.STRING)
-    private VCSVendor vendor;
-
     @Setter
     @Column
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
-    public WorkProject(String id, String repoUrl, VCSVendor vendor, ProjectStatus status) {
+    public WorkProject(String id, String repoUrl, ProjectStatus status) {
         this.id = id;
         this.repoUrl = repoUrl;
-        this.vendor = vendor;
         this.status = status;
     }
 }

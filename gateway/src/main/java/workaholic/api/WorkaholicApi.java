@@ -47,7 +47,7 @@ public class WorkaholicApi {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
-        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), dto.getVendor(), ProjectStatus.CREATE);
+        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
         WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
         workProjectService.createWorkProject(createdWorkProject, createdSetting);
 
@@ -66,7 +66,7 @@ public class WorkaholicApi {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
-        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), workProject.getVendor(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
+        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
         return ApiResponse.success(response);
     }
 

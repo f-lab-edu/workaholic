@@ -5,10 +5,15 @@ import lombok.Getter;
 @Getter
 public enum ProjectStatus {
     CREATE,
-    REPO_CLONE,
-    BUILD,
-    DEPLOY,
+    CLONING,
     FAILED_CLONE,
+    CLONED,
+    JIB_INJECTION,
+    FAILED_JIB_INJECTION,
+    DOCKER_BUILD,
+    FAILED_DOCKER_BUILD,
+    HUB_PUSH,
+    FAILED_HUB_PUSH,
+    DEPLOY,
     FAILED_DEPLOY,
-    FAILED_BUILD,
 }

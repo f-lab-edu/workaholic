@@ -6,7 +6,10 @@ import kubernetes.exception.type.FailedInjectionJibDependency;
 import kubernetes.exception.type.FailedReadBuildFileException;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -95,5 +98,50 @@ public class GradleProjectImageService {
 
         injectionJibDependency(buildFilePath, buildFileLines);
         injectionJibConfiguration(buildFilePath, buildFileLines);
+    }
+
+    public void buildContainerImage(String clonePath) {
+        String os = System.getProperty("os.name").toLowerCase();
+        ProcessBuilder processBuilder = os.contains("win")
+                ? new ProcessBuilder("cmd.exe", "/c", "gradlew.bat", "jib")
+                : new ProcessBuilder("sh", "-c", "./gradlew jib");
+        processBuilder.directory(new File(clonePath));
+
+        try {
+            Process process = processBuilder.start();
+
+            // 표준 출력과 오류를 읽기 위한 BufferedReader
+            BufferedReader stdOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+            String line;
+
+            // 표준 출력을 읽고 저장
+            while ((line = stdOutput.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            // 표준 오류를 읽고 저장
+            while ((line = stdError.readLine()) != null) {
+                error.append(line).append("\n");
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException();
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void build(String projectPath, WorkProjectSetting projectSetting) {
+        jibSetting(projectPath, projectSetting);
+        String buildPath = projectPath + File.pathSeparator + projectSetting.getWorkDirectory();
+        if(projectSetting.getWorkDirectory() == null || projectSetting.getWorkDirectory().isEmpty())
+            buildPath = projectPath;
+        buildContainerImage(buildPath);
     }
 }

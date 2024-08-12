@@ -21,7 +21,7 @@ public class ProjectBuildService {
     public void buildImage(String projectPath, WorkProjectSetting projectSetting) {
         switch (projectSetting.getBuildType()) {
             case MAVEN -> mavenProjectImageService.jibSetting(projectPath, projectSetting);
-            case GRADLE -> gradleProjectImageService.jibSetting(projectPath, projectSetting);
+            case GRADLE -> gradleProjectImageService.build(projectPath, projectSetting);
             case KOTLIN -> kotlinGradleProjectImageService.jibSetting(projectPath, projectSetting);
         }
     }

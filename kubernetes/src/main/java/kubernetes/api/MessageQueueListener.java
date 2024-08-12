@@ -5,6 +5,7 @@ import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
 import datasource.work.service.WorkProjectService;
 import kubernetes.build.service.ProjectBuildService;
+import kubernetes.deploy.service.DeployService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -17,11 +18,13 @@ import java.io.IOException;
 public class MessageQueueListener {
     private final ObjectMapper objectMapper;
     private final ProjectBuildService buildService;
+    private final DeployService deployService;
     private final WorkProjectService workProjectService;
 
-    public MessageQueueListener(ObjectMapper objectMapper, ProjectBuildService buildService, WorkProjectService workProjectService) {
+    public MessageQueueListener(ObjectMapper objectMapper, ProjectBuildService buildService, DeployService deployService, WorkProjectService workProjectService) {
         this.objectMapper = objectMapper;
         this.buildService = buildService;
+        this.deployService = deployService;
         this.workProjectService = workProjectService;
     }
 
@@ -31,7 +34,8 @@ public class MessageQueueListener {
         WorkProjectSetting projectSetting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
         try {
-            buildService.buildImage(workProject.getClonePath(), projectSetting);
+//            buildService.buildImage(workProject.getClonePath(), projectSetting);
+            deployService.deployApplication("TEST", "parklibra1011/test:latest", 9000);
         } catch (Exception e) {
             e.printStackTrace();
         }

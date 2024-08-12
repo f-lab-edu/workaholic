@@ -2,7 +2,6 @@ package workaholic.model;
 
 import datasource.work.model.enumeration.BuildType;
 import datasource.work.model.enumeration.JavaVersion;
-import datasource.work.model.enumeration.VCSVendor;
 import workaholic.model.validation.ValidEnumeration;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -20,9 +19,6 @@ public class WorkaholicRequestDTO {
     @NotBlank
     private String id;
 
-    @ValidEnumeration(enumClass = VCSVendor.class)
-    private VCSVendor vendor = VCSVendor.GITHUB;
-
     @ValidEnumeration(enumClass = JavaVersion.class)
     private JavaVersion javaVersion = JavaVersion.JAVA_21;
 
@@ -32,7 +28,7 @@ public class WorkaholicRequestDTO {
     @ValidEnumeration(enumClass = BuildType.class)
     private BuildType buildType = BuildType.GRADLE;
 
-    private String workDirectory = "";
+    private String workDirectory;
 
     private int port = 8080;
 

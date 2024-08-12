@@ -61,7 +61,7 @@ public class WorkProjectService {
 
     public void setClonedPath(WorkProject workProject, String clonePath) {
         workProject.setClonePath(clonePath);
-        workProject.setStatus(ProjectStatus.REPO_CLONE);
+        workProject.setStatus(ProjectStatus.CLONED);
         projectRepository.save(workProject);
     }
 

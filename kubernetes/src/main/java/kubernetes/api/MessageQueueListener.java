@@ -35,7 +35,6 @@ public class MessageQueueListener {
 
         try {
             buildService.buildImage(workProject.getClonePath(), projectSetting);
-            deployService.deployApplication("TEST", "nginx:latest", 9000);
         } catch (Exception e) {
             e.printStackTrace();
         }

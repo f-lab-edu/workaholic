@@ -41,6 +41,9 @@ subprojects {
         "annotationProcessor"("jakarta.annotation:jakarta.annotation-api")
         "annotationProcessor"("jakarta.persistence:jakarta.persistence-api")
 
+
+        "testCompileOnly"("org.projectlombok:lombok")
+        "testAnnotationProcessor"("org.projectlombok:lombok")
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.springframework.amqp:spring-rabbit-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
@@ -61,7 +64,6 @@ project(":gateway") {
     }
 
     dependencies {
-        implementation(project(":mq-error"))
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
     }
@@ -78,7 +80,6 @@ project(":vcs-integration") {
     }
 
     dependencies {
-        implementation(project(":mq-error"))
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
     }
@@ -95,7 +96,6 @@ project(":kubernetes") {
     }
 
     dependencies {
-        implementation(project(":mq-error"))
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
     }

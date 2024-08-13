@@ -1,7 +1,10 @@
 package kubernetes.config;
 
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +24,13 @@ public class KubernetesConfig {
 
     @Bean
     public KubernetesClient kubernetesClient() {
-        return new KubernetesClientBuilder().build();
+        Config config = new ConfigBuilder()
+                .withMasterUrl(url)
+                .withOauthToken(token)
+                .build();
+
+        return new KubernetesClientBuilder()
+                .withConfig(config)
+                .build();
     }
 }

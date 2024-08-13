@@ -1,0 +1,32 @@
+server:
+  port: 10000
+kubernetes:
+  url: https://kubernetes.docker.internal:6443
+  token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjZyakRpdGJIQnVBTFU1MXlMcVdYeHpNaktBOFdjaDhKTWxFbUVaV2RMancifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6IndvcmthLWhvbGljLXRva2VuIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6IndvcmthLWhvbGljIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMGFkY2Q1YzEtN2I0Ny00NjAyLWFjNTQtYmNiZWZkNjA1NWU5Iiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6d29ya2EtaG9saWMifQ.BZ3dPoM_Plno7_nK94GNy2rIfXAxlDScjT-voNNXCqhPnYwOx_P-gwwVYjrKGa0qi8_uCwnuXAwpnb2_PEgC4k0uoLUwLgkN9wFG5nBtX3WOxaBlzoAmbqND0H1y7FEiwMqzsQyeOdh1Xol7LOvX0rtT4yWaQ12OKrSML3vR1In9DyQ6R59nBdl32zJwBZMibuA86EicoBtKs_A6BAZ61weWL-9FY71u2bSYDjPYUdJqGdnuBvO4qP9LPXcaBczXkMAia7ChCzJYm0nGnfr9-WigvgCTLLuiN25qPeklt-wUx9f7fryIskFX0-TNAAMks3QcuuzsQHzfdK2YIsxfYw
+  base-url: /api/v1/namespaces/default/
+
+spring:
+  application:
+    name: workaholic-kube
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://192.168.115.11:14306/ANYLINK7
+    username: anylink
+    password: anylink
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: true
+    defer-datasource-initialization: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    exchange: workaholic.exchange

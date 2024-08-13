@@ -1,0 +1,27 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: workaholic-project
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://192.168.115.11:14306/ANYLINK7
+    username: anylink
+    password: anylink
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: true
+    defer-datasource-initialization: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    exchange: workaholic.exchange

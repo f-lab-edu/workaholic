@@ -98,5 +98,6 @@ project(":kubernetes") {
     dependencies {
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
+        implementation(project(":datasource-pod"))
     }
 }

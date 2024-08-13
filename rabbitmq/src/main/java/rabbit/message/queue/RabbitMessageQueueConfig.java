@@ -13,59 +13,59 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMessageQueueConfig {
+    private static final String KUBE_BUILD_QUEUE = "workaholic.kubernetes.build";
+    private static final String KUBE_DEPLOY_QUEUE = "workaholic.kubernetes.deploy";
+    private static final String VCS_QUEUE = "workaholic.vcs";
+    private static final String ERROR_QUEUE = "workaholic.error";
+
+    private static final String KUBE_BUILD_QUEUE_PATTERN = "workaholic.kubernetes.build.*";
+    private static final String KUBE_DEPLOY_QUEUE_PATTERN = "workaholic.kubernetes.deploy.*";
+    private static final String VCS_QUEUE_PATTERN = "workaholic.vcs.*";
+    private static final String ERROR_QUEUE_PATTERN = "workaholic.error.*";
+
     @Bean
     public TopicExchange topicExchange() {
         return new TopicExchange("workaholic.exchange");
     }
 
     @Bean
-    public Queue kubeQueue() {
-        return new Queue("workaholic.kubernetes");
+    public Queue kubeBuildQueue() {
+        return new Queue(KUBE_BUILD_QUEUE);
+    }
+
+    @Bean
+    public Queue kubeDeployQueue() {
+        return new Queue(KUBE_DEPLOY_QUEUE);
     }
 
     @Bean
     public Queue vcsQueue() {
-        return new Queue("workaholic.vcs");
+        return new Queue(VCS_QUEUE);
     }
 
     @Bean
     public Queue errorQueue() {
-        return new Queue("workaholic.error");
+        return new Queue(ERROR_QUEUE);
     }
 
     @Bean
-    public Binding kubeBindingBuild(TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeQueue()).to(topicExchange).with("kubernetes.build");
+    public Binding kubeBuildBindingBuild(TopicExchange topicExchange) {
+        return BindingBuilder.bind(kubeBuildQueue()).to(topicExchange).with(KUBE_BUILD_QUEUE_PATTERN);
     }
 
     @Bean
-    public Binding kubeBindingDeploy(TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeQueue()).to(topicExchange).with("kubernetes.deploy");
+    public Binding kubeDeployBindingDeploy(TopicExchange topicExchange) {
+        return BindingBuilder.bind(kubeDeployQueue()).to(topicExchange).with(KUBE_DEPLOY_QUEUE_PATTERN);
     }
 
     @Bean
     public Binding vcsIntegrationBindingClone(TopicExchange topicExchange) {
-        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with("integration.clone");
-    }
-
-    @Bean
-    public Binding vcsIntegrationBindingBranch(TopicExchange topicExchange) {
-        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with("integration.branch");
+        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with(VCS_QUEUE_PATTERN);
     }
 
     @Bean
     public Binding errorBindingClone(TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.clone");
-    }
-
-    @Bean
-    public Binding errorBindingBuild(TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.build");
-    }
-
-    @Bean
-    public Binding errorBindingDeploy(TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue()).to(topicExchange).with("error.deploy");
+        return BindingBuilder.bind(errorQueue()).to(topicExchange).with(ERROR_QUEUE_PATTERN);
     }
 
     @Bean

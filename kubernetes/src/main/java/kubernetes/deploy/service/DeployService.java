@@ -67,7 +67,7 @@ public class DeployService {
                                         .withName(podName + "-container")
                                         .withImage(imageName)
                                         .addNewPort()
-                                            .withContainerPort(accessPort) // Container's internal port
+                                            .withContainerPort(accessPort) // Container's internal nodePort
                                         .endPort()
                                     .endContainer()
                                 .endSpec().build()).create();
@@ -102,7 +102,7 @@ public class DeployService {
         return ipAddress + ":" + port;
     }
 
-    public io.fabric8.kubernetes.api.model.Service createService(String namespace, String podName, int servicePort, int targetPort) throws Exception {
+    public io.fabric8.kubernetes.api.model.Service createService(String namespace, String podName, int targetPort, int nodePort) throws Exception {
         try {
             io.fabric8.kubernetes.api.model.Service service = kubernetesClient.services()
                     .inNamespace(namespace).withName(podName + "-service").get();
@@ -118,9 +118,9 @@ public class DeployService {
                             .endMetadata()
                             .withNewSpec()
                                 .addNewPort()
-                                    .withPort(servicePort)
+                                    .withPort(nodePort)
                                     .withTargetPort(new IntOrString(targetPort))
-                                    .withNodePort(servicePort) // NodePort 설정
+                                    .withNodePort(nodePort) // NodePort 설정
                                 .endPort()
                                 .withSelector(Collections.singletonMap("app", podName))
                                 .withType("NodePort") // NodePort 타입 설정
@@ -134,15 +134,15 @@ public class DeployService {
         }
     }
 
-    public void deployApplication(String namespace, String podName, String imageName, int servicePort, int targetPort) {
+    public String deployApplication(String namespace, String podName, String imageName, int servicePort, int targetPort) throws Exception {
         try {
             createNamespace(namespace);
             createPod(namespace, podName, imageName, targetPort);
             io.fabric8.kubernetes.api.model.Service service = createService(namespace, podName, servicePort, targetPort);
-            String path = getAccessAddress(service);
-            log.info("Address : {} ", path);
+            return getAccessAddress(service);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new Exception();
         }
     }
 }

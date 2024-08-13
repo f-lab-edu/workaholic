@@ -38,8 +38,12 @@ public class WorkProjectSetting {
     private JavaVersion javaVersion;//FROM
 
     @Setter
-    @Column(name = "PORT")
-    private int port;
+    @Column(name = "TARGET_PORT")
+    private int targetPort;
+
+    @Setter
+    @Column(name = "NODE_PORT")
+    private int nodePort;
 
     @Setter
     @Column(name = "WORK_DIR")
@@ -55,20 +59,22 @@ public class WorkProjectSetting {
     @Convert(converter = ListToStringConverter.class)
     private List<String> executeParameters;
 
-    public WorkProjectSetting(String id, BuildType buildType, JavaVersion javaVersion, int port, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
+    public WorkProjectSetting(String id, BuildType buildType, JavaVersion javaVersion, int targetPort, int nodePort, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
         this.id = id;
         this.buildType = buildType;
         this.javaVersion = javaVersion;
-        this.port = port;
+        this.targetPort = targetPort;
+        this.nodePort = nodePort;
         this.workDirectory = workDirectory;
         this.envVariables = envVariables;
         this.executeParameters = executeParameters;
     }
 
-    public WorkProjectSetting(BuildType buildType, JavaVersion javaVersion, int port, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
+    public WorkProjectSetting(BuildType buildType, JavaVersion javaVersion, int targetPort, int nodePort, String workDirectory, Map<String, String> envVariables, List<String> executeParameters) {
         this.buildType = buildType;
         this.javaVersion = javaVersion;
-        this.port = port;
+        this.targetPort = targetPort;
+        this.nodePort = nodePort;
         this.workDirectory = workDirectory;
         this.envVariables = envVariables;
         this.executeParameters = executeParameters;

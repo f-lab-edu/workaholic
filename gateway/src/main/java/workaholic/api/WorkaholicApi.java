@@ -30,7 +30,6 @@ import java.util.List;
 @RequestMapping("/project")
 public class WorkaholicApi {
     private final static String VCS_ROUTING_KEY = "integration.clone";
-    private final static String KUBE_ROUTING_KEY = "kubernetes";
 
     private final WorkProjectService workProjectService;
     private final ProducerService producerService;
@@ -48,7 +47,7 @@ public class WorkaholicApi {
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
         WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
-        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
         workProjectService.createWorkProject(createdWorkProject, createdSetting);
 
         try {
@@ -66,7 +65,7 @@ public class WorkaholicApi {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
-        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
+        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getTargetPort(), setting.getNodePort(), setting.getEnvVariables(), setting.getExecuteParameters());
         return ApiResponse.success(response);
     }
 
@@ -82,7 +81,7 @@ public class WorkaholicApi {
             final @PathVariable("id") String projectId,
             final @RequestBody WorkaholicUpdateDTO dto) {
         WorkProjectSetting existingSetting = workProjectService.getSettingByWorkProjectId(projectId);
-        WorkProjectSetting updatedSetting = new WorkProjectSetting(dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        WorkProjectSetting updatedSetting = new WorkProjectSetting(dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
 
         workProjectService.updateWorkProject(existingSetting, updatedSetting);
         return ApiResponse.success(existingSetting.getId());

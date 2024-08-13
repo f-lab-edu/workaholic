@@ -47,7 +47,7 @@ public class WorkProjectService {
     public void updateWorkProject(WorkProjectSetting existingSetting, WorkProjectSetting updatedSetting) {
         existingSetting.setBuildType(updatedSetting.getBuildType());
         existingSetting.setJavaVersion(updatedSetting.getJavaVersion());
-        existingSetting.setPort(updatedSetting.getPort());
+        existingSetting.setNodePort(updatedSetting.getNodePort());
         existingSetting.setWorkDirectory(updatedSetting.getWorkDirectory());
         existingSetting.setEnvVariables(updatedSetting.getEnvVariables());
         existingSetting.setExecuteParameters(updatedSetting.getExecuteParameters());

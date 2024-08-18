@@ -69,4 +69,10 @@ public class WorkProjectService {
         workProject.setStatus(ProjectStatus.FAILED_CLONE);
         projectRepository.save(workProject);
     }
+
+    public void changeBranch(WorkProject workProject, String branchName) {
+        workProject.setStatus(ProjectStatus.CHANGE_BRANCH);
+        workProject.setBranchName(branchName);
+        projectRepository.save(workProject);
+    }
 }

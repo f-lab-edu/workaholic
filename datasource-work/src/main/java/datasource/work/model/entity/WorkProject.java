@@ -30,6 +30,10 @@ public class WorkProject {
     private String clonePath;
 
     @Setter
+    @Column(name = "BRANCH_NAME")
+    private String branchName;
+
+    @Setter
     @Column
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;

@@ -33,6 +33,7 @@ public class MessageQueueListener {
     public void receiveMessageQueue(Message message) throws IOException {
         String token = message.getMessageProperties().getHeader(HttpHeaders.AUTHORIZATION);
         WorkProject createdWorkProject = objectMapper.readValue(message.getBody(), WorkProject.class);
+
         try {
             String clonedPath = vcsIntegrationService.cloneRepository(createdWorkProject.getId(), createdWorkProject.getRepoUrl(), token);
             workProjectService.setClonedPath(createdWorkProject, clonedPath);
@@ -40,7 +41,7 @@ public class MessageQueueListener {
         } catch (FailedCloneRepositoryException e) {
             log.error("Message processing failed", e);
             workProjectService.failedCloneRepo(createdWorkProject);
-            producerService.sendMessageQueue("error.clone", createdWorkProject.getId());
+            producerService.sendMessageQueue("workaholic.error.clone", createdWorkProject.getId());
         }
     }
 }

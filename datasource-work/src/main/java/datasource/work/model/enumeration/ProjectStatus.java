@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ProjectStatus {
     CREATE,
+    CHANGE_BRANCH,
+    FAILED_CHANGE_BRANCH,
     CLONING,
     FAILED_CLONE,
     CLONED,

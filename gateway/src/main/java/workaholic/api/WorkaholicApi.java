@@ -1,6 +1,7 @@
 package workaholic.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.web.bind.annotation.PatchMapping;
 import workaholic.config.response.ApiResponse;
 import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
@@ -29,7 +30,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/project")
 public class WorkaholicApi {
-    private final static String VCS_ROUTING_KEY = "integration.clone";
+    private final static String CLONE_ROUTING_KEY = "integration.clone";
+    private final static String BRANCH_ROUTING_KEY = "integration.branch";
 
     private final WorkProjectService workProjectService;
     private final ProducerService producerService;
@@ -51,7 +53,7 @@ public class WorkaholicApi {
         workProjectService.createWorkProject(createdWorkProject, createdSetting);
 
         try {
-            producerService.sendMessageQueue(VCS_ROUTING_KEY, createdWorkProject, messageProperties);
+            producerService.sendMessageQueue(CLONE_ROUTING_KEY, createdWorkProject, messageProperties);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -78,6 +80,7 @@ public class WorkaholicApi {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> updateWorkProjectConfigById(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             final @PathVariable("id") String projectId,
             final @RequestBody WorkaholicUpdateDTO dto) {
         WorkProjectSetting existingSetting = workProjectService.getSettingByWorkProjectId(projectId);
@@ -85,6 +88,26 @@ public class WorkaholicApi {
 
         workProjectService.updateWorkProject(existingSetting, updatedSetting);
         return ApiResponse.success(existingSetting.getId());
+    }
+
+    @PatchMapping("/{id}/{branch}")
+    public ResponseEntity<ApiResponse<String>> changeImageBranch(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            final @PathVariable("id") String projectId,
+            final @PathVariable("branch") String branchName) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+
+        WorkProject project = workProjectService.getWorkProjectById(projectId);
+        workProjectService.changeBranch(project, branchName);
+
+        try {
+            producerService.sendMessageQueue(BRANCH_ROUTING_KEY, project, messageProperties);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ApiResponse.success(branchName);
     }
 
     @DeleteMapping("/{id}")

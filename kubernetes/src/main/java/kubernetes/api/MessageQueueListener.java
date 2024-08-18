@@ -46,7 +46,8 @@ public class MessageQueueListener {
             projectPodService.createProjectPod(createdPod);
             producerService.sendMessageQueue("workaholic.kubernetes.deploy", projectSetting);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Build Error");
+            producerService.sendMessageQueue("workaholic.error.build", workProject);
         }
     }
 
@@ -60,7 +61,8 @@ public class MessageQueueListener {
                     "imageName", projectSetting.getTargetPort(), projectSetting.getNodePort());
             projectPodService.setAccessAddress(projectPod, address);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Deploy Error");
+            producerService.sendMessageQueue("workaholic.error.deploy", projectPod);
         }
     }
 }

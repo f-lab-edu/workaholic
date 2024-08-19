@@ -40,12 +40,4 @@ class VCSIntegrationServiceTest {
 
         vcsIntegrationService.checkoutRepositoryByBranchName(repoPath, branchName);
     }
-
-    @Test
-    void fetchRepository() throws IOException {
-        String repoPath = "C:\\Users\\Tmax\\Desktop\\temp\\testProject";
-        String token = "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";
-
-        vcsIntegrationService.fetchRepository(repoPath, token);
-    }
 }

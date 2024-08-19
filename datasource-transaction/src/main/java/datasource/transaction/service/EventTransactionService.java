@@ -14,4 +14,9 @@ public class EventTransactionService {
         this.transactionRepository = transactionRepository;
         this.traceRepository = traceRepository;
     }
+
+    public EventTransaction createTransaction() {
+        EventTransaction transaction = new EventTransaction("START");
+        return transactionRepository.save(transaction);
+    }
 }

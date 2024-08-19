@@ -1,5 +1,15 @@
 package vcs.integration.service;
 
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import vcs.integration.exception.type.FailedCloneRepositoryException;
 import vcs.integration.exception.type.FailedCreateDirectory;
 import vcs.integration.config.VCSProperties;
@@ -15,6 +25,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -81,5 +94,62 @@ public class VCSIntegrationService {
         }
 
         return directory.getAbsolutePath();
+    }
+
+    public List<String> getRepositoryBranches(String repoPath) throws Exception {
+        List<String> branches = new ArrayList<>();
+
+        try (Git git = Git.open(new File(repoPath))) {
+            List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+            for (Ref ref : refs) {
+                branches.add(ref.getName());
+            }
+        }
+
+        return branches;
+    }
+
+    public void checkoutRepositoryByBranchName(String repoPath, String branchName) throws IOException {
+        try (Git git = Git.open(new File(repoPath))) {
+            git.checkout()
+                    .setName(branchName)
+                    .call();
+        } catch (RefNotFoundException e) {
+            throw new IllegalArgumentException("Branch not found: " + branchName, e);
+        } catch (GitAPIException e) {
+            throw new RuntimeException("Failed to checkout branch: " + branchName, e);
+        }
+    }
+
+    public void fetchRepository(String repoPath, String token) throws IOException {
+        try (Git git = Git.open(new File(repoPath))) {
+            FetchResult result = git.fetch()
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                    .call();
+            printFetchResult(result);
+        } catch (GitAPIException  e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void printFetchResult(FetchResult result) {
+        // Fetch 결과 메시지 출력
+        System.out.println("Messages: " + result.getMessages());
+
+        // 원격 참조 목록 출력
+        System.out.println("Advertised Refs:");
+        result.getAdvertisedRefs().forEach(ref ->
+                System.out.println(" - " + ref.getName() + " (" + ref.getObjectId().getName() + ")")
+        );
+
+        // 업데이트된 참조 목록 출력
+        System.out.println("Tracking Ref Updates:");
+        Collection<TrackingRefUpdate> refUpdates = result.getTrackingRefUpdates();
+        for (TrackingRefUpdate refUpdate : refUpdates) {
+            System.out.println(" - " + refUpdate.getLocalName() + " -> " + refUpdate.getRemoteName());
+            System.out.println("   Old Object ID: " + refUpdate.getOldObjectId().getName());
+            System.out.println("   New Object ID: " + refUpdate.getNewObjectId().getName());
+            System.out.println("   Result: " + refUpdate.getResult());
+        }
     }
 }

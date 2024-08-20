@@ -104,3 +104,21 @@ project(":kubernetes") {
         implementation(project(":datasource-transaction"))
     }
 }
+
+project(":mq-error"){
+    tasks {
+        named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+            enabled = true
+        }
+        named<Jar>("jar") {
+            enabled = true
+        }
+    }
+
+    dependencies {
+        implementation(project(":rabbitmq"))
+        implementation(project(":datasource-work"))
+        implementation(project(":datasource-pod"))
+        implementation(project(":datasource-transaction"))
+    }
+}

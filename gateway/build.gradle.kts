@@ -1,9 +1,5 @@
-tasks.named<Jar>("bootJar") {
-    enabled = true
-}
+plugins {
 
-tasks.named<Jar>("jar") {
-    enabled = false
 }
 
 dependencies {

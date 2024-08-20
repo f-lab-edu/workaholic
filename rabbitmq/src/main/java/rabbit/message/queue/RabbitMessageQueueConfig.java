@@ -19,7 +19,7 @@ public class RabbitMessageQueueConfig {
 
     private static final String KUBE_QUEUE_PATTERN = "kubernetes.*";
     private static final String VCS_QUEUE_PATTERN = "integration.*";
-    private static final String ERROR_QUEUE_PATTERN = "error";
+    private static final String ERROR_QUEUE_PATTERN = "error.*";
 
     @Bean
     public TopicExchange topicExchange() {

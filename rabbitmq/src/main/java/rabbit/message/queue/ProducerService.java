@@ -14,7 +14,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class ProducerService {
-    private static final String ERROR_ROUTING_KEY = "error";
+    private static final String ERROR_ROUTING_KEY = "error.test";
     private static final String TRANSACTION_HEADER = "transaction_id";
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMessageQueueProperties properties;

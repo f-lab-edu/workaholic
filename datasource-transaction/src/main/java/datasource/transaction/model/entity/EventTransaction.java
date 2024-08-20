@@ -21,7 +21,6 @@ import java.util.UUID;
 public class EventTransaction {
     @Id
     @GeneratedValue(generator = "uuid2")
-    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Setter

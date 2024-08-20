@@ -1,4 +1,4 @@
-package workaholic.config.exception;
+package datasource.work.config.excpetion;
 
 import datasource.work.config.excpetion.type.NotFoundProjectException;
 import org.springframework.http.HttpStatus;

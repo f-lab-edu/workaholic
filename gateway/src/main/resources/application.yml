@@ -1,5 +1,9 @@
+workaholic:
+  vcs-app: http://localhost:9000
+
 server:
   port: 8000
+
 spring:
   application:
     name: workaholic-project

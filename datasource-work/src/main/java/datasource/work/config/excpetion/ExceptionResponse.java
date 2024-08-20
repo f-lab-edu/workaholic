@@ -1,4 +1,4 @@
-package workaholic.config.exception;
+package datasource.work.config.excpetion;
 
 import lombok.Getter;
 

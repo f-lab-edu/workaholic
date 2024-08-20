@@ -1,7 +1,12 @@
 package workaholic.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import workaholic.config.response.ApiResponse;
 import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
@@ -31,14 +36,17 @@ import java.util.List;
 @RequestMapping("/project")
 public class WorkaholicApi {
     private final static String CLONE_ROUTING_KEY = "integration.clone";
-    private final static String BRANCH_ROUTING_KEY = "integration.branch";
+    private final static String CHECKOUT_ROUTING_KEY = "integration.checkout";
+    private final static String FETCH_ROUTING_KEY = "integration.fetch";
 
     private final WorkProjectService workProjectService;
     private final ProducerService producerService;
+    private final RestTemplate vcsApplicationRestTemplate;
 
-    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService) {
+    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService, RestTemplate vcsApplicationRestTemplate) {
         this.workProjectService = workProjectService;
         this.producerService = producerService;
+        this.vcsApplicationRestTemplate = vcsApplicationRestTemplate;
     }
 
     @PostMapping("")
@@ -52,12 +60,7 @@ public class WorkaholicApi {
         WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
         workProjectService.createWorkProject(createdWorkProject, createdSetting);
 
-        try {
-            producerService.sendMessageQueue(CLONE_ROUTING_KEY, createdWorkProject, messageProperties);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
+        producerService.sendMessageQueue(CLONE_ROUTING_KEY, createdWorkProject, messageProperties);
         return ApiResponse.success(dto);
     }
 
@@ -72,10 +75,17 @@ public class WorkaholicApi {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<String>>> getWorkProjectConfig() {
-        List<String> response = workProjectService.getAllWorkProject()
-                .stream().map(WorkProject::getId).toList();
-        return ApiResponse.success(response);
+    public ResponseEntity<ApiResponse<List<String>>> getBranchesByWorkProjectId(
+            final @RequestParam("id") String projectId) {
+        String branchCallUri = "/branch?id=" + projectId;
+
+        try {
+            ResponseEntity<List<String>> response =
+                    vcsApplicationRestTemplate.exchange(branchCallUri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+            return ApiResponse.success(response.getBody());
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -101,12 +111,7 @@ public class WorkaholicApi {
         WorkProject project = workProjectService.getWorkProjectById(projectId);
         workProjectService.changeBranch(project, branchName);
 
-        try {
-            producerService.sendMessageQueue(BRANCH_ROUTING_KEY, project, messageProperties);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
+        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project, messageProperties);
         return ApiResponse.success(branchName);
     }
 

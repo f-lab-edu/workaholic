@@ -20,8 +20,8 @@ public class RabbitMessageQueueConfig {
 
     private static final String KUBE_BUILD_QUEUE_PATTERN = "workaholic.kubernetes.build.*";
     private static final String KUBE_DEPLOY_QUEUE_PATTERN = "workaholic.kubernetes.deploy.*";
-    private static final String VCS_QUEUE_PATTERN = "workaholic.vcs.*";
-    private static final String ERROR_QUEUE_PATTERN = "workaholic.error.*";
+    private static final String VCS_QUEUE_PATTERN = "integration.*";
+    private static final String ERROR_QUEUE_PATTERN = "error.*";
 
     @Bean
     public TopicExchange topicExchange() {

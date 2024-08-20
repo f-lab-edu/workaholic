@@ -2,9 +2,11 @@ package workaholic.config.response;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class ApiResponse<T> {
@@ -25,5 +27,11 @@ public class ApiResponse<T> {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ApiResponse<T>(data));
+    }
+
+    public static ResponseEntity<ApiResponse<List<String>>> fail(HttpStatusCode statusCode) {
+        return ResponseEntity
+                .status(statusCode)
+                .build();
     }
 }

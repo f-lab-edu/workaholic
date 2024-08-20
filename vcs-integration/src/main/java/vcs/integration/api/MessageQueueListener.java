@@ -7,6 +7,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import rabbit.message.queue.ProducerService;
@@ -20,13 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-@Component
+@Controller
 public class MessageQueueListener {
     private final ObjectMapper objectMapper;
     private final VCSIntegrationService vcsIntegrationService;
@@ -45,7 +45,7 @@ public class MessageQueueListener {
             @RequestParam("id") String projectId) {
         try {
             WorkProject workProject = workProjectService.getWorkProjectById(projectId);
-            List<String> branches = vcsIntegrationService.getRepositoryBranches(workProject.getRepoUrl());
+            List<String> branches = vcsIntegrationService.getRepositoryBranches(workProject.getClonePath());
             return ResponseEntity.status(HttpStatus.OK).body(branches);
         } catch (FailedGetBranchesException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -58,9 +58,9 @@ public class MessageQueueListener {
         WorkProject workProject = objectMapper.readValue(message.getBody(), WorkProject.class);
 
         switch (routingKey) {
-            case "workaholic.vcs.clone" -> cloningRepository(workProject, token);
-            case "workaholic.vcs.checkout" -> checkoutRepository(workProject, workProject.getBranchName());
-            case "workaholic.vcs.fetch" -> fetchRepository(workProject, token);
+            case "integration.clone" -> cloningRepository(workProject, token);
+            case "integration.checkout" -> checkoutRepository(workProject, workProject.getBranchName());
+            case "integration.fetch" -> fetchRepository(workProject, token);
         }
     }
 

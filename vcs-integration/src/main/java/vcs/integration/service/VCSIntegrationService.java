@@ -2,6 +2,8 @@ package vcs.integration.service;
 
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import vcs.integration.exception.type.FailedCheckoutRepositoryException;
 import vcs.integration.exception.type.FailedCloneRepositoryException;
 import vcs.integration.exception.type.FailedCreateDirectory;
@@ -21,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -111,6 +114,7 @@ public class VCSIntegrationService {
             git.checkout()
                     .setName(branchName)
                     .call();
+            log.info("Checked out branch : {}", branchName);
         } catch (IOException | GitAPIException e) {
             throw new FailedCheckoutRepositoryException();
         }
@@ -118,11 +122,34 @@ public class VCSIntegrationService {
 
     public void fetchRepository(String repoUrl, String token) throws FailedFetchRepositoryException {
         try (Git git = Git.open(new File(repoUrl))) {
-            git.fetch()
+            FetchResult result = git.fetch()
                     .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
                     .call();
+
+            printFetchResult(result);
         } catch (IOException | GitAPIException  e) {
             throw new FailedFetchRepositoryException();
+        }
+    }
+
+    private void printFetchResult(FetchResult result) {
+        // Fetch 결과 메시지 출력
+        System.out.println("Messages: " + result.getMessages());
+
+        // 원격 참조 목록 출력
+        System.out.println("Advertised Refs:");
+        result.getAdvertisedRefs().forEach(ref ->
+                System.out.println(" - " + ref.getName() + " (" + ref.getObjectId().getName() + ")")
+        );
+
+        // 업데이트된 참조 목록 출력
+        System.out.println("Tracking Ref Updates:");
+        Collection<TrackingRefUpdate> refUpdates = result.getTrackingRefUpdates();
+        for (TrackingRefUpdate refUpdate : refUpdates) {
+            System.out.println(" - " + refUpdate.getLocalName() + " -> " + refUpdate.getRemoteName());
+            System.out.println("   Old Object ID: " + refUpdate.getOldObjectId().getName());
+            System.out.println("   New Object ID: " + refUpdate.getNewObjectId().getName());
+            System.out.println("   Result: " + refUpdate.getResult());
         }
     }
 }

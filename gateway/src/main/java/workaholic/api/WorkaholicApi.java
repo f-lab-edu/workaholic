@@ -74,9 +74,9 @@ public class WorkaholicApi {
         return ApiResponse.success(response);
     }
 
-    @GetMapping("")
+    @GetMapping("/{id}/branch")
     public ResponseEntity<ApiResponse<List<String>>> getBranchesByWorkProjectId(
-            final @RequestParam("id") String projectId) {
+            final @PathVariable("id") String projectId) {
         String branchCallUri = "/branch?id=" + projectId;
 
         try {
@@ -100,19 +100,27 @@ public class WorkaholicApi {
         return ApiResponse.success(existingSetting.getId());
     }
 
-    @PatchMapping("/{id}/{branch}")
-    public ResponseEntity<ApiResponse<String>> changeImageBranch(
-            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+    @PatchMapping("/{id}/checkout")
+    public ResponseEntity<ApiResponse<String>> checkoutBranch(
             final @PathVariable("id") String projectId,
-            final @PathVariable("branch") String branchName) {
+            final @RequestParam("branch") String branchName) {
+        WorkProject project = workProjectService.getWorkProjectById(projectId);
+        workProjectService.changeBranch(project, branchName);
+
+        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project);
+        return ApiResponse.success(branchName);
+    }
+
+    @PatchMapping("/{id}/fetch")
+    public ResponseEntity<Void> fetchBranch(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            final @PathVariable("id") String projectId) {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
         WorkProject project = workProjectService.getWorkProjectById(projectId);
-        workProjectService.changeBranch(project, branchName);
-
-        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project, messageProperties);
-        return ApiResponse.success(branchName);
+        producerService.sendMessageQueue(FETCH_ROUTING_KEY, project, messageProperties);
+        return ApiResponse.success();
     }
 
     @DeleteMapping("/{id}")

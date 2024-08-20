@@ -90,7 +90,7 @@ public class MessageQueueListener {
 
     private void fetchRepository(WorkProject workProject, String token) {
         try {
-            vcsIntegrationService.fetchRepository(workProject.getRepoUrl(), token);
+            vcsIntegrationService.fetchRepository(workProject.getClonePath(), token);
         } catch (FailedFetchRepositoryException e) {
             log.error("Fetch repository processing failed", e);
             producerService.sendMessageQueue("workaholic.error.fetch", workProject);

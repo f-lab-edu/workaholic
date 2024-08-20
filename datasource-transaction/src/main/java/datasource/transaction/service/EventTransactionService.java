@@ -5,6 +5,8 @@ import datasource.transaction.repository.EventTraceRepository;
 import datasource.transaction.repository.EventTransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class EventTransactionService {
     private final EventTransactionRepository transactionRepository;
@@ -15,8 +17,8 @@ public class EventTransactionService {
         this.traceRepository = traceRepository;
     }
 
-    public EventTransaction createTransaction() {
-        EventTransaction transaction = new EventTransaction("START");
-        return transactionRepository.save(transaction);
+    public UUID createTransaction() {
+        EventTransaction transaction = new EventTransaction();
+        return transactionRepository.save(transaction).getId();
     }
 }

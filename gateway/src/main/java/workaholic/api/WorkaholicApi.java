@@ -1,5 +1,6 @@
 package workaholic.api;
 
+import datasource.transaction.service.EventTransactionService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,11 +42,13 @@ public class WorkaholicApi {
 
     private final WorkProjectService workProjectService;
     private final ProducerService producerService;
+    private final EventTransactionService transactionService;
     private final RestTemplate vcsApplicationRestTemplate;
 
-    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService, RestTemplate vcsApplicationRestTemplate) {
+    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
         this.workProjectService = workProjectService;
         this.producerService = producerService;
+        this.transactionService = transactionService;
         this.vcsApplicationRestTemplate = vcsApplicationRestTemplate;
     }
 
@@ -54,6 +57,7 @@ public class WorkaholicApi {
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             final @Valid @RequestBody WorkaholicRequestDTO dto) {
         MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
         WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
@@ -104,10 +108,12 @@ public class WorkaholicApi {
     public ResponseEntity<ApiResponse<String>> checkoutBranch(
             final @PathVariable("id") String projectId,
             final @RequestParam("branch") String branchName) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
         WorkProject project = workProjectService.getWorkProjectById(projectId);
-        workProjectService.changeBranch(project, branchName);
 
-        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project);
+        workProjectService.changeBranch(project, branchName);
+        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project, messageProperties);
         return ApiResponse.success(branchName);
     }
 
@@ -116,6 +122,7 @@ public class WorkaholicApi {
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             final @PathVariable("id") String projectId) {
         MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
         messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
         WorkProject project = workProjectService.getWorkProjectById(projectId);

@@ -24,7 +24,7 @@ public class DeployService {
         this.kubernetesClient = kubernetesClient;
     }
 
-    private void createNamespace(String name) throws Exception {
+    private void createNamespace(String name) {
         try {
             Namespace namespace = kubernetesClient.namespaces().withName(name).get();
             if( namespace == null ) {
@@ -45,7 +45,6 @@ public class DeployService {
             }
         } catch (Exception e) {
             log.error("Error creating or waiting for Namespace: {}", e.getMessage());
-            throw new Exception();
         }
     }
 
@@ -134,15 +133,14 @@ public class DeployService {
         }
     }
 
-    public String deployApplication(String namespace, String podName, String imageName, int servicePort, int targetPort) throws Exception {
+    public String deployApplication(String namespace, String podName, String imageName, int servicePort, int targetPort) {
         try {
             createNamespace(namespace);
             createPod(namespace, podName, imageName, targetPort);
             io.fabric8.kubernetes.api.model.Service service = createService(namespace, podName, servicePort, targetPort);
             return getAccessAddress(service);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception();
+            throw new RuntimeException(e);
         }
     }
 }

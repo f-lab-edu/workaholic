@@ -7,6 +7,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,16 +19,18 @@ import vcs.integration.exception.type.FailedFetchRepositoryException;
 import vcs.integration.exception.type.FailedGetBranchesException;
 import vcs.integration.service.VCSIntegrationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
 public class MessageQueueListener {
+    private final static String BUILD_ROUTING_KEY = "kubernetes.build";
+
     private final ObjectMapper objectMapper;
     private final VCSIntegrationService vcsIntegrationService;
     private final ProducerService producerService;
@@ -53,47 +56,60 @@ public class MessageQueueListener {
     }
 
     @RabbitListener(queues = "workaholic.vcs", concurrency = "2")
-    public void receiveMessageQueue(Message message, @Header(AmqpHeaders.RECEIVED_ROUTING_KEY) String routingKey) throws IOException {
-        String token = message.getMessageProperties().getHeader(HttpHeaders.AUTHORIZATION);
-        WorkProject workProject = objectMapper.readValue(message.getBody(), WorkProject.class);
-
+    public void receiveMessageQueue(@Payload byte[] body,
+                                    @Header(AmqpHeaders.RECEIVED_ROUTING_KEY) String routingKey,
+                                    @Header(HttpHeaders.AUTHORIZATION) String token,
+                                    @Header("transaction_id")String transactionId) throws IOException {
+        UUID txId = UUID.fromString(transactionId);
         switch (routingKey) {
-            case "integration.clone" -> cloningRepository(workProject, token);
-            case "integration.checkout" -> checkoutRepository(workProject, workProject.getBranchName());
-            case "integration.fetch" -> fetchRepository(workProject, token);
+            case "integration.clone" -> cloningRepository(body, token, txId);
+            case "integration.checkout" -> checkoutRepository(body, txId);
+            case "integration.fetch" -> fetchRepository(body, token, txId);
         }
     }
 
-    private void cloningRepository(WorkProject newWorkProject, String token) {
+    private void cloningRepository(byte[] body, String token, UUID txId) {
         try {
-            String clonedPath = vcsIntegrationService.cloneRepository(newWorkProject.getId(), newWorkProject.getRepoUrl(), token);
-            workProjectService.setClonedPath(newWorkProject, clonedPath);
-            producerService.sendMessageQueue("kubernetes.build", newWorkProject);
+            WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
+            String clonedPath = vcsIntegrationService.cloneRepository(workProject.getId(), workProject.getRepoUrl(), token);
+            workProjectService.setClonedPath(workProject, clonedPath);
+            producerService.sendMessageQueue(BUILD_ROUTING_KEY, workProject, txId);
         } catch (FailedCloneRepositoryException e) {
             log.error("Clone repository processing failed" , e);
-            workProjectService.failedCloneRepo(newWorkProject);
-            producerService.sendMessageQueue("workaholic.error.clone", newWorkProject.getId());
+            producerService.sendExceptionMessage(txId, e);
         } catch (FailedCreateDirectory e) {
             log.error("Create directory processing failed" , e);
-            producerService.sendMessageQueue("workaholic.error.create", newWorkProject.getClonePath());
+            producerService.sendExceptionMessage(txId, e);
+        } catch (IOException e) {
+            log.error("Message queue read processing failed" , e);
+            producerService.sendExceptionMessage(txId, e);
         }
     }
 
-    private void checkoutRepository(WorkProject workProject, String branchName) {
+    private void checkoutRepository(byte[] body, UUID txId) {
         try {
-            vcsIntegrationService.checkoutRepositoryByBranchName(workProject.getClonePath(), branchName);
+            WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
+            vcsIntegrationService.checkoutRepositoryByBranchName(workProject.getClonePath(), workProject.getBranchName());
+            producerService.sendMessageQueue(BUILD_ROUTING_KEY, workProject, txId);
         } catch (FailedCheckoutRepositoryException e) {
             log.error("Checkout repository processing failed", e);
-            producerService.sendMessageQueue("workaholic.error.checkout", workProject);
+            producerService.sendExceptionMessage(txId, e);
+        } catch (IOException e) {
+            log.error("Message queue read processing failed" , e);
+            producerService.sendExceptionMessage(txId, e);
         }
     }
 
-    private void fetchRepository(WorkProject workProject, String token) {
+    private void fetchRepository(byte[] body, String token, UUID txId) {
         try {
+            WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
             vcsIntegrationService.fetchRepository(workProject.getClonePath(), token);
         } catch (FailedFetchRepositoryException e) {
             log.error("Fetch repository processing failed", e);
-            producerService.sendMessageQueue("workaholic.error.fetch", workProject);
+            producerService.sendExceptionMessage(txId, e);
+        } catch (IOException e) {
+            log.error("Message queue read processing failed" , e);
+            producerService.sendExceptionMessage(txId, e);
         }
     }
 }

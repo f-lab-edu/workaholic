@@ -13,15 +13,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMessageQueueConfig {
-    private static final String KUBE_BUILD_QUEUE = "workaholic.kubernetes.build";
-    private static final String KUBE_DEPLOY_QUEUE = "workaholic.kubernetes.deploy";
+    private static final String KUBE_QUEUE = "workaholic.kubernetes";
     private static final String VCS_QUEUE = "workaholic.vcs";
     private static final String ERROR_QUEUE = "workaholic.error";
 
-    private static final String KUBE_BUILD_QUEUE_PATTERN = "workaholic.kubernetes.build.*";
-    private static final String KUBE_DEPLOY_QUEUE_PATTERN = "workaholic.kubernetes.deploy.*";
+    private static final String KUBE_QUEUE_PATTERN = "kubernetes.*";
     private static final String VCS_QUEUE_PATTERN = "integration.*";
-    private static final String ERROR_QUEUE_PATTERN = "error.*";
+    private static final String ERROR_QUEUE_PATTERN = "error";
 
     @Bean
     public TopicExchange topicExchange() {
@@ -29,13 +27,8 @@ public class RabbitMessageQueueConfig {
     }
 
     @Bean
-    public Queue kubeBuildQueue() {
-        return new Queue(KUBE_BUILD_QUEUE);
-    }
-
-    @Bean
-    public Queue kubeDeployQueue() {
-        return new Queue(KUBE_DEPLOY_QUEUE);
+    public Queue kubeQueue() {
+        return new Queue(KUBE_QUEUE);
     }
 
     @Bean
@@ -49,13 +42,8 @@ public class RabbitMessageQueueConfig {
     }
 
     @Bean
-    public Binding kubeBuildBindingBuild(TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeBuildQueue()).to(topicExchange).with(KUBE_BUILD_QUEUE_PATTERN);
-    }
-
-    @Bean
-    public Binding kubeDeployBindingDeploy(TopicExchange topicExchange) {
-        return BindingBuilder.bind(kubeDeployQueue()).to(topicExchange).with(KUBE_DEPLOY_QUEUE_PATTERN);
+    public Binding kubernetesBindingBuild(TopicExchange topicExchange) {
+        return BindingBuilder.bind(kubeQueue()).to(topicExchange).with(KUBE_QUEUE_PATTERN);
     }
 
     @Bean

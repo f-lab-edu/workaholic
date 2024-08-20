@@ -34,28 +34,28 @@ public class ProjectPod {
     @Column(name = "ADDRESS")
     private String address;
 
-    public String generateUniquePodName(String prefix) {
+    public String generateUniquePodName() {
         String uuid = UUID.randomUUID().toString().replace("-", ""); // 대시(-) 제거
-        return prefix + "-pod-" + uuid.substring(0, 12); // 필요한 경우 길이를 줄일 수 있음
+        return "workaholic-pod-" + uuid.substring(0, 12); // 필요한 경우 길이를 줄일 수 있음
     }
 
-    public String generateUniqueNamespace(String prefix) {
+    public String generateUniqueNamespace() {
         String uuid = UUID.randomUUID().toString().replace("-", ""); // 대시(-) 제거
-        return prefix + "-pod-" + uuid.substring(0, 12); // 필요한 경우 길이를 줄일 수 있음
+        return "workaholic-space-" + uuid.substring(0, 12); // 필요한 경우 길이를 줄일 수 있음
     }
 
     public ProjectPod(String projectId) {
         this.id = projectId;
-        this.name = generateUniquePodName(projectId);
-        this.namespace = generateUniqueNamespace(projectId);
+        this.name = generateUniquePodName();
+        this.namespace = generateUniqueNamespace();
         this.imageName = null;
         this.address = null;
     }
 
     public ProjectPod(String projectId, String imageName) {
         this.id = projectId;
-        this.name = generateUniquePodName(projectId);
-        this.namespace = generateUniqueNamespace(projectId);
+        this.name = generateUniquePodName();
+        this.namespace = generateUniqueNamespace();
         this.imageName = imageName;
         this.address = null;
     }

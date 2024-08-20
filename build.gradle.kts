@@ -66,6 +66,7 @@ project(":gateway") {
     dependencies {
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
+        implementation(project(":datasource-transaction"))
     }
 }
 
@@ -82,6 +83,7 @@ project(":vcs-integration") {
     dependencies {
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
+        implementation(project(":datasource-transaction"))
     }
 }
 
@@ -99,5 +101,6 @@ project(":kubernetes") {
         implementation(project(":rabbitmq"))
         implementation(project(":datasource-work"))
         implementation(project(":datasource-pod"))
+        implementation(project(":datasource-transaction"))
     }
 }

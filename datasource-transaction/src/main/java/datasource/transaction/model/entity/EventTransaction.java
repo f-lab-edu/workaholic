@@ -1,7 +1,10 @@
 package datasource.transaction.model.entity;
 
+import datasource.transaction.model.enumeration.EventStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -14,7 +17,6 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "EVENT_TRANSACTION")
 public class EventTransaction {
     @Id
@@ -23,11 +25,12 @@ public class EventTransaction {
     private UUID id;
 
     @Setter
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private EventStatus status;
 
-    public EventTransaction(String status) {
+    public EventTransaction() {
         this.id = UUID.randomUUID();
-        this.status = status;
+        this.status = EventStatus.START;
     }
 }

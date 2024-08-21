@@ -64,8 +64,10 @@ project(":gateway") {
     }
 
     dependencies {
-        implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
+        implementation(project(":rabbitmq:mq-vcs"))
+        implementation(project(":rabbitmq:mq-error"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }
 
@@ -80,8 +82,10 @@ project(":vcs-integration") {
     }
 
     dependencies {
-        implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
+        implementation(project(":rabbitmq:mq-kube"))
+        implementation(project(":rabbitmq:mq-error"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }
 
@@ -96,7 +100,28 @@ project(":kubernetes") {
     }
 
     dependencies {
-        implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
+        implementation(project(":rabbitmq:mq-kube"))
+        implementation(project(":rabbitmq:mq-error"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-pod"))
+        implementation(project(":datasource:datasource-transaction"))
+    }
+}
+
+project(":exception-processing"){
+    tasks {
+        named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+            enabled = true
+        }
+        named<Jar>("jar") {
+            enabled = true
+        }
+    }
+
+    dependencies {
+        implementation(project(":rabbitmq:mq-error"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-pod"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }

@@ -18,18 +18,21 @@ public class WorkaholicResponseDTO {
 
     private final String workDirectory;
 
-    private final int port;
+    private final int targetPort;
+
+    private final int nodePort;
 
     private final Map<String, String> envVariables;
 
     private final List<String> args;
 
-    public WorkaholicResponseDTO(String id, JavaVersion javaVersion, BuildType buildType, String workDirectory, int port, Map<String, String> envVariables, List<String> args) {
+    public WorkaholicResponseDTO(String id, JavaVersion javaVersion, BuildType buildType, String workDirectory, int targetPort, int nodePort, Map<String, String> envVariables, List<String> args) {
         this.id = id;
         this.javaVersion = javaVersion;
         this.buildType = buildType;
         this.workDirectory = workDirectory;
-        this.port = port;
+        this.targetPort = targetPort;
+        this.nodePort = nodePort;
         this.envVariables = envVariables;
         this.args = args;
     }

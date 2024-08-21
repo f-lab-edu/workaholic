@@ -6,10 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@ConfigurationPropertiesScan({"rabbit.message.queue", "vcs.integration"})
-@EntityScan(basePackages = "datasource.work.model.entity")
-@EnableJpaRepositories(basePackages = "datasource.work.repository")
-@SpringBootApplication(scanBasePackages = {"datasource.work", "rabbit.message.queue", "vcs.integration"})
+@ConfigurationPropertiesScan({"message.queue", "vcs"})
+@EntityScan(basePackages = "datasource")
+@EnableJpaRepositories(basePackages = "datasource")
+@SpringBootApplication(scanBasePackages = {"datasource", "message.queue", "vcs"})
 public class VCSIntegrationModuleApplication {
     public static void main(String[] args) {
         SpringApplication.run(VCSIntegrationModuleApplication.class, args);

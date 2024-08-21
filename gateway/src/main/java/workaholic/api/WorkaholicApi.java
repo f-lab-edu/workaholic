@@ -1,12 +1,22 @@
 package workaholic.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import datasource.transaction.service.EventTransactionService;
+import message.queue.vcs.service.VCSProducerService;
+import org.springframework.amqp.core.Message;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import workaholic.config.response.ApiResponse;
 import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
 import datasource.work.model.enumeration.ProjectStatus;
 import workaholic.model.WorkaholicRequestDTO;
-import rabbit.message.queue.ProducerService;
 import workaholic.model.WorkaholicResponseDTO;
 import workaholic.model.WorkaholicUpdateDTO;
 import datasource.work.service.WorkProjectService;
@@ -29,34 +39,35 @@ import java.util.List;
 @RestController
 @RequestMapping("/project")
 public class WorkaholicApi {
-    private final static String VCS_ROUTING_KEY = "integration.clone";
-    private final static String KUBE_ROUTING_KEY = "kubernetes";
-
+    private final ObjectMapper objectMapper;
     private final WorkProjectService workProjectService;
-    private final ProducerService producerService;
+    private final VCSProducerService producerService;
+    private final EventTransactionService transactionService;
+    private final RestTemplate vcsApplicationRestTemplate;
 
-    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService) {
+    public WorkaholicApi(ObjectMapper objectMapper, WorkProjectService workProjectService, VCSProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
+        this.objectMapper = objectMapper;
         this.workProjectService = workProjectService;
         this.producerService = producerService;
+        this.transactionService = transactionService;
+        this.vcsApplicationRestTemplate = vcsApplicationRestTemplate;
     }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<WorkaholicRequestDTO>> createWorkProject(
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-            final @Valid @RequestBody WorkaholicRequestDTO dto) {
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+            final @Valid @RequestBody WorkaholicRequestDTO dto) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        properties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
-        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
-        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
-        workProjectService.createWorkProject(createdWorkProject, createdSetting);
+        WorkProject workProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
+        WorkProjectSetting projectSetting = new WorkProjectSetting(workProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        workProjectService.createWorkProject(workProject, projectSetting);
 
-        try {
-            producerService.sendMessageQueue(VCS_ROUTING_KEY, createdWorkProject, messageProperties);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+        producerService.sendCloneMessageQueue(message);
         return ApiResponse.success(dto);
     }
 
@@ -66,26 +77,65 @@ public class WorkaholicApi {
         WorkProject workProject = workProjectService.getWorkProjectById(projectId);
         WorkProjectSetting setting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
-        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getPort(), setting.getEnvVariables(), setting.getExecuteParameters());
+        WorkaholicResponseDTO response = new WorkaholicResponseDTO(workProject.getId(), setting.getJavaVersion(), setting.getBuildType(), setting.getWorkDirectory(), setting.getTargetPort(), setting.getNodePort(), setting.getEnvVariables(), setting.getExecuteParameters());
         return ApiResponse.success(response);
     }
 
-    @GetMapping("")
-    public ResponseEntity<ApiResponse<List<String>>> getWorkProjectConfig() {
-        List<String> response = workProjectService.getAllWorkProject()
-                .stream().map(WorkProject::getId).toList();
-        return ApiResponse.success(response);
+    @GetMapping("/{id}/branch")
+    public ResponseEntity<ApiResponse<List<String>>> getBranchesByWorkProjectId(
+            final @PathVariable("id") String projectId) {
+        String branchCallUri = "/branch?id=" + projectId;
+
+        try {
+            ResponseEntity<List<String>> response =
+                    vcsApplicationRestTemplate.exchange(branchCallUri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+            return ApiResponse.success(response.getBody());
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> updateWorkProjectConfigById(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             final @PathVariable("id") String projectId,
             final @RequestBody WorkaholicUpdateDTO dto) {
         WorkProjectSetting existingSetting = workProjectService.getSettingByWorkProjectId(projectId);
-        WorkProjectSetting updatedSetting = new WorkProjectSetting(dto.getBuildType(), dto.getJavaVersion(), dto.getPort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        WorkProjectSetting updatedSetting = new WorkProjectSetting(dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
 
         workProjectService.updateWorkProject(existingSetting, updatedSetting);
         return ApiResponse.success(existingSetting.getId());
+    }
+
+    @PatchMapping("/{id}/checkout")
+    public ResponseEntity<ApiResponse<String>> checkoutBranch(
+            final @PathVariable("id") String projectId,
+            final @RequestParam("branch") String branchName) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        WorkProject workProject = workProjectService.getWorkProjectById(projectId);
+
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+        workProjectService.changeBranch(workProject, branchName);
+        producerService.sendCheckoutMessageQueue(message);
+        return ApiResponse.success(branchName);
+    }
+
+    @PatchMapping("/{id}/fetch")
+    public ResponseEntity<Void> fetchBranch(
+            final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            final @PathVariable("id") String projectId) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        properties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+
+        WorkProject workProject = workProjectService.getWorkProjectById(projectId);
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+
+        producerService.sendFetchMessageQueue(message);
+        return ApiResponse.success();
     }
 
     @DeleteMapping("/{id}")

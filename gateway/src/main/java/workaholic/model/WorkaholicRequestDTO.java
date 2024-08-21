@@ -30,7 +30,9 @@ public class WorkaholicRequestDTO {
 
     private String workDirectory;
 
-    private int port = 8080;
+    private int targetPort = 8080;
+
+    private int nodePort = 30080;
 
     private Map<String, String> envVariables = new HashMap<>();
 

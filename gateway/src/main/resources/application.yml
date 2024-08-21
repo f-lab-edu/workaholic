@@ -1,5 +1,25 @@
+workaholic:
+  vcs-app: http://localhost:9000
+
 server:
   port: 8000
+
+rabbitmq:
+  vcs:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    exchange: workaholic.exchange
+  error:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    exchange: workaholic.exchange
+
 spring:
   application:
     name: workaholic-project
@@ -18,10 +38,3 @@ spring:
         format_sql: false
         show_sql: true
     defer-datasource-initialization: true
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
-    exchange: workaholic.exchange

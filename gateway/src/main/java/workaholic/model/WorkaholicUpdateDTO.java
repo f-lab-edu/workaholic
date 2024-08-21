@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,17 +16,19 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkaholicUpdateDTO {
     @ValidEnumeration(enumClass = JavaVersion.class)
-    private JavaVersion javaVersion;
+    private JavaVersion javaVersion = JavaVersion.JAVA_17;
 
     @ValidEnumeration(enumClass = BuildType.class)
-    private BuildType buildType;
+    private BuildType buildType = BuildType.GRADLE;
 
     private String workDirectory;
 
-    private int port;
+    private int targetPort = 8080;
 
-    private Map<String, String> envVariables;
+    private int nodePort = 30080;
 
-    private List<String> args;
+    private Map<String, String> envVariables = new HashMap<>();
+
+    private List<String> args = new ArrayList<>();
 }
 

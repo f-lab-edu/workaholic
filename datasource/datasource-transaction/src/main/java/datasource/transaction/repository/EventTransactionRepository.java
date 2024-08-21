@@ -1,0 +1,11 @@
+package datasource.transaction.repository;
+
+import datasource.transaction.model.entity.EventTransaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface EventTransactionRepository extends JpaRepository<EventTransaction, UUID> {
+}

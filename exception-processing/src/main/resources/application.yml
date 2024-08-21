@@ -1,6 +1,15 @@
 server:
   port: 11000
 
+rabbitmq:
+  error:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    exchange: workaholic.exchange
+
 spring:
   application:
     name: workaholic-vcs
@@ -19,10 +28,3 @@ spring:
         format_sql: false
         show_sql: true
     defer-datasource-initialization: true
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
-    exchange: workaholic.exchange

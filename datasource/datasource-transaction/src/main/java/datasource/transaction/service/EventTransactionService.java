@@ -1,5 +1,6 @@
 package datasource.transaction.service;
 
+import datasource.transaction.model.entity.EventTrace;
 import datasource.transaction.model.entity.EventTransaction;
 import datasource.transaction.repository.EventTraceRepository;
 import datasource.transaction.repository.EventTransactionRepository;
@@ -20,5 +21,9 @@ public class EventTransactionService {
     public UUID createTransaction() {
         EventTransaction transaction = new EventTransaction();
         return transactionRepository.save(transaction).getId();
+    }
+
+    public void addTrace(EventTrace trace) {
+        traceRepository.save(trace);
     }
 }

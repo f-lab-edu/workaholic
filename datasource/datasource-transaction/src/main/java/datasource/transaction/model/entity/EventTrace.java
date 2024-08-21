@@ -26,26 +26,23 @@ public class EventTrace {
     private UUID transactionId;
 
     @Column(name = "TYPE")
-    private String exceptionType;
-
-    @Column(name = "APPLICATION_NAME")
-    private String applicationName;
+    private String type;
 
     @Column(name = "MESSAGE", nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "TRACE_MESSAGE", columnDefinition = "TEXT")
-    private String stacktrace;
-
     @Column(name = "TIMESTAMP")
     private LocalDateTime time;
 
-    public EventTrace(UUID transactionId, String exceptionType, String applicationName, String message, String stacktrace) {
+    public EventTrace(UUID transactionId, String type, String message) {
         this.transactionId = transactionId;
-        this.exceptionType = exceptionType;
-        this.applicationName = applicationName;
+        this.type = type;
         this.message = message;
-        this.stacktrace = stacktrace;
-        this.time = LocalDateTime.now();
+    }
+
+    public EventTrace(UUID transactionId, String message) {
+        this.transactionId = transactionId;
+        this.type = "EVENT";
+        this.message = message;
     }
 }

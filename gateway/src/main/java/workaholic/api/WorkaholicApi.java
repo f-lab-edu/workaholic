@@ -1,7 +1,10 @@
 package workaholic.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import datasource.transaction.service.EventTransactionService;
 import message.queue.vcs.service.VCSProducerService;
+import org.springframework.amqp.core.Message;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,16 +39,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/project")
 public class WorkaholicApi {
-    private final static String CLONE_ROUTING_KEY = "integration.clone";
-    private final static String CHECKOUT_ROUTING_KEY = "integration.checkout";
-    private final static String FETCH_ROUTING_KEY = "integration.fetch";
-
+    private final ObjectMapper objectMapper;
     private final WorkProjectService workProjectService;
     private final VCSProducerService producerService;
     private final EventTransactionService transactionService;
     private final RestTemplate vcsApplicationRestTemplate;
 
-    public WorkaholicApi(WorkProjectService workProjectService, VCSProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
+    public WorkaholicApi(ObjectMapper objectMapper, WorkProjectService workProjectService, VCSProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
+        this.objectMapper = objectMapper;
         this.workProjectService = workProjectService;
         this.producerService = producerService;
         this.transactionService = transactionService;
@@ -55,16 +56,18 @@ public class WorkaholicApi {
     @PostMapping("")
     public ResponseEntity<ApiResponse<WorkaholicRequestDTO>> createWorkProject(
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-            final @Valid @RequestBody WorkaholicRequestDTO dto) {
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
-        messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+            final @Valid @RequestBody WorkaholicRequestDTO dto) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        properties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
-        WorkProject createdWorkProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
-        WorkProjectSetting createdSetting = new WorkProjectSetting(createdWorkProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
-        workProjectService.createWorkProject(createdWorkProject, createdSetting);
+        WorkProject workProject = new WorkProject(dto.getId(), dto.getRepositoryUrl(), ProjectStatus.CREATE);
+        WorkProjectSetting projectSetting = new WorkProjectSetting(workProject.getId(), dto.getBuildType(), dto.getJavaVersion(), dto.getTargetPort(), dto.getNodePort(), dto.getWorkDirectory(), dto.getEnvVariables(), dto.getArgs());
+        workProjectService.createWorkProject(workProject, projectSetting);
 
-        producerService.sendMessageQueue(CLONE_ROUTING_KEY, createdWorkProject, messageProperties);
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+        producerService.sendCloneMessageQueue(message);
         return ApiResponse.success(dto);
     }
 
@@ -107,26 +110,31 @@ public class WorkaholicApi {
     @PatchMapping("/{id}/checkout")
     public ResponseEntity<ApiResponse<String>> checkoutBranch(
             final @PathVariable("id") String projectId,
-            final @RequestParam("branch") String branchName) {
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
-        WorkProject project = workProjectService.getWorkProjectById(projectId);
+            final @RequestParam("branch") String branchName) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        WorkProject workProject = workProjectService.getWorkProjectById(projectId);
 
-        workProjectService.changeBranch(project, branchName);
-        producerService.sendMessageQueue(CHECKOUT_ROUTING_KEY, project, messageProperties);
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+        workProjectService.changeBranch(workProject, branchName);
+        producerService.sendCheckoutMessageQueue(message);
         return ApiResponse.success(branchName);
     }
 
     @PatchMapping("/{id}/fetch")
     public ResponseEntity<Void> fetchBranch(
             final @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-            final @PathVariable("id") String projectId) {
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setHeader("transaction_id", transactionService.createTransaction());
-        messageProperties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
+            final @PathVariable("id") String projectId) throws JsonProcessingException {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", transactionService.createTransaction());
+        properties.setHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
-        WorkProject project = workProjectService.getWorkProjectById(projectId);
-        producerService.sendMessageQueue(FETCH_ROUTING_KEY, project, messageProperties);
+        WorkProject workProject = workProjectService.getWorkProjectById(projectId);
+        byte[] messageBody = objectMapper.writeValueAsBytes(workProject);
+        Message message = new Message(messageBody, properties);
+
+        producerService.sendFetchMessageQueue(message);
         return ApiResponse.success();
     }
 

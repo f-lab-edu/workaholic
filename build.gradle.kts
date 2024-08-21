@@ -82,7 +82,7 @@ project(":vcs-integration") {
     }
 
     dependencies {
-        implementation(project(":rabbitmq:mq-vcs"))
+        implementation(project(":rabbitmq:mq-kube"))
         implementation(project(":rabbitmq:mq-error"))
         implementation(project(":datasource:datasource-work"))
         implementation(project(":datasource:datasource-transaction"))

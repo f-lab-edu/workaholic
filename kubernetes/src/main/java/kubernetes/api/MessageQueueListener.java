@@ -11,6 +11,8 @@ import kubernetes.deploy.service.DeployService;
 import lombok.extern.slf4j.Slf4j;
 import message.queue.error.service.ErrorQueueProducerService;
 import message.queue.kubernetes.service.KubernetesProducerService;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -23,8 +25,6 @@ import java.util.UUID;
 @Slf4j
 @Component
 public class MessageQueueListener {
-    private final static String DEPLOY_ROUTING_KEY = "kubernetes.deploy";
-
     private final ObjectMapper objectMapper;
     private final ProjectBuildService buildService;
     private final DeployService deployService;
@@ -58,12 +58,15 @@ public class MessageQueueListener {
     private void buildDockerImage(byte[] body, UUID txId) throws IOException {
         WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
         WorkProjectSetting projectSetting = workProjectService.getSettingByWorkProjectId(workProject.getId());
-
         buildService.buildImage(workProject.getClonePath(), projectSetting);
-
         ProjectPod createdPod = new ProjectPod(workProject.getId());
         projectPodService.createProjectPod(createdPod);
-        kubernetesProducerService.sendMessageQueue(DEPLOY_ROUTING_KEY, projectSetting, txId);
+
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("transaction_id", txId);
+        byte[] messageBody = objectMapper.writeValueAsBytes(projectSetting);
+        Message message = new Message(messageBody, properties);
+        kubernetesProducerService.sendDeployMessageQueue(message);
     }
 
     public void deployApplication(byte[] body, UUID txId) throws IOException {

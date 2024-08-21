@@ -4,10 +4,6 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,10 +11,15 @@ import org.springframework.context.annotation.Configuration;
 public class VCSMessageQueueConfig {
     private static final String VCS_QUEUE = "workaholic.vcs";
     private static final String VCS_QUEUE_PATTERN = "integration.*";
+    private final VCSMessageQueueProperties properties;
+
+    public VCSMessageQueueConfig(VCSMessageQueueProperties properties) {
+        this.properties = properties;
+    }
 
     @Bean
-    public TopicExchange topicExchange() {
-        return new TopicExchange("workaholic.exchange");
+    public TopicExchange vcsTopicExchange() {
+        return new TopicExchange(properties.getExchange());
     }
 
     @Bean
@@ -27,7 +28,7 @@ public class VCSMessageQueueConfig {
     }
 
     @Bean
-    public Binding vcsIntegrationBindingClone(TopicExchange topicExchange) {
-        return BindingBuilder.bind(vcsQueue()).to(topicExchange).with(VCS_QUEUE_PATTERN);
+    public Binding vcsIntegrationBindingClone() {
+        return BindingBuilder.bind(vcsQueue()).to(vcsTopicExchange()).with(VCS_QUEUE_PATTERN);
     }
 }

@@ -4,10 +4,6 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,10 +11,15 @@ import org.springframework.context.annotation.Configuration;
 public class ErrorMessageQueueConfig {
     private static final String ERROR_QUEUE = "workaholic.error";
     private static final String ERROR_QUEUE_PATTERN = "error";
+    private final ErrorMessageQueueProperties properties;
+
+    public ErrorMessageQueueConfig(ErrorMessageQueueProperties properties) {
+        this.properties = properties;
+    }
 
     @Bean
-    public TopicExchange topicExchange() {
-        return new TopicExchange("workaholic.exchange");
+    public TopicExchange errorTopicExchange() {
+        return new TopicExchange(properties.getExchange());
     }
 
     @Bean
@@ -27,7 +28,7 @@ public class ErrorMessageQueueConfig {
     }
 
     @Bean
-    public Binding errorBindingClone(TopicExchange topicExchange) {
-        return BindingBuilder.bind(errorQueue()).to(topicExchange).with(ERROR_QUEUE_PATTERN);
+    public Binding errorBindingClone() {
+        return BindingBuilder.bind(errorQueue()).to(errorTopicExchange()).with(ERROR_QUEUE_PATTERN);
     }
 }

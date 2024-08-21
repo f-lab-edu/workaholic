@@ -1,50 +1,34 @@
 package message.queue.vcs.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import message.queue.vcs.config.VCSMessageQueueProperties;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
 public class VCSProducerService {
-    private static final String TRANSACTION_HEADER = "transaction_id";
-    private final RabbitTemplate rabbitTemplate;
+    private static final String CLONE_ROUTING_KEY = "integration.clone";
+    private static final String CHECKOUT_ROUTING_KEY = "integration.checkout";
+    private static final String FETCH_ROUTING_KEY = "integration.fetch";
     private final VCSMessageQueueProperties properties;
+    private final RabbitTemplate rabbitTemplate;
 
-    public VCSProducerService(RabbitTemplate rabbitTemplate, VCSMessageQueueProperties properties) {
-        this.rabbitTemplate = rabbitTemplate;
+    public VCSProducerService(VCSMessageQueueProperties properties, RabbitTemplate rabbitTemplate) {
         this.properties = properties;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessageQueue(String routingKey, Object obj, UUID transactionId) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            byte[] messageBody = objectMapper.writeValueAsBytes(obj);
-            Message messageQueueMessage = MessageBuilder.withBody(messageBody)
-                    .setHeader(TRANSACTION_HEADER, transactionId)
-                    .build();
-            rabbitTemplate.convertAndSend(properties.getExchange(), routingKey, messageQueueMessage);
-        } catch (JsonProcessingException e) {
-            log.error("Message processing failed", e);
-        }
+    public void sendCloneMessageQueue(Message message) {
+        rabbitTemplate.convertAndSend(properties.getExchange(), CLONE_ROUTING_KEY, message);
     }
 
-    public void sendMessageQueue(String routingKey, Object obj, MessageProperties messageProperties) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            byte[] messageBody = objectMapper.writeValueAsBytes(obj);
-            Message messageQueueMessage = new Message(messageBody, messageProperties);
-            rabbitTemplate.convertAndSend(properties.getExchange(), routingKey, messageQueueMessage);
-        } catch (JsonProcessingException e) {
-            log.error("Message processing failed", e);
-        }
+    public void sendCheckoutMessageQueue(Message message) {
+        rabbitTemplate.convertAndSend(properties.getExchange(), CHECKOUT_ROUTING_KEY, message);
+    }
+
+    public void sendFetchMessageQueue(Message message) {
+        rabbitTemplate.convertAndSend(properties.getExchange(), FETCH_ROUTING_KEY, message);
     }
 }

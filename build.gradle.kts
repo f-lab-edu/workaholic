@@ -65,8 +65,8 @@ project(":gateway") {
 
     dependencies {
         implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
-        implementation(project(":datasource-transaction"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }
 
@@ -82,8 +82,8 @@ project(":vcs-integration") {
 
     dependencies {
         implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
-        implementation(project(":datasource-transaction"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }
 
@@ -99,9 +99,9 @@ project(":kubernetes") {
 
     dependencies {
         implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
-        implementation(project(":datasource-pod"))
-        implementation(project(":datasource-transaction"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-pod"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }
 
@@ -117,8 +117,8 @@ project(":mq-error"){
 
     dependencies {
         implementation(project(":rabbitmq"))
-        implementation(project(":datasource-work"))
-        implementation(project(":datasource-pod"))
-        implementation(project(":datasource-transaction"))
+        implementation(project(":datasource:datasource-work"))
+        implementation(project(":datasource:datasource-pod"))
+        implementation(project(":datasource:datasource-transaction"))
     }
 }

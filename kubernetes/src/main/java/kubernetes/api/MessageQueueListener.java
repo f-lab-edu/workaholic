@@ -9,12 +9,13 @@ import datasource.work.service.WorkProjectService;
 import kubernetes.build.service.ProjectBuildService;
 import kubernetes.deploy.service.DeployService;
 import lombok.extern.slf4j.Slf4j;
+import message.queue.error.service.ErrorQueueProducerService;
+import message.queue.kubernetes.service.KubernetesProducerService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import rabbit.message.queue.ProducerService;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -28,15 +29,17 @@ public class MessageQueueListener {
     private final ProjectBuildService buildService;
     private final DeployService deployService;
     private final WorkProjectService workProjectService;
-    private final ProducerService producerService;
+    private final KubernetesProducerService kubernetesProducerService;
+    private final ErrorQueueProducerService errorQueueProducerService;
     private final ProjectPodService projectPodService;
 
-    public MessageQueueListener(ObjectMapper objectMapper, ProjectBuildService buildService, DeployService deployService, WorkProjectService workProjectService, ProducerService producerService, ProjectPodService projectPodService) {
+    public MessageQueueListener(ObjectMapper objectMapper, ProjectBuildService buildService, DeployService deployService, WorkProjectService workProjectService, KubernetesProducerService kubernetesProducerService, ErrorQueueProducerService errorQueueProducerService, ProjectPodService projectPodService) {
         this.objectMapper = objectMapper;
         this.buildService = buildService;
         this.deployService = deployService;
         this.workProjectService = workProjectService;
-        this.producerService = producerService;
+        this.kubernetesProducerService = kubernetesProducerService;
+        this.errorQueueProducerService = errorQueueProducerService;
         this.projectPodService = projectPodService;
     }
 
@@ -52,32 +55,22 @@ public class MessageQueueListener {
         }
     }
 
-    private void buildDockerImage(byte[] body, UUID txId) {
-        try {
-            WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
-            WorkProjectSetting projectSetting = workProjectService.getSettingByWorkProjectId(workProject.getId());
+    private void buildDockerImage(byte[] body, UUID txId) throws IOException {
+        WorkProject workProject = objectMapper.readValue(body, WorkProject.class);
+        WorkProjectSetting projectSetting = workProjectService.getSettingByWorkProjectId(workProject.getId());
 
-            buildService.buildImage(workProject.getClonePath(), projectSetting);
+        buildService.buildImage(workProject.getClonePath(), projectSetting);
 
-            ProjectPod createdPod = new ProjectPod(workProject.getId());
-            projectPodService.createProjectPod(createdPod);
-            producerService.sendMessageQueue(DEPLOY_ROUTING_KEY, projectSetting, txId);
-        } catch (Exception e) {
-            log.error("Build Error");
-            producerService.sendExceptionMessage(txId, e);
-        }
+        ProjectPod createdPod = new ProjectPod(workProject.getId());
+        projectPodService.createProjectPod(createdPod);
+        kubernetesProducerService.sendMessageQueue(DEPLOY_ROUTING_KEY, projectSetting, txId);
     }
 
-    public void deployApplication(byte[] body, UUID txId) {
-        try {
-            WorkProjectSetting projectSetting = objectMapper.readValue(body, WorkProjectSetting.class);
-            ProjectPod projectPod = projectPodService.getPodByProjectId(projectSetting.getId());
-            String address = deployService.deployApplication(projectPod.getNamespace(), projectPod.getName(),
-                    "imageName", projectSetting.getTargetPort(), projectSetting.getNodePort());
-            projectPodService.setAccessAddress(projectPod, address);
-        } catch (Exception e) {
-            log.error("Deploy Error");
-            producerService.sendExceptionMessage(txId, e);
-        }
+    public void deployApplication(byte[] body, UUID txId) throws IOException {
+        WorkProjectSetting projectSetting = objectMapper.readValue(body, WorkProjectSetting.class);
+        ProjectPod projectPod = projectPodService.getPodByProjectId(projectSetting.getId());
+        String address = deployService.deployApplication(projectPod.getNamespace(), projectPod.getName(),
+                "imageName", projectSetting.getTargetPort(), projectSetting.getNodePort());
+        projectPodService.setAccessAddress(projectPod, address);
     }
 }

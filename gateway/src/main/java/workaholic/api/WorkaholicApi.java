@@ -1,6 +1,7 @@
 package workaholic.api;
 
 import datasource.transaction.service.EventTransactionService;
+import message.queue.vcs.service.VCSProducerService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,7 +14,6 @@ import datasource.work.model.entity.WorkProject;
 import datasource.work.model.entity.WorkProjectSetting;
 import datasource.work.model.enumeration.ProjectStatus;
 import workaholic.model.WorkaholicRequestDTO;
-import rabbit.message.queue.ProducerService;
 import workaholic.model.WorkaholicResponseDTO;
 import workaholic.model.WorkaholicUpdateDTO;
 import datasource.work.service.WorkProjectService;
@@ -41,11 +41,11 @@ public class WorkaholicApi {
     private final static String FETCH_ROUTING_KEY = "integration.fetch";
 
     private final WorkProjectService workProjectService;
-    private final ProducerService producerService;
+    private final VCSProducerService producerService;
     private final EventTransactionService transactionService;
     private final RestTemplate vcsApplicationRestTemplate;
 
-    public WorkaholicApi(WorkProjectService workProjectService, ProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
+    public WorkaholicApi(WorkProjectService workProjectService, VCSProducerService producerService, EventTransactionService transactionService, RestTemplate vcsApplicationRestTemplate) {
         this.workProjectService = workProjectService;
         this.producerService = producerService;
         this.transactionService = transactionService;

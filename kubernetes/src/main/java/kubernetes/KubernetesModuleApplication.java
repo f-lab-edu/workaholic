@@ -7,9 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @ConfigurationPropertiesScan({"rabbit.message.queue", "kubernetes"})
-@EntityScan(basePackages = {"datasource.work.model.entity", "datasource.pod.model.entity"})
-@EnableJpaRepositories(basePackages = {"datasource.work.repository", "datasource.pod.repository"})
-@SpringBootApplication(scanBasePackages = {"datasource.pod", "datasource.work", "rabbit.message.queue", "kubernetes"})
+@EntityScan(basePackages = {"datasource"})
+@EnableJpaRepositories(basePackages = {"datasource"})
+@SpringBootApplication(scanBasePackages = {"datasource", "rabbit.message.queue", "kubernetes"})
 public class KubernetesModuleApplication {
     public static void main(String[] args) {
         SpringApplication.run(KubernetesModuleApplication.class, args);

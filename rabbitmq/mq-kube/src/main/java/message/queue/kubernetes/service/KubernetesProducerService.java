@@ -1,8 +1,9 @@
-package rabbit.message.queue;
+package message.queue.kubernetes.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import message.queue.kubernetes.config.KubernetesMessageQueueProperties;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
@@ -13,13 +14,12 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class ProducerService {
-    private static final String ERROR_ROUTING_KEY = "error.test";
+public class KubernetesProducerService {
     private static final String TRANSACTION_HEADER = "transaction_id";
     private final RabbitTemplate rabbitTemplate;
-    private final RabbitMessageQueueProperties properties;
+    private final KubernetesMessageQueueProperties properties;
 
-    public ProducerService(RabbitTemplate rabbitTemplate, RabbitMessageQueueProperties properties) {
+    public KubernetesProducerService(RabbitTemplate rabbitTemplate, KubernetesMessageQueueProperties properties) {
         this.rabbitTemplate = rabbitTemplate;
         this.properties = properties;
     }
@@ -45,19 +45,6 @@ public class ProducerService {
             rabbitTemplate.convertAndSend(properties.getExchange(), routingKey, messageQueueMessage);
         } catch (JsonProcessingException e) {
             log.error("Message processing failed", e);
-        }
-    }
-
-    public void sendExceptionMessage(UUID transactionId, Exception exception) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            byte[] body = objectMapper.writeValueAsBytes(exception);
-            Message messageQueueMessage = MessageBuilder.withBody(body)
-                    .setHeader(TRANSACTION_HEADER, transactionId)
-                    .build();
-            rabbitTemplate.convertAndSend(properties.getExchange(), ERROR_ROUTING_KEY, messageQueueMessage);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 }

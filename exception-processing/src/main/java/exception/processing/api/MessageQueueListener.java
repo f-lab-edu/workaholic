@@ -1,7 +1,8 @@
-package message.queue.error.api;
+package exception.processing.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import message.queue.error.config.exception.ErrorQueueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,7 @@ public class MessageQueueListener {
 
     @RabbitListener(queues = "workaholic.error", concurrency = "2")
     public void receiveErrorMessageQueue(@Payload byte[] body) throws IOException {
-        Exception exception = objectMapper.readValue(body, Exception.class);
+        ErrorQueueException exception = objectMapper.readValue(body, ErrorQueueException.class);
 
         System.out.println(exception.getClass());
     }

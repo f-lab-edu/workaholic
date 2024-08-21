@@ -3,6 +3,10 @@ package workaholic.config;
 import datasource.work.repository.WorkProjectRepository;
 import datasource.work.repository.WorkProjectSettingRepository;
 import datasource.work.service.WorkProjectService;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,5 +32,17 @@ public class ApplicationConfig {
     @Bean
     public RestTemplate vcsApplicationRestTemplate(RestTemplateBuilder builder) {
         return builder.rootUri(properties.getVcsApp()).build();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
+    }
+
+    @Bean
+    public MessageConverter messageConverter() {
+        return new SimpleMessageConverter();
     }
 }
